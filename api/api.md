@@ -529,3 +529,19 @@
 
 
 # Group Token
+
+## /tokens
+
+### Create new token [POST]
+
++ Request 
+
+    + Header
+
+            Authorization: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==
+
++ Response 200 (application/json)
+
+    + Body
+
+            {"token": "some_long_ciphertext"}
