@@ -60,7 +60,8 @@
                         "success": false
                     }
 
-                ]
+                ],
+                "processed": true
                 }
             ]
 
@@ -172,7 +173,8 @@
                         "success": false
                     }
                     
-                ]
+                ],
+                "processed": true
             }
 
 
@@ -180,7 +182,7 @@
 
 ## Courses Collection [/courses]
 
-# View Courses [GET]
+### View Courses [GET]
 
 + Response 200 (application/json)
 
@@ -200,7 +202,7 @@
                 }
             ]
 
-# Create a new Course [POST]
+### Create a new Course [POST]
 
 - `name` is a __required__ field, and represents the name of the `Course` to be created.
 - `description` is an __optional__ field and represets some description of the course.
@@ -321,7 +323,8 @@
                         "success": false
                     }
 
-                ]
+                ],
+                "processed": true
                 }
             ]
 
@@ -441,3 +444,7 @@
 + Response 201
 
 
+# Group User
+
+
+# Group Token
