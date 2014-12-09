@@ -446,5 +446,86 @@
 
 # Group User
 
+## Users collection [/users]
+
+### Create new user [POST]
+
+- `email` is a __required__ field, this should be guc email.
+- `name` is a __required__ field, this should be the user's full name.
+- `password` is a __required__ field.
+- `guc_id` is a __required__ field, iff email is @student.guc.edu.eg
+
+
++ Request (application/json)
+
++ Response 200 (application/json)
+
+    + Body
+
+            {
+                "user_id": 1,
+                "password": "password",
+                "email": "example@guc.edu.eg",
+                "name": "John TA",
+                "url": "/user/1"
+            }
+
+
+## Single User [/user/{id}]
+
++ Parameters
+
+    + id (required, string, `22`) ... User's ID.
+
+### GET
+
++ Request (application/json)
+
+    + Header
+
+            X-Auth-Token: <auth-token>
+
++ Response 200 (application/json) 
+    
+    + Body
+
+            [
+                {
+                    "user_id": 1,
+                    "password": "password",
+                    "email": "example@guc.edu.eg",
+                    "name": "John TA",
+                    "url": "/user/1"
+                }
+            ]
+
+### DELETE
+
++ Request (application/json)
+
+    + Header
+
+            X-Auth-Token: <auth-token> 
+
++ Response 201
+
+### PUT
+
+- `name` is an __optional__ field, this should be the user's full name.
+- `password` is an __optional__ field.
+- `guc_id` is an __optional__ field, iff email is @student.guc.edu.eg
+
++ Request (application/json)
+
+    + Header
+
+            X-Auth-Token: <auth-token>
+
+    + Body
+
+            {"password": "harder_password"}
+
++ Response 201 
+
 
 # Group Token
