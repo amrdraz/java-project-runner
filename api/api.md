@@ -2,14 +2,16 @@
 
 # Group Submission
 
-## Submissions
-
-### GET /submissions{?course,student}
+## Search [/submissions{?course,student,project}]
 
 + Parameters
     
     + course (optional, string, `csen401` ) ... name of the course.
     + student (optional, string, `16-0000`) ... student GUC id.
+    + project (optional, string, `milestone 1`) ... name of project.
+
+
+### GET 
 
 
 + Request
@@ -26,18 +28,23 @@
                 { 
                 "id": 1,
                 "url": "/submission/1",
-                "course": {
-                    "name": "csen401",
-                    "url": "/course/csen401",
-                    "supervisor": {
-                       "user_id": 22,
-                       "name": "John TA",
-                       "url": "/user/22"
+                "project":
+                {
+                    "name": "Milestone 1",
+                    "course": {
+                        "name": "csen401",
+                        "url": "/course/csen401",
+                        "supervisor": {
+                           "user_id": 22,
+                           "name": "John TA",
+                           "url": "/user/22"
+                        },
+                        "tas_url": "/course/csen401/tas",
+                        "students_url": "/course/csen401/students"
                     },
-                    "tas_url": "/course/csen401/tas",
-                    "students_url": "/course/csen401/students",
-                    "submissions_url": "/course/csen401/submissions"
-                },
+                    "url": "/course/csen401/projects/milestone1",
+                    "submission_url": "/course/csen401/projects/milestone1/submissions"
+                },  
                 "submitter": {
                     "user_id": 2, 
                     "name": "John Student",
@@ -65,11 +72,16 @@
                 }
             ]
 
-### POST /submissions/{course}
+
+## Upload [/submissions/{course}/{project}]
 
 + Parameters
     
     + course (required, string, `csen401` ) ... name of the course.
+    + project (required, string, `milestone1` ) ... name of the project.
+
+### POST 
+
 
 + Request Upload gzip file (application/x-gzip)
 
@@ -139,17 +151,22 @@
             { 
                 "id": 1,
                 "url": "/submission/1",
-                "course": {
-                    "name": "csen401",
-                    "url": "/course/csen401",
-                    "supervisor": {
-                       "user_id": 22,
-                       "name": "John TA",
-                       "url": "/user/22"
+                "project":
+                {
+                    "name": "Milestone 1",
+                    "course": {
+                        "name": "csen401",
+                        "url": "/course/csen401",
+                        "supervisor": {
+                           "user_id": 22,
+                           "name": "John TA",
+                           "url": "/user/22"
+                        },
+                        "tas_url": "/course/csen401/tas",
+                        "students_url": "/course/csen401/students"
                     },
-                    "tas_url": "/course/csen401/tas",
-                    "students_url": "/course/csen401/students",
-                    "submissions_url": "/course/csen401/submissions"
+                    "url": "/course/csen401/projects/milestone1",
+                    "submission_url": "/course/csen401/projects/milestone1/submissions"
                 },
                 "submitter": {
                     "user_id": 2, 
@@ -176,6 +193,7 @@
                 ],
                 "processed": true
             }
+
 
 
 # Group Course
@@ -263,7 +281,13 @@
                 },
                 "tas_url": "/course/csen401/tas",
                 "students_url": "/course/csen401/students",
-                "submissions_url": "/course/csen401/submissions"
+                "projects": [
+                    {
+                        "name": "Milestone 1",
+                        "url": "/course/csen401/projects/milestone1",
+                        "submission_url": "/course/csen401/projects/milestone1/submissions" 
+                    }
+                ]
             }
 
 ## Course Submissions [/course/{name}/submissions]
@@ -289,17 +313,22 @@
                 { 
                 "id": 1,
                 "url": "/submission/1",
-                "course": {
-                    "name": "csen401",
-                    "url": "/course/csen401",
-                    "supervisor": {
-                       "user_id": 22,
-                       "name": "John TA",
-                       "url": "/user/22"
+                "project":
+                {
+                    "name": "Milestone 1",
+                    "course": {
+                        "name": "csen401",
+                        "url": "/course/csen401",
+                        "supervisor": {
+                           "user_id": 22,
+                           "name": "John TA",
+                           "url": "/user/22"
+                        },
+                        "tas_url": "/course/csen401/tas",
+                        "students_url": "/course/csen401/students"
                     },
-                    "tas_url": "/course/csen401/tas",
-                    "students_url": "/course/csen401/students",
-                    "submissions_url": "/course/csen401/submissions"
+                    "url": "/course/csen401/projects/milestone1",
+                    "submission_url": "/course/csen401/projects/milestone1/submissions"
                 },
                 "submitter": {
                     "user_id": 2, 
@@ -442,6 +471,241 @@
             "user_id": 2
 
 + Response 201
+
+
+
+# Group Project
+
+## Projects [/course/{name}/projects/]
+
++ Parameters
+
+    + name (required, string, `csen401`) ... course name.
+
+### List all [GET]
+
++ Request
+
+    + Header
+
+                X-Auth-Token: <auth-token>
+
++ Response 200 (application/json)
+    
+    + Body
+
+            [
+                {
+                    "name": "Milestone 1",
+                    "course": {
+                        "name": "csen401",
+                        "url": "/course/csen401",
+                        "supervisor": {
+                           "user_id": 22,
+                           "name": "John TA",
+                           "url": "/user/22"
+                        },
+                        "tas_url": "/course/csen401/tas",
+                        "students_url": "/course/csen401/students"
+                    },
+                    "url": "/course/csen401/projects/milestone1",
+                    "submission_url": "/course/csen401/projects/milestone1/submissions"
+                }
+            ]
+
+### Create New [POST]
+- `name` is a __required__ field, this is the project's name.
+
+
++ Request (application/json)
+
+    + Header
+
+            -X-Auth-Token: <auth-token>
+
+    + Body 
+
+            {
+                "name": "Milestone 1"
+            }
+
++ Response 200 (application/json)
+    
+    + Body
+
+            {
+                "name": "Milestone 1",
+                "course": {
+                    "name": "csen401",
+                    "url": "/course/csen401",
+                    "supervisor": {
+                       "user_id": 22,
+                       "name": "John TA",
+                       "url": "/user/22"
+                    },
+                    "tas_url": "/course/csen401/tas",
+                    "students_url": "/course/csen401/students"
+                },
+                "url": "/course/csen401/projects/milestone1",
+                "submission_url": "/course/csen401/projects/milestone1/submissions"
+            }
+
+
+## Submissions [/course/{name}/projects/{project_name}/submissions]
++ Parameters
+    
+    + name (required, string, `csen401` ) ... name of the course.
+
+    + project_name (required, string, `milestone1`) ... name of the project.
+
+
+### List all Submissions [GET]
+
++ Request
+    
+    +  Header
+        
+            X-Auth-Token: <auth-token>
+
++ Response 200 (application/json)
+
+    + Body
+
+            [
+                { 
+                "id": 1,
+                "url": "/submission/1",
+                "project":
+                {
+                    "name": "Milestone 1",
+                    "course": {
+                        "name": "csen401",
+                        "url": "/course/csen401",
+                        "supervisor": {
+                           "user_id": 22,
+                           "name": "John TA",
+                           "url": "/user/22"
+                        },
+                        "tas_url": "/course/csen401/tas",
+                        "students_url": "/course/csen401/students"
+                    },
+                    "url": "/course/csen401/projects/milestone1",
+                    "submission_url": "/course/csen401/projects/milestone1/submissions"
+                },  
+                "submitter": {
+                    "user_id": 2, 
+                    "name": "John Student",
+                    "guc_id": "22-0000",
+                    "url": "/user/2"
+                },
+                "tests": [
+                    {
+                        "name": "FooTest", 
+                        "cases": [
+                            {
+                                "name": "capacityShouldScaleByTwo",
+                                "pass": true, "detail": ""
+                            },
+                            {
+                                "name": "initialCapacityShouldBeTen",
+                                "pass": false, "detail": "InitialCapacity expected:<10> but was:<0>"
+                            }
+                        ],
+                        "success": false
+                    }
+
+                ],
+                "processed": true
+                }
+            ]
+
+### Create New Submission [POST]
+
++ Request Upload gzip file (application/x-gzip)
+
+    + Header
+        
+            X-Auth-Token: <auth-token>
+
++ Request Upload tar file (application/x-tar)
+
+    + Header
+        
+            X-Auth-Token: <auth-token>
+
++ Request Upload zip file (application/zip)
+
+    + Header
+        
+            X-Auth-Token: <auth-token>
+
++ Request Upload 7z file (application/x-7z-compressed)
+
+    + Header
+        
+            X-Auth-Token: <auth-token>
+
++ Request Upload rar file (application/x-rar-compressed)
+
+    + Header
+        
+            X-Auth-Token: <auth-token>
+
++ Request Upload bzip2 file (application/x-bzip2)
+
+    + Header
+        
+            X-Auth-Token: <auth-token>
+
+
++ Response 200 (application/json)
+    
+    + Body
+    
+            {
+                "id": 42,
+                "url": "/submission/42"
+            }
+
+
+## Single project [/course/{course_name}/projects/{project_name}]
+
++ Parameters
+    
+    + name (required, string, `csen401` ) ... name of the course.
+
+    + project_name (required, string, `milestone1`) ... name of the project.
+
+
+### GET
+
++ Request
+
+    + Header
+
+            X-Auth-Token: <auth-token>
+
++ Response 200 (application/json)
+    
+    + Body
+
+            {
+                "name": "Milestone 1",
+                "course": {
+                    "name": "csen401",
+                    "url": "/course/csen401",
+                    "supervisor": {
+                       "user_id": 22,
+                       "name": "John TA",
+                       "url": "/user/22"
+                    },
+                    "tas_url": "/course/csen401/tas",
+                    "students_url": "/course/csen401/students"
+                },
+                "url": "/course/csen401/projects/milestone1",
+                "submission_url": "/course/csen401/projects/milestone1/submissions"
+            }
+
 
 
 # Group User
