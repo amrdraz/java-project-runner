@@ -42,7 +42,8 @@
                         "students_url": "/course/csen401/students"
                     },
                     "url": "/course/csen401/projects/milestone1",
-                    "submission_url": "/course/csen401/projects/milestone1/submissions"
+                    "submission_url": "/course/csen401/projects/milestone1/submissions",
+                    "projects_url": "/courses/csen401/projects"
                 },  
                 "submitter": {
                     "user_id": 2, 
@@ -162,7 +163,8 @@
                            "url": "/user/22"
                         },
                         "tas_url": "/course/csen401/tas",
-                        "students_url": "/course/csen401/students"
+                        "students_url": "/course/csen401/students",
+                        "projects_url": "/courses/csen401/projects"
                     },
                     "url": "/course/csen401/projects/milestone1",
                     "submission_url": "/course/csen401/projects/milestone1/submissions"
@@ -215,7 +217,8 @@
                  },
                  "tas_url": "/course/csen401/tas",
                  "students_url": "/course/csen401/students",
-                 "submissions_url": "/course/csen401/submissions"
+                 "submissions_url": "/course/csen401/submissions",
+                 "projects_url": "/courses/csen401/projects"
                 }
             ]
 
@@ -254,7 +257,8 @@
                 },
                 "tas_url": "/course/csen401/tas",
                 "students_url": "/course/csen401/students",
-                "submissions_url": "/course/csen401/submissions"
+                "submissions_url": "/course/csen401/submissions",
+                "projects_url": "/courses/csen401/projects"
             }
 
 ## Single Course [/course/{name}] 
@@ -280,6 +284,7 @@
                 },
                 "tas_url": "/course/csen401/tas",
                 "students_url": "/course/csen401/students",
+                "projects_url": "/courses/csen401/projects",
                 "projects": [
                     {
                         "name": "Milestone 1",
@@ -323,6 +328,7 @@
                            "name": "John TA",
                            "url": "/user/22"
                         },
+                        "projects_url": "/courses/csen401/projects",
                         "tas_url": "/course/csen401/tas",
                         "students_url": "/course/csen401/students"
                     },
@@ -505,7 +511,8 @@
                            "url": "/user/22"
                         },
                         "tas_url": "/course/csen401/tas",
-                        "students_url": "/course/csen401/students"
+                        "students_url": "/course/csen401/students",
+                        "projects_url": "/courses/csen401/projects"
                     },
                     "url": "/course/csen401/projects/milestone1",
                     "submission_url": "/course/csen401/projects/milestone1/submissions"
@@ -543,7 +550,8 @@
                        "url": "/user/22"
                     },
                     "tas_url": "/course/csen401/tas",
-                    "students_url": "/course/csen401/students"
+                    "students_url": "/course/csen401/students",
+                    "projects_url": "/courses/csen401/projects"
                 },
                 "url": "/course/csen401/projects/milestone1",
                 "submission_url": "/course/csen401/projects/milestone1/submissions"
@@ -586,7 +594,8 @@
                            "url": "/user/22"
                         },
                         "tas_url": "/course/csen401/tas",
-                        "students_url": "/course/csen401/students"
+                        "students_url": "/course/csen401/students",
+                        "projects_url": "/courses/csen401/projects"
                     },
                     "url": "/course/csen401/projects/milestone1",
                     "submission_url": "/course/csen401/projects/milestone1/submissions"
@@ -699,7 +708,8 @@
                        "url": "/user/22"
                     },
                     "tas_url": "/course/csen401/tas",
-                    "students_url": "/course/csen401/students"
+                    "students_url": "/course/csen401/students",
+                    "projects_url": "/courses/csen401/projects"
                 },
                 "url": "/course/csen401/projects/milestone1",
                 "submission_url": "/course/csen401/projects/milestone1/submissions"
