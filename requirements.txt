@@ -5,3 +5,4 @@ flask-mongoengine==0.7.1
 Jinja2==2.7.3
 itsdangerous==0.24
 Flask-Bcrypt==0.6.0
+Flask-Script==2.0.5
