@@ -64,7 +64,7 @@ class UserResource(Resource):
 
     @marshal_with(user_fields)
     def get(self, id):
-        return g.user.to_dict()
+        return User.objects.get(id=id).to_dict()
 
     def delete(self, id):
         g.user.delete()

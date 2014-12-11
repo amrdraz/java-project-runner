@@ -17,7 +17,7 @@ class TokenResource(Resource):
                 user = User.objects.get(email=values[0])
                 if user.verify_pass(values[1]):
                     token = user.generate_auth_token()
-                    return {"token": token}, 200
+                    return {"token": token}, 201
                 else:
                     abort(401)
             except TypeError:
