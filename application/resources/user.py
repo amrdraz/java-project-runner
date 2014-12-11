@@ -2,8 +2,10 @@ from application import api, db
 from application.models import User, Student, Teacher
 from flask.ext.restful import Resource, abort, marshal, marshal_with, fields
 from parsers import user_parser
+from decorators import login_required
+from flask import g
 
-
+# User model marshalling
 user_fields = {
     'email': fields.String,
     'guc_id': fields.String,
@@ -12,7 +14,9 @@ user_fields = {
     'url': fields.Url('user_ep')
 }
 
+
 class UsersResource(Resource):
+    """User collection"""
     def post(self):
         arguments = user_parser.parse_args()
         guc_id = arguments['guc_id']
@@ -33,27 +37,32 @@ class UsersResource(Resource):
 
 
 class UserResource(Resource):
+    """Singular resource"""
+    method_decorators = [login_required]
+
     @marshal_with(user_fields)
     def put(self, id):
-        arguments = user_parser.parse_args()
-        args = {
-            "set__{0}".format(key): val for key, val in arguments.items()
-            if val is not None and key != "email" and key != "password"
-        }
-        user = User.objects.get_or_404(id=id)
-        if len(args) > 0:
-            user.update(**args)
-        if arguments['password'] is not None:
-            user.password = arguments['password']
-        user.save()
-        return user
+        if g.id == id:
+            arguments = user_parser.parse_args()
+            args = {
+                "set__{0}".format(key): val for key, val in arguments.items()
+                if val is not None and key != "email" and key != "password"
+            }
+            if len(args) > 0:
+                g.user.update(**args)
+            if arguments['password'] is not None:
+                g.user.password = arguments['password']
+            g.user.save()
+            return g.user
+        else:
+            abort(401)
 
     @marshal_with(user_fields)
     def get(self, id):
-        return User.objects.get_or_404(id=id)
+        return g.user
 
     def delete(self, id):
-        User.object(id=id).delete()
+        g.user.delete()
         return {}, 204
 
 api.add_resource(UsersResource, '/users', endpoint='users_ep')
