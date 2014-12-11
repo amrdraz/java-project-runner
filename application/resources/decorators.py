@@ -3,6 +3,7 @@ from functools import wraps
 from flask.ext.restful import abort
 from application.models import User, BadSignature, SignatureExpired
 
+
 def login_required(f):
     @wraps(f)
     def decorator(*args, **kwargs):
@@ -15,5 +16,3 @@ def login_required(f):
                 abort(401)
         else:
             abort(401)
-
-

@@ -3,7 +3,6 @@ from flask.ext.mongoengine import MongoEngine
 from flask.ext.restful import Api
 
 
-
 errors = {
     'ValidationError': {
         'message': "Invalid field(s).",
@@ -16,12 +15,14 @@ errors = {
     'DoesNotExist': {
         'message': 'Resource Not found.',
         'status': 404
+    },
+    'ValueError': {
+        'message': 'Invalid field(s)',
+        'status': 400
     }
 }
 
 app = Flask(__name__)
 app.config.from_object('config')
-api = Api(app, catch_all_404s=True, errors=errors) 
+api = Api(app, catch_all_404s=True, errors=errors)
 db = MongoEngine(app)
-
-
