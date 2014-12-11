@@ -35,7 +35,6 @@
                         "name": "csen401",
                         "url": "/course/csen401",
                         "supervisor": {
-                           "user_id": 22,
                            "name": "John TA",
                            "url": "/user/22"
                         },
@@ -722,13 +721,20 @@
 
 + Request (application/json)
 
-+ Response 200 (application/json)
+    + Body
+            
+            {
+                "password": "password",
+                "email": "example@guc.edu.eg",
+                "name": "John TA"
+            }
+
++ Response 201 (application/json)
 
     + Body
 
             {
                 "user_id": 1,
-                "password": "password",
                 "email": "example@guc.edu.eg",
                 "name": "John TA",
                 "url": "/user/1"
@@ -771,7 +777,7 @@
 
             X-Auth-Token: <auth-token> 
 
-+ Response 201
++ Response 200
 
 ### PUT
 
@@ -789,7 +795,7 @@
 
             {"password": "harder_password"}
 
-+ Response 201 
++ Response 200 
 
 
 # Group Token
@@ -804,7 +810,7 @@
 
             Authorization: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==
 
-+ Response 200 (application/json)
++ Response 201 (application/json)
 
     + Body
 
