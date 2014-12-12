@@ -46,7 +46,7 @@
                     "projects_url": "/courses/csen401/projects"
                 },  
                 "submitter": {
-                    "user_id": 2, 
+                    "id": 2, 
                     "name": "John Student",
                     "guc_id": "22-0000",
                     "url": "/user/2"
@@ -158,7 +158,7 @@
                         "name": "csen401",
                         "url": "/course/csen401",
                         "supervisor": {
-                           "user_id": 22,
+                           "id": 22,
                            "name": "John TA",
                            "url": "/user/22"
                         },
@@ -170,7 +170,7 @@
                     "submission_url": "/course/csen401/projects/milestone1/submissions"
                 },
                 "submitter": {
-                    "user_id": 2, 
+                    "id": 2, 
                     "name": "John Student",
                     "guc_id": "22-0000",
                     "url": "/user/2"
@@ -211,7 +211,7 @@
                 {"name": "csen401",
                  "url": "/course/csen401",
                  "supervisor": {
-                    "user_id": 22,
+                    "id": 22,
                     "name": "John TA",
                     "url": "/user/22"
                  },
@@ -251,7 +251,7 @@
                 "description": "Advanced computer lab, bla bla..",
                 "url": "/course/csen401",
                 "supervisor": {
-                   "user_id": 22,
+                   "id": 22,
                    "name": "John TA",
                    "url": "/user/22"
                 },
@@ -278,7 +278,7 @@
                 "description": "Advanced computer lab, bla bla..",
                 "url": "/course/csen401",
                 "supervisor": {
-                   "user_id": 22,
+                   "id": 22,
                    "name": "John TA",
                    "url": "/user/22"
                 },
@@ -324,7 +324,7 @@
                         "name": "csen401",
                         "url": "/course/csen401",
                         "supervisor": {
-                           "user_id": 22,
+                           "id": 22,
                            "name": "John TA",
                            "url": "/user/22"
                         },
@@ -336,7 +336,7 @@
                     "submission_url": "/course/csen401/projects/milestone1/submissions"
                 },
                 "submitter": {
-                    "user_id": 2, 
+                    "id": 2, 
                     "name": "John Student",
                     "guc_id": "22-0000",
                     "url": "/user/2"
@@ -381,14 +381,14 @@
     + Body
 
             {
-               "user_id": 22,
+               "id": 22,
                "name": "John TA",
                "url": "/user/22"
             } 
 
 ### Remove TA [DELETE]
 
-- `user_id` is a __required__ field, it represents the TA's id.
+- `id` is a __required__ field, it represents the TA's id.
 
 + Request (application/json)
 
@@ -403,7 +403,7 @@
 
 ### Add TA [POST]
 
-- `user_id` is a __required__ field, it represents the TA's id.
+- `id` is a __required__ field, it represents the TA's id.
 
 + Request (application/json)
 
@@ -446,7 +446,7 @@
 
 ### Remove Student [DELETE]
 
-- `user_id` is a __required__ field, it represents the student's id (not guc id).
+- `id` is a __required__ field, it represents the student's id (not guc id).
 
 + Request (application/json)
 
@@ -456,14 +456,14 @@
 
     + Body
 
-            "user_id": 2
+            "id": 2
 
 
 + Response 201
 
 ### Add Student [POST]
 
-- `user_id` is a __required__ field, it represents the student's id (not guc id).
+- `id` is a __required__ field, it represents the student's id (not guc id).
 
 + Request (application/json)
 
@@ -506,7 +506,7 @@
                         "name": "csen401",
                         "url": "/course/csen401",
                         "supervisor": {
-                           "user_id": 22,
+                           "id": 22,
                            "name": "John TA",
                            "url": "/user/22"
                         },
@@ -545,7 +545,7 @@
                     "name": "csen401",
                     "url": "/course/csen401",
                     "supervisor": {
-                       "user_id": 22,
+                       "id": 22,
                        "name": "John TA",
                        "url": "/user/22"
                     },
@@ -589,7 +589,7 @@
                         "name": "csen401",
                         "url": "/course/csen401",
                         "supervisor": {
-                           "user_id": 22,
+                           "id": 22,
                            "name": "John TA",
                            "url": "/user/22"
                         },
@@ -601,7 +601,7 @@
                     "submission_url": "/course/csen401/projects/milestone1/submissions"
                 },  
                 "submitter": {
-                    "user_id": 2, 
+                    "id": 2, 
                     "name": "John Student",
                     "guc_id": "22-0000",
                     "url": "/user/2"
@@ -703,7 +703,7 @@
                     "name": "csen401",
                     "url": "/course/csen401",
                     "supervisor": {
-                       "user_id": 22,
+                       "id": 22,
                        "name": "John TA",
                        "url": "/user/22"
                     },
@@ -744,7 +744,7 @@
     + Body
 
             {
-                "user_id": 1,
+                "id": 1,
                 "email": "example@guc.edu.eg",
                 "name": "John TA",
                 "url": "/user/1"
@@ -771,7 +771,7 @@
 
             [
                 {
-                    "user_id": 1,
+                    "id": 1,
                     "password": "password",
                     "email": "example@guc.edu.eg",
                     "name": "John TA",
