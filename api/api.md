@@ -397,9 +397,9 @@
             X-Auth-Token: <auth-token> 
     + Body
 
-            "user_id": 2
+            "id": 2
 
-+ Response 201
++ Response 204
 
 ### Add TA [POST]
 
@@ -413,9 +413,9 @@
 
     + Body
 
-            "user_id": 2
+            "id": 2
 
-+ Response 201
++ Response 204
 
 ## Course Students [/course/{name}/students]
 
@@ -437,7 +437,7 @@
 
             [
                 {
-                    "user_id": 2, 
+                    "id": 2, 
                     "name": "John Student",
                     "guc_id": "22-0000",
                     "url": "/user/2"
@@ -473,9 +473,9 @@
 
     + Body
 
-            "user_id": 2
+            "id": 2
 
-+ Response 201
++ Response 204
 
 
 
