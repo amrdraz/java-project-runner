@@ -8,7 +8,7 @@ from fields import user_fields
 from parsers import user_parser
 from decorators import login_required
 from flask import g
-
+from flanker.addresslib import address
 
 
 class UsersResource(Resource):
@@ -25,16 +25,16 @@ class UsersResource(Resource):
         password = arguments['password']
         email = arguments['email']
         name = arguments['name']
-        if guc_id is not None:
+        parsed_email = address.parse(email)
+        if parsed_email is None or not parsed_email.hostname.endswith('guc.edu.eg'):
+            abort(400)
+        if parsed_email.hostname.startswith('student'):
             user = Student(guc_id=guc_id, email=email, name=name)
         else:
             user = User(email=email, name=name)
         user.password = password
-        try:
-            user.save()
-            return marshal(user.to_dict(), user_fields), 201
-        except db.NotUniqueError:
-            abort(422, message='Email already in use.')
+        user.save()
+        return marshal(user.to_dict(), user_fields), 201
 
 
 class UserResource(Resource):
@@ -72,7 +72,7 @@ class UserResource(Resource):
         specific users. As there is no private data in the profiles that isn't 
         shared anyway amongst TAs and Students. 
         """
-        return User.objects.get(id=id).to_dict()
+        return User.objects.get_or_404(id=id).to_dict()
 
     def delete(self, id):
         """

@@ -24,3 +24,5 @@ course_parser.add_argument('description', str)
 project_parser = reqparse.RequestParser()
 project_parser.add_argument('name', str)
 project_parser.add_argument('language', str)
+
+# submission parser

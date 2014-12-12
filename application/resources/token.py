@@ -22,7 +22,7 @@ class TokenResource(Resource):
             try:
                 auth = base64.b64decode(auth)
                 values = auth.split(':')
-                user = User.objects.get(email=values[0])
+                user = User.objects.get_or_404(email=values[0])
                 if user.verify_pass(values[1]):
                     token = user.generate_auth_token()
                     return {"token": token}, 201

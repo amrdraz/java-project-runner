@@ -34,14 +34,17 @@ class CoursesResource(Resource):
         except db.NotUniqueError:
             abort(422, message='Course name already in use.')
 
-    @login_required
-    @marshal_with(course_fields)
+    @login_mutable
     def get(self):
         """
         Lists all courses.
         Must be logged in.
         """
-        return [course.to_dict() for course in Course.objects.all()]
+        if g.user is not None:
+            model_fields = public_course_fields
+        else:
+            model_fields = course_fields
+        return marshal([course.to_dict() for course in Course.objects.all()], model_fields)
 
 
 class CourseResource(Resource):

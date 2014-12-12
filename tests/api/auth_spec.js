@@ -1,13 +1,11 @@
 var frisby = require('frisby');
 var constants = require('./constants');
 
-function auth_header_value(username, password){
-    return ["Basic", Buffer([username, password].join(':')).toString('base64')].join(' ');
-}
+
 
 function token_check(json){
     frisby.create('Can create token for created user')
-    .addHeader('Authorization', auth_header_value(json.email, 'password'))
+    .addHeader('Authorization', constants.auth_header_value(json.email, 'password'))
     .post(constants.token_ep, {})
     .expectHeaderContains('Content-Type', 'json')
     .expectStatus(201)
@@ -36,7 +34,6 @@ frisby.create('Ability to create a new TA')
     .expectJSON({
         email: 'example@guc.edu.eg',
         name: 'John TA',
-        guc_id: ''
     }).expectJSONTypes({
         'id': String,
         'url': String,
@@ -62,3 +59,26 @@ frisby.create('Ability to create a new Student')
         'url': String,
         'created_at': String,
     }).expectJSONLength(6).toss();
+
+
+frisby.create('Missing fields bad request')
+    .post(constants.users_ep, {
+        email: "ta1@guc.edu.eg"
+    }).expectStatus(400).toss();
+
+
+frisby.create('Another Student')
+    .post(constants.users_ep, {
+        email: 'someone@guc.edu.eg',
+        name: 'John Student', 
+        password: 'password',
+        // guc_id: '22-2222'
+    }).expectStatus(201).after(function(err, res, body) {
+       frisby.create('Duplicate student')
+        .post(constants.users_ep, {
+            email: 'someone@guc.edu.eg',
+            name: 'John Student', 
+            password: 'password',
+            // guc_id: '22-2222'
+        }).expectStatus(422).toss(); 
+    }).toss();

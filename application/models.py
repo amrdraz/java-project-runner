@@ -10,11 +10,21 @@ from itsdangerous import TimedJSONWebSignatureSerializer, SignatureExpired, BadS
 class User(db.DynamicDocument):
     """Base document for all users."""
     created_at = db.DateTimeField(default=datetime.datetime.now, required=True)
-    email = db.EmailField(required=True, unique=True)
+    email = db.StringField(max_length=256, required=True, unique=True)
     name = db.StringField(max_length=512, required=True)
     password_hash = db.StringField(max_length=60, required=True)
 
-    meta = {'allow_inheritance': True}
+    meta = {'allow_inheritance': True,
+        "indexes": [
+        {
+            "fields": ['email'],
+            "unique": True
+        },
+        {
+            "fields": ['name']
+        }
+        ]
+    }
 
     @property
     def password(self):
@@ -81,6 +91,15 @@ class Course(db.Document):
     students = db.ListField(
         db.ReferenceField('Student', reverse_delete_rule=db.PULL))
 
+    meta = {
+        "indexes": [
+            {
+                "fields": ['name'],
+                "unique": True
+            }
+        ]
+    }
+
     def to_dict(self):
         return {
             "id": self.id,
@@ -100,6 +119,15 @@ class Project(db.EmbeddedDocument):
     tests = db.ListField(db.FileField())
     language = db.StringField(max_length=3, choices=LANGUAGES, required=True)
     submissions = db.ListField(db.EmbeddedDocumentField('Submission'))
+
+    meta = {
+        "indexes": [
+            {
+                "fields": ['name'],
+                "unique": True
+            }
+        ]
+    }
 
     def to_dict(self):
         return {
@@ -158,5 +186,5 @@ class Submission(db.EmbeddedDocument):
             "processed": self.processed,
             "submitter": self.submitter.to_dict(),
             "tests": [test.to_dict() for test in self.test_results],
-            "project": Project.objects(submissions__ids=self.id).to_dict()
+            "project": Project.objects.get(submissions__ids=self.id).to_dict()
         }
