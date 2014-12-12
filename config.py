@@ -9,3 +9,5 @@ MONGODB_SETTINGS = {
 }
 
 SECRET_KEY = "123?"
+
+ALLOWED_EXTENSIONS = ['zip', 'tar', 'gz', 'bz', 'rar', '7z', 'java']

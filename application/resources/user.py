@@ -1,26 +1,25 @@
+"""
+Defines User resource's endpoints.
+"""
 from application import api, db
 from application.models import User, Student
-from flask.ext.restful import Resource, abort, marshal, marshal_with, fields
+from flask.ext.restful import Resource, abort, marshal, marshal_with
+from fields import user_fields
 from parsers import user_parser
 from decorators import login_required
 from flask import g
 
-# User model marshalling
-user_fields = {
-    'email': fields.String,
-    'name': fields.String,
-    'guc_id': fields.String,
-    'id': fields.String,
-    'created_at': fields.DateTime('iso8601'),
-    'url': fields.Url(endpoint='user_ep')
-}
 
 
 class UsersResource(Resource):
 
-    """User collection"""
+    """User collection."""
 
     def post(self):
+        """
+        Creates a new user.
+        Decides if teacher based on email host name.
+        """
         arguments = user_parser.parse_args()
         guc_id = arguments['guc_id']
         password = arguments['password']
@@ -34,19 +33,22 @@ class UsersResource(Resource):
         try:
             user.save()
             return marshal(user.to_dict(), user_fields), 201
-        except db.ValidationError:
-            abort(422, message='Invalid field values')
         except db.NotUniqueError:
-            abort(422, message='Email already in use')
+            abort(422, message='Email already in use.')
 
 
 class UserResource(Resource):
 
-    """Singular resource"""
+    """Singular resource."""
     method_decorators = [login_required]
 
     @marshal_with(user_fields)
     def put(self, id):
+        """
+        Updates the fields of the resource.
+        email updates are not allowed, but will not trigger a fail. Instead
+        they are silently ignored.
+        """
         if g.id == id:
             arguments = user_parser.parse_args()
             args = {
@@ -64,9 +66,20 @@ class UserResource(Resource):
 
     @marshal_with(user_fields)
     def get(self, id):
+        """
+        Returns a single user.
+        While a login is required, No special user privileges are given to 
+        specific users. As there is no private data in the profiles that isn't 
+        shared anyway amongst TAs and Students. 
+        """
         return User.objects.get(id=id).to_dict()
 
     def delete(self, id):
+        """
+        Deletes the currently logged in user.
+        Redundant id parameter is to be consistent with REST conventions 
+        or just not to stray too much from the middle.
+        """
         g.user.delete()
         return {}, 204
 

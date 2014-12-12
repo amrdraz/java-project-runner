@@ -1,14 +1,17 @@
 #!/bin/env python
+from application import app, db, models, api
+from application.resources import user, token, course, project, submission
 from flask import url_for
 from flask.ext.script import Manager, Shell
-from application import app, db, models, api
-from application.resources import user, token
+
+# Provides convieniet tasks
 
 
 manager = Manager(app)
 
 
 def _make_context():
+    """Returns app context of shell"""
     return dict(app=app, db=db, models=models)
 
 manager.add_command("shell", Shell(make_context=_make_context))
@@ -16,17 +19,19 @@ manager.add_command("shell", Shell(make_context=_make_context))
 
 @manager.command
 def drop():
-    """Drops database"""
+    """Drops the database"""
     db.connection.drop_database(app.config['MONGODB_SETTINGS']['DB'])
 
 
 @manager.command
 def run():
+    """Runs the development server."""
     app.run(host='0.0.0.0', port=8080, debug=True)
 
 
 @manager.command
 def routes():
+    """Displays routes."""
     import urllib
     output = []
     for rule in app.url_map.iter_rules():

@@ -8,6 +8,7 @@ from itsdangerous import TimedJSONWebSignatureSerializer, SignatureExpired, BadS
 
 
 class User(db.DynamicDocument):
+    """Base document for all users."""
     created_at = db.DateTimeField(default=datetime.datetime.now, required=True)
     email = db.EmailField(required=True, unique=True)
     name = db.StringField(max_length=512, required=True)
@@ -29,12 +30,17 @@ class User(db.DynamicDocument):
         return check_password_hash(self.password_hash, password)
 
     def generate_auth_token(self, expires_in=600):
+        """Creates a token to uniquely identify this user."""
         seriliezer = TimedJSONWebSignatureSerializer(
             app.config['SECRET_KEY'], expires_in=expires_in)
         return seriliezer.dumps({'id': str(self.id)})
 
     @staticmethod
     def verify_auth_token(token):
+        """
+        Retrieves user who is identified by this token.
+        Raises SignatureExpired, BadSignature if expired or malformed.
+        """
         s = TimedJSONWebSignatureSerializer(app.config['SECRET_KEY'])
         try:
             data = s.loads(token)
@@ -67,10 +73,22 @@ class Student(User):
 class Course(db.Document):
     created_at = db.DateTimeField(default=datetime.datetime.now, required=True)
     projects = db.ListField(db.EmbeddedDocumentField('Project'))
-    teacher = db.ListField(
+    name = db.StringField(max_length=256, unique=True, required=True)
+    description = db.StringField(max_length=1024, required=True)
+    supervisor = db.ReferenceField('User', reverse_delete_rule=db.PULL)
+    teachers = db.ListField(
         db.ReferenceField('User', reverse_delete_rule=db.PULL))
     students = db.ListField(
         db.ReferenceField('Student', reverse_delete_rule=db.PULL))
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "description": self.description,
+            "created_at": self.created_at,
+            "supervisor" : self.supervisor.to_dict()
+        }
 
 
 class Project(db.EmbeddedDocument):
@@ -83,6 +101,14 @@ class Project(db.EmbeddedDocument):
     language = db.StringField(max_length=3, choices=LANGUAGES, required=True)
     submissions = db.ListField(db.EmbeddedDocumentField('Submission'))
 
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "language": self.language.help,
+            "created_at": self.created_at,
+            "tests": [f.name for f in self.tests]
+        }
 
 class TestCase(db.EmbeddedDocument):
 
@@ -90,6 +116,14 @@ class TestCase(db.EmbeddedDocument):
     name = db.StringField(max_length=512, required=True)
     detail = db.StringField(max_length=512, required=True)
     passed = db.BooleanField(default=False, required=True)
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "detial": self.detail,
+            "passed": self.passed
+        }
 
 
 class TestResult(db.EmbeddedDocument):
@@ -100,6 +134,14 @@ class TestResult(db.EmbeddedDocument):
     cases = db.ListField(db.EmbeddedDocumentField('TestCase'))
     success = db.BooleanField(default=False, required=True)
 
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "created_at": self.created_at,
+            "cases": [case.to_dict() for case in self.cases],
+            "success": self.success
+        }
 
 class Submission(db.EmbeddedDocument):
 
@@ -108,3 +150,13 @@ class Submission(db.EmbeddedDocument):
     test_results = db.ListField(db.EmbeddedDocumentField('TestResult'))
     processed = db.BooleanField(default=False, required=True)
     submitter = db.ReferenceField('Student', required=True)
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "created_at": self.created_at,
+            "processed": self.processed,
+            "submitter": self.submitter.to_dict(),
+            "tests": [test.to_dict() for test in self.test_results],
+            "project": Project.objects(submissions__ids=self.id).to_dict()
+        }
