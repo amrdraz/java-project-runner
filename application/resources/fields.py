@@ -37,8 +37,8 @@ course_fields = dict(course_fields.items() + public_course_fields.items())
 project_fields = {
     "name": fields.String,
     "course": fields.Nested(course_fields),
-    "url": fields.Url(endpoint='course_projects_ep'),
-    'submission_url': fields.Url('project_submission_ep')
+    "url": fields.Url(endpoint='project_ep'),
+    'submission_url': fields.Url(endpoint='project_submission_ep')
 }
 
 test_case_fields = {

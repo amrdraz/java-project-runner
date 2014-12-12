@@ -54,3 +54,13 @@ def teacher_required(f):
             abort(403, message='Must be teacher to perform action.')
     return decorator
 
+def student_required(f):
+    """Logged in user must be a student."""
+    @wraps(f)
+    @login_required
+    def decorator(*args, **kwargs):
+        if isinstance(g.user, Student):
+            return f(*args, **kwargs)
+        else:
+            abort(403, message='Must be student to perform action.')
+    return decorator

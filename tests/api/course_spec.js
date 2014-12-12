@@ -3,7 +3,7 @@ var constants = require('./constants');
 
 
 function course_tests(token){
-    frisby.create('Create a new course')
+    frisby.create('As a TA I can create a new course')
     .addHeader('X-Auth-Token', token)
     .post(constants.courses_ep, {
         name: 'csen401',
@@ -12,19 +12,26 @@ function course_tests(token){
     .expectJSON({
         name: 'csen401',
         description: 'The reason we are here.',
-        url: '/courses/csen401',
+        url: '/course/csen401',
         supervisor: {
             name: 'John TAer',
             email: 'example2@guc.edu.eg',
         },
         tas_url: "/course/csen401/tas",
-        students_url: "course/csen401/students",
-        projects_url: "course/csen401/projects",
-        submission_url: "course/csen401/submissions"
+        students_url: "/course/csen401/students",
+        projects_url: "/course/csen401/projects",
+        submissions_url: "/course/csen401/submissions"
+    }).afterJSON(function (course_json) {
+        frisby.create('As a TA I can create a new project')
+        .addHeader('X-Auth-Token', token)
+        .post(constants.get_course_projects_ep(course_json.name), {
+            "name": "Milestone1",
+            "language": "J"
+        }).expectStatus(201).toss();
     }).toss();
 }
 
-function token_helper(json, to_call) {
+function token_helper(to_call) {
     return function(x) { to_call(json.token); }
 }
 
@@ -39,6 +46,6 @@ frisby.create('Create a new TA')
         .addHeader('Authorization', constants.auth_header_value(json.email, 'password'))
         .post(constants.token_ep, {})
         .expectStatus(201)
-        .afterJSON(token_helper)
+        .afterJSON(token_helper(course_tests))
         .toss();
     }).toss();

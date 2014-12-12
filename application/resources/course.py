@@ -194,10 +194,10 @@ class CourseProjects(Resource):
         if g.user not in course.teachers:
             abort(403)
         args = project_parser.parse_args()
-        name = args['name']
+        name = args['name'].replace(" ", "")
         language = args['language']
         project = Project(name=name, language=language)
-        course.projects.append(project)
+        project.save()
         for test_case in request.files:
             if allowed_file(test_case.filename):
                 grid_file = db.GridFSProxy()
@@ -206,12 +206,13 @@ class CourseProjects(Resource):
             else:
                 abort(
                     400, message="{0} extension not allowed".format(test_case.filename))
-        course.save()
         project.save()
-        return marshal_with(project.to_dict(), project_fields), 201
+        course.projects.append(project)
+        course.save()
+        return marshal(project.to_dict(), project_fields), 201
 
 
-api.add_resource(CourseProjects, '/courses/<string:name>/projects',
+api.add_resource(CourseProjects, '/course/<string:name>/projects',
                  endpoint='course_projects_ep')
 api.add_resource(CoursesResource, '/courses', endpoint='courses_ep')
 api.add_resource(CourseResource, '/course/<string:name>', endpoint='course_ep')
