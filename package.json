@@ -1,0 +1,25 @@
+{
+  "name": "java-project-runner",
+  "version": "0.0.1",
+  "description": "An api server that runns java projects against tests",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "./node_modules/.bin/jasmine-node tests/api"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/amrdraz/java-project-runner.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/amrdraz/java-project-runner/issues"
+  },
+  "homepage": "https://github.com/amrdraz/java-project-runner",
+  "devDependencies": {
+    "frisby": "^0.8.3",
+    "jasmine-node": "^1.14.5"
+  }
+}
