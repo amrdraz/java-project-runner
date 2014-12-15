@@ -30,7 +30,7 @@ class ProjectSubmissions(Resource):
                 proj = projs[0]
                 proj.submissions.append(sub)
                 proj.save()
-                return marshal_with(sub, submission_fields), 204
+                return marshal_with(sub, submission_fields), 200
         else:
             abort(400)
 
