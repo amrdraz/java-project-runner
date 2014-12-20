@@ -4,8 +4,8 @@ from application.models import Course, Project, Submission, Student
 from decorators import student_required, login_required
 from fields import submission_fields, project_fields
 from flask import g, request
-
-
+from werkzeug import secure_filename
+from application.tasks import juinit
 class ProjectSubmissions(Resource):
 
     @student_required
@@ -13,26 +13,17 @@ class ProjectSubmissions(Resource):
         """Creates a new submission."""
         course = Course.objects.get_or_404(name=course_name)
         if course.name != course_name:
-            abort(404)
-        if request.mimetype in ['application/x-gzip', 'application/x-tar', 'application/zip', 'application/x-7z-compressed', 'application/x-rar-compressed', 'application/x-bzip2']:
-            grid_file = db.GridFSProxy()
-            grid_file.put(request.data)
-            sub = Submission(submitter=g.user)
-            sub.code = grid_file
-            sub.save()
-            projs = [
-                project for project in course.projects if project.name == name]
-            if 0 == len(projs):
-                abort(404)
-            elif len(projs) > 1:
-                abort(500)
-            else:
-                proj = projs[0]
-                proj.submissions.append(sub)
-                proj.save()
-                return marshal_with(sub, submission_fields), 200
+            abort(404)       
+        if len(request.files.values()) == 1:
+            subm = Submission(submitter=g.user)
+            for file in request.files.values():
+                grid_file = db.GridFSProxy()
+                grid_file.put(file, filename=secure_filename(file.filename))
+                subm.code = grid_file
+            subm.save()
+            juinit.delay(subm.id)
         else:
-            abort(400)
+            abort(400) # Bad request
 
     @login_required
     @marshal_with(submission_fields)
@@ -41,11 +32,9 @@ class ProjectSubmissions(Resource):
         if isinstance(g.user, Student):
             for project in course.projects:
                 if project.name == name:
-                    for subm in project.submissions:
-                        if subm.submitter == g.user:
-                            return subm
+                    return [subm for subm in project.submissions if subm.submitter == g.user]
             else:
-                return []
+                abort(404)
         else:
             return [project.submissions for project in course.projects if name == project.name]
 

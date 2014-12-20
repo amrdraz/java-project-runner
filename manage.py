@@ -1,6 +1,7 @@
 #!/bin/env python
 from application import app, db, models, api
 from application.resources import user, token, course, project, submission
+from application.tasks import celery
 from flask import url_for
 from flask.ext.script import Manager, Shell
 

@@ -176,6 +176,7 @@ class Submission(db.Document):
     processed = db.BooleanField(default=False, required=True)
     submitter = db.ReferenceField('Student', required=True)
     code = db.FileField(required=True)
+    compile_status = db.BooleanField(default=False, required=True)
 
     def to_dict(self):
         dic = {
@@ -184,8 +185,9 @@ class Submission(db.Document):
             "processed": self.processed,
             "submitter": self.submitter.to_dict(),
             "tests": [test.to_dict() for test in self.test_results],
-            "project": Project.objects.get(submissions=self).first().to_dict()
+            "project": Project.objects.get(submissions=self).to_dict()
         }
         dic['project_name'] = dic['project']['name']
         dic['course_name'] = dic['project']['course_name']
         return dic
+

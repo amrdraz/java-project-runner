@@ -198,10 +198,10 @@ class CourseProjects(Resource):
         language = args['language']
         project = Project(name=name, language=language)
         project.save()
-        for test_case in request.files:
+        for test_case in request.files.values():
             if allowed_file(test_case.filename):
                 grid_file = db.GridFSProxy()
-                grid_file.put(test_case, test_case.filename)
+                grid_file.put(test_case, filename=secure_filename(test_case.filename))
                 project.files.append(grid_file)
             else:
                 abort(
