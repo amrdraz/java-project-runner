@@ -754,7 +754,9 @@
     
 + Request (application/json)
 
+    + Header
 
+            X-Auth-Token: <token>
 
 + Response 201 (application/json)
 
