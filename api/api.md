@@ -92,7 +92,7 @@
 + Request Upload tar file (application/x-tar)
 
     + Header
-        
+       
             X-Auth-Token: <auth-token>
 
 + Request Upload zip file (application/zip)
@@ -242,7 +242,7 @@
                 "description": "Advanced computer lab, bla bla..",
             }
 
-+ Response 200 (application/json)
++ Response 201 (application/json)
     
     + Body
     
@@ -750,6 +750,25 @@
                 "url": "/user/1"
             }
 
+### GET
+    
++ Request (application/json)
+
+
+
++ Response 201 (application/json)
+
+    + Body
+        
+            [
+                {
+                    "id": 1,
+                    "email": "example@guc.edu.eg",
+                    "name": "John TA",
+                    "url": "/user/1"
+                }
+            ]
+            
 
 ## Single User [/user/{id}]
 
@@ -772,7 +791,7 @@
             [
                 {
                     "id": 1,
-                    "password": "password",
+
                     "email": "example@guc.edu.eg",
                     "name": "John TA",
                     "url": "/user/1"
