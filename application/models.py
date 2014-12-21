@@ -84,7 +84,7 @@ class Student(User):
 class Course(db.Document):
     created_at = db.DateTimeField(default=datetime.datetime.now, required=True)
     projects = db.ListField(db.ReferenceField('Project'))
-    name = db.StringField(max_length=256, min_length=10, unique=True, required=True)
+    name = db.StringField(max_length=256, min_length=4, unique=True, required=True)
     description = db.StringField(max_length=1024, min_length=10, required=True)
     supervisor = db.ReferenceField('User', reverse_delete_rule=db.PULL)
     teachers = db.ListField(

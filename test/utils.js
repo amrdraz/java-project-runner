@@ -13,6 +13,26 @@ exports.course_projects_ep = function (course_name) {
     return [ '/course', course_name, 'projects'].join('/');
 }
 
+exports.course_ep = function(course_name) {
+    return ['/courses', course_name].join('/');
+}
+
+exports.course_tas_ep = function(course_name) {
+    return exports.course_ep(course_name) + '/tas';
+}
+
+exports.course_projects_ep = function(course_name) {
+    return exports.course_ep(course_name) + '/projects';
+}
+
+exports.course_students_ep = function(course_name) {
+    return exports.course_ep(course_name) + '/students';
+}
+
+exports.course_submissions_ep = function(course_name) {
+    return exports.course_ep(course_name) + '/submissions';
+}
+
 exports.courses_ep = '/courses';
 
 exports.drop_ep = '/drop';

@@ -40,7 +40,7 @@ class CoursesResource(Resource):
         Lists all courses.
         Must be logged in.
         """
-        if g.user is not None:
+        if g.user is None:
             model_fields = public_course_fields
         else:
             model_fields = course_fields
@@ -55,12 +55,12 @@ class CourseResource(Resource):
         """Displays information of a course to both guests and logged in users.
         only public information is displayed to guests
         """
-        if g.user is not None:
+        if g.user is None:
             model_fields = public_course_fields
         else:
             model_fields = course_fields
         course = Course.objects.get_or_404(name=name)
-        return marshal_with(course.to_dict(), model_fields), 200
+        return marshal(course.to_dict(), model_fields), 200
 
 # Course related resources
 
