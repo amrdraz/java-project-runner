@@ -28,6 +28,8 @@ class UsersResource(Resource):
         parsed_email = address.parse(email)
         if parsed_email is None or not parsed_email.hostname.endswith('guc.edu.eg'):
             abort(400)
+        if User.objects(email=email).count() != 0:
+            abort(422) # Duplicate found
         if parsed_email.hostname.startswith('student'):
             user = Student(guc_id=guc_id, email=email, name=name)
         else:
@@ -36,6 +38,10 @@ class UsersResource(Resource):
         user.save()
         return marshal(user.to_dict(), user_fields), 201
 
+    @marshal_with(user_fields)
+    @login_required
+    def get(self):
+        return [user.to_dict() for user in User.objects]
 
 class UserResource(Resource):
 
@@ -49,20 +55,22 @@ class UserResource(Resource):
         email updates are not allowed, but will not trigger a fail. Instead
         they are silently ignored.
         """
-        if g.id == id:
+        if str(g.user.id) == id:
             arguments = user_parser.parse_args()
+            if "guc_id" in arguments and arguments['guc_id'] != '' and not isinstance(g, Student):
+                abort(400)
             args = {
                 "set__{0}".format(key): val for key, val in arguments.items()
-                if val is not None and key != "email" and key != "password"
+                if val is not None and val != '' and key != "email" and key != "password"
             }
             if len(args) > 0:
                 g.user.update(**args)
-            if arguments['password'] is not None:
+            if arguments['password'] is not None and arguments['password'] != '':
                 g.user.password = arguments['password']
             g.user.save()
             return g.user.to_dict()
         else:
-            abort(401)
+            abort(403)
 
     @marshal_with(user_fields)
     def get(self, id):
@@ -80,8 +88,11 @@ class UserResource(Resource):
         Redundant id parameter is to be consistent with REST conventions 
         or just not to stray too much from the middle.
         """
-        g.user.delete()
-        return {}, 204
+        if str(g.user.id) == id:
+            g.user.delete()
+            return {}, 204
+        else:
+            abort(400)
 
 api.add_resource(UsersResource, '/users', endpoint='users_ep')
 api.add_resource(UserResource, '/user/<string:id>', endpoint='user_ep')

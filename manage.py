@@ -27,7 +27,7 @@ def drop():
 @manager.command
 def run():
     """Runs the development server."""
-    app.run(host='0.0.0.0', port=8080)
+    app.run(use_reloader=True, threaded=True, host='0.0.0.0', port=8080)
 
 
 @manager.command

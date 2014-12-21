@@ -2,7 +2,7 @@ import os
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 DEBUG = False
-
+DROP_ENDPOINT = True
 
 MONGODB_SETTINGS = {
 'DB': "project_runner"

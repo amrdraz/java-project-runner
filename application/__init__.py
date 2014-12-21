@@ -14,7 +14,7 @@ db = MongoEngine(app)
 errors = {
     'ValidationError': {
         'message': "Invalid field(s).",
-        'status': 422
+        'status': 400
     },
     'NotUniqueError': {
         'message': "Resource already exists with unique field.",

@@ -11,8 +11,8 @@ class User(db.DynamicDocument):
 
     """Base document for all users."""
     created_at = db.DateTimeField(default=datetime.datetime.now, required=True)
-    email = db.StringField(max_length=256, required=True, unique=True)
-    name = db.StringField(max_length=512, required=True)
+    email = db.StringField(max_length=256, min_length=1, required=True, unique=True)
+    name = db.StringField(max_length=512, min_length=1, required=True)
     password_hash = db.StringField(max_length=60, required=True)
 
     meta = {'allow_inheritance': True,
@@ -73,7 +73,7 @@ class User(db.DynamicDocument):
 
 
 class Student(User):
-    guc_id = db.StringField(max_length=32, required=True)
+    guc_id = db.StringField(max_length=32, min_length=7, required=True)
 
     def to_dict(self):
         dic = User.to_dict(self)
@@ -84,8 +84,8 @@ class Student(User):
 class Course(db.Document):
     created_at = db.DateTimeField(default=datetime.datetime.now, required=True)
     projects = db.ListField(db.ReferenceField('Project'))
-    name = db.StringField(max_length=256, unique=True, required=True)
-    description = db.StringField(max_length=1024, required=True)
+    name = db.StringField(max_length=256, min_length=10, unique=True, required=True)
+    description = db.StringField(max_length=1024, min_length=10, required=True)
     supervisor = db.ReferenceField('User', reverse_delete_rule=db.PULL)
     teachers = db.ListField(
         db.ReferenceField('User', reverse_delete_rule=db.PULL))
@@ -116,9 +116,9 @@ class Project(db.Document):
     """A course's Project."""
     LANGUAGES = [('J', 'Java Project')]
     created_at = db.DateTimeField(default=datetime.datetime.now, required=True)
-    name = db.StringField(max_length=256, required=True)
+    name = db.StringField(max_length=256, min_length=10, required=True)
     tests = db.ListField(db.FileField())
-    language = db.StringField(max_length=3, choices=LANGUAGES, required=True)
+    language = db.StringField(max_length=3, min_length=1, choices=LANGUAGES, required=True)
     submissions = db.ListField(db.ReferenceField('Submission'))
 
     def to_dict(self):
@@ -137,8 +137,8 @@ class Project(db.Document):
 class TestCase(db.EmbeddedDocument):
 
     """Single case of a TestResult."""
-    name = db.StringField(max_length=512, required=True)
-    detail = db.StringField(max_length=512, required=True)
+    name = db.StringField(max_length=512, min_length=1, required=True)
+    detail = db.StringField(max_length=512, min_length=1, required=True)
     passed = db.BooleanField(default=False, required=True)
 
     def to_dict(self):
@@ -154,7 +154,7 @@ class TestResult(db.EmbeddedDocument):
 
     """Results for a single test ran on a submission."""
     created_at = db.DateTimeField(default=datetime.datetime.now, required=True)
-    name = db.StringField(max_length=256, required=True)
+    name = db.StringField(max_length=256, min_length=1, required=True)
     cases = db.ListField(db.EmbeddedDocumentField('TestCase'))
     success = db.BooleanField(default=False, required=True)
 

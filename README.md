@@ -20,12 +20,10 @@ A web service that runs projects against tests, performs code analysis and cheat
 ## Tests
 
 ### Dependecies
-`npm install frisby`
-
-`npm install jasmine-node`
+`npm install`
 
 
 ### Run Tests
 
-`jasmine-node tests/api`
+`mocha -R nyan`
 
