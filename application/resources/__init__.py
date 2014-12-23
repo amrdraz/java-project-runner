@@ -4,11 +4,9 @@ This package should always reflect the api.md document in the api branch.
 Any issues should be filed as API related and reflected in the api branch 
 before executed here.
 """
-from application import app
+from application import app, api
 from flask.ext import restful
 
-
-api = restful.Api(app)
 
 
 def allowed_file(filename):
