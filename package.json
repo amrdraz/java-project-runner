@@ -6,20 +6,19 @@
     "test": "tests"
   },
   "scripts": {
-    "test": "./node_modules/.bin/jasmine-node tests/api"
+    "test": "./node_modules/.bin/mocha "
   },
   "repository": {
     "type": "git",
     "url": "https://github.com/amrdraz/java-project-runner.git"
   },
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/amrdraz/java-project-runner/issues"
   },
   "homepage": "https://github.com/amrdraz/java-project-runner",
   "devDependencies": {
-    "frisby": "^0.8.3",
     "mocha": "^2.0.1",
     "should": "^4.4.1",
     "supertest": "^0.15.0"
