@@ -18,6 +18,7 @@ user_fields = {
 public_course_fields = {
     "name": fields.String,
     "description": fields.String,
+    'created_at': fields.DateTime('iso8601'),
     "url": fields.Url(endpoint='course_ep')
 }
 
@@ -38,19 +39,22 @@ project_fields = {
     "name": fields.String,
     "course": fields.Nested(course_fields),
     "url": fields.Url(endpoint='project_ep'),
-    'submission_url': fields.Url(endpoint='project_submission_ep')
+    'submissions_url': fields.Url(endpoint='project_submissions_ep'),
+    'language': fields.String(),
+    'created_at': fields.DateTime('iso8601')
 }
 
 test_case_fields = {
     "name": fields.String,
     "detail": fields.String,
-    "pass": fields.String
+    "passed": fields.String
 }
 
 test_result_fields = {
     "name": fields.String,
     "cases": fields.List(fields.Nested(test_case_fields)),
-    "success": fields.String
+    "success": fields.String,
+    'created_at': fields.DateTime('iso8601')
 }
 
 submission_fields = {
@@ -59,5 +63,6 @@ submission_fields = {
     "submitter": fields.Nested(user_fields),
     "tests": fields.List(fields.Nested(test_result_fields)),
     "processed": fields.String,
-    "project": fields.Nested(project_fields)
+    "project": fields.Nested(project_fields),
+    'created_at': fields.DateTime('iso8601')
 }

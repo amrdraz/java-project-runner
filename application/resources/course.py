@@ -194,15 +194,16 @@ class CourseProjects(Resource):
         if g.user not in course.teachers:
             abort(403)
         args = project_parser.parse_args()
-        name = args['name'].replace(" ", "")
+        name = args['name']
         language = args['language']
+        if len([p for p in course.projects if p.name == name]) != 0:
+            abort(422)
         project = Project(name=name, language=language)
-        project.save()
         for test_case in request.files.values():
             if allowed_file(test_case.filename):
                 grid_file = db.GridFSProxy()
                 grid_file.put(test_case, filename=secure_filename(test_case.filename))
-                project.files.append(grid_file)
+                project.tests.append(grid_file)
             else:
                 abort(
                     400, message="{0} extension not allowed".format(test_case.filename))

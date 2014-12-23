@@ -116,9 +116,10 @@ class Project(db.Document):
     """A course's Project."""
     LANGUAGES = [('J', 'Java Project')]
     created_at = db.DateTimeField(default=datetime.datetime.now, required=True)
-    name = db.StringField(max_length=256, min_length=10, required=True)
+    name = db.StringField(max_length=256, min_length=5, required=True)
     tests = db.ListField(db.FileField())
     language = db.StringField(max_length=3, min_length=1, choices=LANGUAGES, required=True)
+    test_timeout_seconds = db.LongField(default=600, max_value=1800, required=True)
     submissions = db.ListField(db.ReferenceField('Submission'))
 
     def to_dict(self):
@@ -145,7 +146,7 @@ class TestCase(db.EmbeddedDocument):
         return {
             "id": self.id,
             "name": self.name,
-            "detial": self.detail,
+            "detail": self.detail,
             "passed": self.passed
         }
 
@@ -177,6 +178,7 @@ class Submission(db.Document):
     submitter = db.ReferenceField('Student', required=True)
     code = db.FileField(required=True)
     compile_status = db.BooleanField(default=False, required=True)
+    compiler_out = db.StringField(max_length=2048)
 
     def to_dict(self):
         dic = {

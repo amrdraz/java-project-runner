@@ -1,3 +1,5 @@
 
 ant -buildfile {{buildfile_name}} compile
-ant -buildfile {{buildfile_name}} test
+{% if has_tests %}
+timeout -s 9 {{test_timeout}} ant -buildfile {{buildfile_name}} test
+{% endif %}

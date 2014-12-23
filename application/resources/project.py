@@ -1,17 +1,21 @@
-from flask.ext.restful import Resource, abort, marshal_with
-from application import api
+from flask.ext.restful import Resource, abort, marshal_with, marshal
+from application import api, db
 from application.models import Course, Project, Submission, Student
 from decorators import student_required, login_required
 from fields import submission_fields, project_fields
 from flask import g, request
 from werkzeug import secure_filename
-from application.tasks import juinit
+from application.tasks import junit_task
+
 class ProjectSubmissions(Resource):
 
     @student_required
     def post(self, course_name, name):
         """Creates a new submission."""
         course = Course.objects.get_or_404(name=course_name)
+        project = Project.objects.get_or_404(name=name)
+        if not project in course.projects:
+            abort(404)
         if course.name != course_name:
             abort(404)       
         if len(request.files.values()) == 1:
@@ -21,7 +25,10 @@ class ProjectSubmissions(Resource):
                 grid_file.put(file, filename=secure_filename(file.filename))
                 subm.code = grid_file
             subm.save()
-            juinit.delay(subm.id)
+            project.submissions.append(subm)
+            project.save()
+            junit_task.delay(str(subm.id))
+            return marshal(subm.to_dict(), submission_fields), 201
         else:
             abort(400) # Bad request
 
@@ -58,7 +65,7 @@ class ProjectsResource(Resource):
             return [Project.objects.all()]
 
 api.add_resource(ProjectSubmissions, '/course/<string:course_name>/projects/<string:name>/submissions',
-                 endpoint='project_submission_ep')
+                 endpoint='project_submissions_ep')
 
 api.add_resource(
     ProjectResource, '/project/<string:id>', endpoint='project_ep')

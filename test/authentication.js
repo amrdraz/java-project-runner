@@ -18,6 +18,20 @@ describe('Authentication', function() {
 
     describe('Registration', function () {
 
+        describe('Guests', function() {
+            it('Should not be allowed to register with non guc email', function(done){
+                request.post(utils.users_ep)
+                .send({
+                    name: 'Someone Here',
+                    email: 'someone@example.com',
+                    password: 'pass'
+                }).end(function(err, res){
+                    should.not.exist(err);
+                    res.status.should.be.eql(400);
+                    done();
+                });
+            });
+        });
         
 
 
