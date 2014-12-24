@@ -11,6 +11,7 @@ A web service that runs projects against tests, performs code analysis and cheat
 
 *Start Server* `python manage.py run`
 
+*Start Celery pool* `celery -A applications.tasks.celery worker`
 
 *Clear Database* `python manage.py drop`
 
