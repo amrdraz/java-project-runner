@@ -1,0 +1,26 @@
+{
+  "name": "java-project-runner",
+  "version": "0.0.1",
+  "description": "An api server that runns java projects against tests",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "./node_modules/.bin/mocha "
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/amrdraz/java-project-runner.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/amrdraz/java-project-runner/issues"
+  },
+  "homepage": "https://github.com/amrdraz/java-project-runner",
+  "devDependencies": {
+    "mocha": "^2.0.1",
+    "should": "^4.4.1",
+    "supertest": "^0.15.0"
+  }
+}

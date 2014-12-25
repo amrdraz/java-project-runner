@@ -1,0 +1,36 @@
+<project>
+    <target name="clean">
+        <delete dir="{{build_dir}}"/>
+    </target>
+
+    <target name="compile">
+        <mkdir dir="{{build_dir}}/classes"/>
+        <javac includeantruntime="false" srcdir="{{src_dir}}" destdir="{{build_dir}}/classes"/>
+        {% if has_tests %}
+        <javac includeantruntime="true" srcdir="{{tests_dir}}" destdir="{{build_dir}}/classes"/>
+        {% endif %}
+    </target>
+    {% if has_tests %}
+    <target name="test">
+      <mkdir dir="{{build_dir}}/tests" />
+      <junit includeantruntime="true" printsummary="yes" haltonerror="no" haltonfailure="no">
+                <classpath>
+                        <pathelement location="{{build_dir}}/classes"/>
+                        <pathelement location="{{build_dir}}/tests"/>
+                </classpath>
+              {% if plain_format %}
+                <formatter type="plain"/>
+              {% endif %}
+              {% if xml_format %}
+                <formatter type="xml"/>
+              {% endif %}
+              <batchtest fork="no" todir="{{build_dir}}/tests">
+                <fileset dir="{{tests_dir}}">
+                  <include name="*.java"/>
+                </fileset>
+              </batchtest>
+
+        </junit>
+      </target>
+    {% endif %}
+</project>
