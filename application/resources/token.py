@@ -6,7 +6,7 @@ from application import api
 from application.models import User
 from flask import request
 from flask.ext.restful import Resource, abort, marshal
-from fields import user_fields
+from fields import token_fields
 from parsers import token_parser
 
 
@@ -33,7 +33,7 @@ class TokenResource(Resource):
                     remember = token_parser.parse_args()['remember']
                     duration = 12 * 30 * 24 * 60 * 60 if remember == 'true' else  10 * 60;
                     token = user.generate_auth_token(duration)
-                    return {"token": token, user: marshal(user, user_fields)}, 201
+                    return marshal({"token": token, "valid_for": duration, "user": user.to_dict()}, token_fields), 201
                 else:
                     abort(401)
             except TypeError:
