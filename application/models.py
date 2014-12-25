@@ -40,7 +40,7 @@ class User(db.DynamicDocument):
     def verify_pass(self, password):
         return check_password_hash(self.password_hash, password)
 
-    def generate_auth_token(self, expires_in=600):
+    def generate_auth_token(self, expires_in):
         """Creates a token to uniquely identify this user."""
         seriliezer = TimedJSONWebSignatureSerializer(
             app.config['SECRET_KEY'], expires_in=expires_in)
