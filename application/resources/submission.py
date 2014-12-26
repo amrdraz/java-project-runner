@@ -21,7 +21,7 @@ class SingleSubmission(Resource):
         if isinstance(g.user, Student) and g.user != subm.submitter:
             abort(403)
         else:
-            return subm
+            return subm.to_dict()
 
 
 api.add_resource(
