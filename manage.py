@@ -4,9 +4,11 @@ from application.resources import user, token, course, project, submission
 from application.tasks import celery
 from flask import url_for
 from flask.ext.script import Manager, Shell
-
+import signal
+import sys
+from coverage import coverage
 # Provides convieniet tasks
-
+# Please run from repository root
 
 manager = Manager(app)
 
@@ -29,6 +31,28 @@ def run():
     """Runs the development server."""
     app.run(use_reloader=True, threaded=True, host='0.0.0.0', port=8080)
 
+@manager.command
+def report_coverage():
+    """Generate coverage report under coverage directory"""
+    cov = coverage(branch=True, omit=['env/*', 'manage.py'])
+    cov.start()
+    def signal_handler(signal, frame):
+        cov.stop()
+        cov.save()
+        cov.html_report(directory='coverage')
+        cov.erase()
+        sys.exit(0)    
+    signal.signal(signal.SIGINT, signal_handler)
+    app.run(use_reloader=True, threaded=True, host='0.0.0.0', port=8080)
+
+
+@manager.command
+def profile():
+    """Runs in profiling mode."""
+    from werkzeug.contrib.profiler import ProfilerMiddleware
+    app.config['PROGILE'] = True
+    app.wsgi_app = ProfilerMiddleware(app.wsgi_app, restrictions=[30])
+    app.run(use_reloader=True, threaded=True, host='0.0.0.0', port=8080)
 
 @manager.command
 def routes():
