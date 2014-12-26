@@ -12,7 +12,8 @@ CELERY_BROKER_URL = 'amqp://localhost'
 
 SECRET_KEY = "123?"
 
-ALLOWED_EXTENSIONS = ['zip', 'tar', 'gz', 'bz', 'rar', '7z', 'java']
+ALLOWED_CODE_EXTENSIONS = ['zip', 'tar', 'gz', 'bz', 'rar', '7z']
+ALLOWED_TEST_EXTENSIONS = ['java']
 # 512 Mi
 MAX_CONTENT_LENGTH = 512 * (2 ** 20)
 

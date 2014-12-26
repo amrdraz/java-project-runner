@@ -135,5 +135,30 @@ describe('Submission', function () {
             done();
         });
     });
+
+    describe('List submissions', function() {
+        before(function(done) {
+            request.post(project.submissions_url)
+            .attach('subm', 'test/fixtures/project_alpha/src.zip')
+            .set('X-Auth-Token', student.token)
+            .end(function(err, res) {
+                should.not.exist(err);
+                res.status.should.be.eql(201);
+                subm = res.body;
+                done();
+            });
+        });
+
+        it('As a teacher I can list all submissions of a course', function(done) {
+            request.get(course.submissions_url)
+            .set('X-Auth-Token', teacher.token)
+            .end(function(err, res){
+                should.not.exist(err);
+                res.status.should.be.eql(200);
+                res.body.should.be.an.instanceOf(Array);
+                done();
+            });
+        })
+    });
 });
 
