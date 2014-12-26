@@ -13,6 +13,8 @@ CELERY_BROKER_URL = 'amqp://localhost'
 SECRET_KEY = "123?"
 
 ALLOWED_EXTENSIONS = ['zip', 'tar', 'gz', 'bz', 'rar', '7z', 'java']
+# 512 Mi
+MAX_CONTENT_LENGTH = 512 * (2 ** 20)
 
 # In bytes
 FILE_BUFFER_SIZE = os.stat('.').st_blksize

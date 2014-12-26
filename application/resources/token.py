@@ -5,7 +5,9 @@ import base64
 from application import api
 from application.models import User
 from flask import request
-from flask.ext.restful import Resource, abort
+from flask.ext.restful import Resource, abort, marshal
+from fields import token_fields
+from parsers import token_parser
 
 
 class TokenResource(Resource):
@@ -22,14 +24,20 @@ class TokenResource(Resource):
             try:
                 auth = base64.b64decode(auth)
                 values = auth.split(':')
-                user = User.objects.get_or_404(email=values[0])
+                user = User.objects(email=values[0])
+                if len(user) != 1:
+                    abort(401)
+                else:
+                    user = user[0]
                 if user.verify_pass(values[1]):
-                    token = user.generate_auth_token()
-                    return {"token": token}, 201
+                    remember = token_parser.parse_args()['remember']
+                    duration = 12 * 30 * 24 * 60 * 60 if remember == 'true' else  10 * 60;
+                    token = user.generate_auth_token(duration)
+                    return marshal({"token": token, "valid_for": duration, "user": user.to_dict()}, token_fields), 201
                 else:
                     abort(401)
             except TypeError:
-                # Wasn't a bse 64 string
+                # Wasn't a base 64 string
                 abort(400)
         else:
             abort(400)

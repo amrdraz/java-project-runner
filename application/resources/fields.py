@@ -13,6 +13,11 @@ user_fields = {
     'url': fields.Url(endpoint='user_ep')
 }
 
+token_fields = {
+    'token': fields.String,
+    'valid_for': fields.Integer,
+    'user': fields.Nested(user_fields)
+}
 
 # Public course fields.
 public_course_fields = {

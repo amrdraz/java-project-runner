@@ -476,7 +476,7 @@ describe('Authentication', function() {
                 'pass'))
             .end(function(err, res) {
                 should.not.exist(err);
-                res.status.should.be.eql(404);
+                res.status.should.be.eql(401);
                 done();
             });
         });

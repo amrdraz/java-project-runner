@@ -26,3 +26,7 @@ project_parser.add_argument('name', str)
 project_parser.add_argument('language', str)
 
 # submission parser
+
+# token parser
+token_parser = reqparse.RequestParser()
+token_parser.add_argument('remember', str)
