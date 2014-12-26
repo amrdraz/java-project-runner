@@ -8,7 +8,7 @@ from flask import g, request
 from flask.ext.restful import Resource, abort, marshal_with, marshal
 from fields import course_fields, public_course_fields, project_fields, user_fields, submission_fields
 from werkzeug import secure_filename
-
+import itertools
 
 # Primary Course resources
 
@@ -44,7 +44,7 @@ class CoursesResource(Resource):
             model_fields = public_course_fields
         else:
             model_fields = course_fields
-        return marshal([course.to_dict() for course in Course.objects.all()], model_fields)
+        return marshal([course.to_dict() for course in Course.objects], model_fields)
 
 
 class CourseResource(Resource):
@@ -74,9 +74,8 @@ class CourseSubmissions(Resource):
         course = Course.objects.get_or_404(name=name)
         submissions = []
         for project in course.projects:
-            for submission in [submission.to_dict() for submission in project.submissions]:
-                submissions.append(submission)
-        return submissions
+            submissions = itertools.chain(submissions, project.submissions)
+        return map(lambda s: s.to_dict(), submissions)
 
 class CourseTeachers(Resource):
 

@@ -59,8 +59,10 @@ class User(db.DynamicDocument):
             return None  # valid token, but expired
         except BadSignature:
             return None  # invalid token
-        user = User.objects.get(id=data['id'])
-        return user
+        matches = User.objects(id=data['id'])
+        if matches.count() != 1:
+            return None
+        return matches[0]
 
     def to_dict(self):
         return {
@@ -144,7 +146,6 @@ class TestCase(db.EmbeddedDocument):
 
     def to_dict(self):
         return {
-            "id": self.id,
             "name": self.name,
             "detail": self.detail,
             "passed": self.passed
@@ -161,7 +162,6 @@ class TestResult(db.EmbeddedDocument):
 
     def to_dict(self):
         return {
-            "id": self.id,
             "name": self.name,
             "created_at": self.created_at,
             "cases": [case.to_dict() for case in self.cases],

@@ -24,7 +24,7 @@ def login_required(f):
                     return f(*args, **kwargs)
                 else:
                     abort(401)
-            except (BadSignature, SignatureExpired):
+            except(BadSignature, SignatureExpired):
                 abort(401)
         else:
             abort(401)
