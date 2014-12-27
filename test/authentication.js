@@ -502,6 +502,15 @@ describe('Authentication', function() {
                 });
         });
 
+        it('should 400 on no Authentication header', function(done){
+            request.post(utils.token_ep)
+            .end(function(err, res) {
+                should.not.exist(err);
+                res.status.should.be.eql(400);
+                done();
+            });
+        });
+
     });
 
 });

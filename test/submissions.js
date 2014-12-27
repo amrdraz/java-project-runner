@@ -127,7 +127,7 @@ describe('Submission', function() {
             });
     });
     subm = {};
-    it('As a student I can submit a submission', function(done) {
+    it('As a student I can submit code', function(done) {
         request.post(project.submissions_url)
             .attach('subm', 'test/fixtures/project_alpha/src.zip')
             .set('X-Auth-Token', student.token)
@@ -135,6 +135,119 @@ describe('Submission', function() {
                 should.not.exist(err);
                 res.status.should.be.eql(201);
                 subm = res.body;
+                done();
+            });
+    });
+
+    describe('Get submissions', function(){
+        bad_teacher = {
+             name: "Hello, I am a teacher!",
+             email: 'bad.teacher@guc.edu.eg',
+             password: 'pass'
+         };
+         bad_student = {
+             name: 'Hello, I am a student!',
+             email: 'bad.student@student.guc.edu.eg',
+             password: 'pass',
+             guc_id: '16-4477'
+         };
+         before(function(done) {
+             request.post(utils.users_ep)
+                 .send(bad_student)
+                 .end(function(err, res) {
+                     should.not.exist(err);
+                     res.status.should.be.eql(201);
+                     bad_student = res.body;
+                     done();
+                 });
+         });
+         before(function(done) {
+             request.post(utils.users_ep)
+                 .send(bad_teacher)
+                 .end(function(err, res) {
+                     should.not.exist(err);
+                     res.status.should.be.eql(201);
+                     bad_teacher = res.body;
+                     done();
+                 });
+         });
+        before(function(done) {
+             request.post(utils.token_ep)
+                 .set('Authorization',
+                     utils.auth_header_value(bad_student.email,
+                         'pass'))
+                 .end(function(err, res) {
+                     should.not.exist(err);
+                     res.status.should.be.eql(201);
+                     bad_student.token = res.body.token;
+                     done();
+                 });
+         });
+         before(function(done) {
+             request.post(utils.token_ep)
+                 .set('Authorization',
+                     utils.auth_header_value(bad_teacher.email,
+                         'pass'))
+                 .end(function(err, res) {
+                     should.not.exist(err);
+                     res.status.should.be.eql(201);
+                     bad_teacher.token = res.body.token;
+                     done();
+                 });
+         });
+        it('As a teacher', function(done){
+            request.get(subm.url)
+            .set('X-Auth-Token', teacher.token)
+            .end(function(err, res){
+                should.not.exist(err);
+                res.status.should.be.eql(200);
+                res.body.should.have.properties(['id', 'url', 'submitter']);
+                res.body.submitter.id.should.be.eql(student.id);
+                done();
+            });
+        });
+
+        it('As a student', function(done){
+            request.get(subm.url)
+            .set('X-Auth-Token', student.token)
+            .end(function(err, res){
+                should.not.exist(err);
+                res.status.should.be.eql(200);
+                res.body.should.have.properties(['id', 'url', 'submitter']);
+                res.body.submitter.id.should.be.eql(student.id);
+                done();
+            });
+        });
+
+        it('As a teacher that does not teach this course', function(done){
+            request.get(subm.url)
+            .set('X-Auth-Token', bad_teacher.token)
+            .end(function(err, res){
+                should.not.exist(err);
+                res.status.should.be.eql(403);
+                done();
+            });
+        });
+
+        it('As a student that is not registered for this course', function(done){
+            request.get(subm.url)
+            .set('X-Auth-Token', bad_student.token)
+            .end(function(err, res){
+                should.not.exist(err);
+                res.status.should.be.eql(403);
+                done();
+            });
+        });
+
+    });
+
+    it('As a teacher I am not allowed to submit code', function(done){
+        request.post(project.submissions_url)
+            .attach('subm', 'test/fixtures/project_alpha/src.zip')
+            .set('X-Auth-Token', teacher.token)
+            .end(function(err, res) {
+                should.not.exist(err);
+                res.status.should.be.eql(403);
                 done();
             });
     });
