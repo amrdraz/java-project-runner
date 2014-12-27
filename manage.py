@@ -47,7 +47,7 @@ def report_coverage():
     Generate coverage report under coverage directory.
     Send SIGINT when done.
     """
-    cov = coverage(branch=True, omit=['env/*'])
+    cov = coverage(branch=True, omit=['env/*', 'manage.py', 'application/junit.py', 'application/tasks.py'])
     cov.start()
     from application import app, db, models, api
     from application.resources import user, token, course, project, submission
