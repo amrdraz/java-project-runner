@@ -254,5 +254,35 @@ describe('profile', function(){
         });
     });
 
+    it('As a student I can not update my email', function(done) {
+        profile = {
+            email: 'something@student.guc.edu.eg'
+        }
+        request.put(student.url)
+        .send(profile)
+        .set('X-Auth-Token', student.token)
+        .end(function(err, res){
+            should.not.exist(err);
+            res.status.should.be.eql(200);
+            res.body.email.should.be.eql(student.email);
+            done();
+        });
+    });
+
+    it('As a teacher I can not update my email', function(done) {
+        profile = {
+            email: 'something@guc.edu.eg'
+        }
+        request.put(teacher.url)
+        .send(profile)
+        .set('X-Auth-Token', teacher.token)
+        .end(function(err, res){
+            should.not.exist(err);
+            res.status.should.be.eql(200);
+            res.body.email.should.be.eql(teacher.email);
+            done();
+        });
+    });
+
 
 });
