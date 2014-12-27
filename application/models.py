@@ -55,12 +55,7 @@ class User(db.DynamicDocument):
         Raises SignatureExpired, BadSignature if expired or malformed.
         """
         s = TimedJSONWebSignatureSerializer(app.config['SECRET_KEY'])
-        try:
-            data = s.loads(token)
-        except SignatureExpired:
-            return None  # valid token, but expired
-        except BadSignature:
-            return None  # invalid token
+        data = s.loads(token)
         matches = User.objects(id=data['id'])
         if matches.count() != 1:
             return None

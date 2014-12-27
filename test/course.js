@@ -42,14 +42,6 @@ describe('Courses', function() {
             });
     });
 
-    before(function(done) {
-        request.get(utils.drop_ep)
-            .end(function(err, res) {
-                should.not.exist(err);
-                res.status.should.be.eql(200);
-                done();
-            });
-    });
 
     before(function(done) {
         request.post(utils.users_ep)
@@ -194,6 +186,8 @@ describe('Courses', function() {
                     });
             });
 
+
+
             it('Should have restricted public view', function(done) {
                 request.get(course_two.url)
                     .end(function(err, res) {
@@ -254,6 +248,305 @@ describe('Courses', function() {
                         res.body.should.be.empty;
                         done();
                     });
+            });
+
+            describe('Course level functionality', function() {
+                it('As a teacher I can add myself to course teachers and list course teachers', function(done) {
+                    request.post(course_two.tas_url)
+                        .send({
+                            id: teacher_two.id
+                        })
+                        .set('X-Auth-Token', teacher_two.token)
+                        .end(function(err, res) {
+                            should.not.exist(err);
+                            res.status.should.be.eql(204);
+                            request.get(course_two.tas_url)
+                                .set('X-Auth-Token', teacher_two.token)
+                                .end(function(err, res) {
+                                    should.not.exist(err);
+                                    res.status.should.be.eql(200);
+                                    res.body.should.be.an.instanceOf(Array)
+                                        .and.have.a.lengthOf(2);
+                                    done();
+                                });
+                        });
+                });
+
+                it('As a student I can list course teachers', function(done) {
+                    request.get(course_two.tas_url)
+                        .set('X-Auth-Token', student_one.token)
+                        .end(function(err, res) {
+                            should.not.exist(err);
+                            res.status.should.be.eql(200);
+                            res.body.should.be.an.instanceOf(Array);
+                            done();
+                        });
+                });
+
+                it('As a student I can not add myself as a course teacher', function(done) {
+                    request.post(course_two.tas_url)
+                        .send({
+                            id: student_one.id
+                        })
+                        .set('X-Auth-Token', student_one.token)
+                        .end(function(err, res) {
+                            should.not.exist(err);
+                            res.status.should.be.eql(403);
+                            done();
+                        });
+                });
+
+                it('As a teacher I can not add a student as a course teacher', function(done) {
+                    request.post(course_two.tas_url)
+                        .send({
+                            id: student_one.id
+                        })
+                        .set('X-Auth-Token', teacher_one.token)
+                        .end(function(err, res) {
+                            should.not.exist(err);
+                            res.status.should.be.eql(400);
+                            done();
+                        });
+                });
+
+                it('As a student I should be able to add myself as a course student', function(done) {
+                    request.post(course_two.students_url)
+                        .send({
+                            id: student_one.id
+                        })
+                        .set('X-Auth-Token', student_one.token)
+                        .end(function(err, res) {
+                            should.not.exist(err);
+                            res.status.should.be.eql(204);
+                            done();
+                        });
+                });
+
+                it('As a student I can not add another student to a course', function(done) {
+                    request.post(course_two.students_url)
+                        .send({
+                            id: student_two.id
+                        })
+                        .set('X-Auth-Token', student_one.token)
+                        .end(function(err, res) {
+                            should.not.exist(err);
+                            res.status.should.be.eql(403);
+                            done();
+                        });
+                });
+
+                it("As a student I can not add a teacher to a course's students", function(done) {
+                    request.post(course_two.students_url)
+                        .send({
+                            id: teacher_two.id
+                        })
+                        .set('X-Auth-Token', student_one.token)
+                        .end(function(err, res) {
+                            should.not.exist(err);
+                            res.status.should.be.eql(400);
+                            done();
+                        });
+                });
+
+                it('As a teacher I can not add myself as a course student', function(done) {
+                    request.post(course_two.students_url)
+                        .send({
+                            id: teacher_two.id
+                        })
+                        .set('X-Auth-Token', teacher_two.token)
+                        .end(function(err, res) {
+                            should.not.exist(err);
+                            res.status.should.be.eql(400);
+                            done();
+                        });
+                });
+
+                it('As a teacher I can not add another teacher as a course student', function(done) {
+                    request.post(course_two.students_url)
+                        .send({
+                            id: teacher_one.id
+                        })
+                        .set('X-Auth-Token', teacher_two.token)
+                        .end(function(err, res) {
+                            should.not.exist(err);
+                            res.status.should.be.eql(400);
+                            done();
+                        });
+                });
+
+                it('As a teacher I can add a student to a course I teach', function(done) {
+                    request.post(course_two.students_url)
+                        .send({
+                            id: student_two.id
+                        })
+                        .set('X-Auth-Token', teacher_two.token)
+                        .end(function(err, res) {
+                            should.not.exist(err);
+                            res.status.should.be.eql(204);
+                            done();
+                        });
+                });
+
+                describe('Course Extras', function(){
+                    extra_course = {
+                        name: 'DMET 6XX',
+                        description: 'An Even better course if you can believe it!'
+                    };
+
+                    extra_teacher = {
+                        name: 'Extra Teacher One',
+                        email: 'teacher1.extra@guc.edu.eg',
+                        password: 'pass'
+                    };
+
+                    before(function(done) {
+                        request.post(utils.users_ep)
+                        .send(extra_teacher).end(function(err, res) {
+                            res.status.should.be.eql(201);
+                            extra_teacher.id = res.body.id;
+                            extra_teacher.url = res.body.url;
+                            done();
+                        });
+                    });
+
+                    before(function(done) {
+                        request.post(utils.token_ep)
+                        .set('Authorization',
+                            utils.auth_header_value(extra_teacher.email,
+                                extra_teacher.password))
+                        .end(function(err, res) {
+                            res.status.should.be.eql(201);
+                            extra_teacher.token = res.body.token;
+                            done();
+                        });
+                    });
+
+                    before(function(done) {
+                        request.post(utils.courses_ep)
+                        .set('X-Auth-Token', teacher_one.token)
+                        .send(extra_course)
+                        .end(function(err, res) {
+                            should.not.exist(err);
+                            res.status.should.be.eql(201);
+                            extra_course = res.body;
+                            done();
+                        });
+                    });
+
+                    it('I can not create two courses with the same name', function(done){
+                        request.post(utils.courses_ep)
+                        .set('X-Auth-Token', extra_teacher.token)
+                        .send(extra_course)
+                        .end(function(err, res) {
+                            should.not.exist(err);
+                            res.status.should.be.eql(422);
+                            done();
+                        });
+                    });                
+
+                    it('As a teacher I can not add a student to a course I do not teach', function(done){
+                        request.post(extra_course.students_url)
+                        .set('X-Auth-Token', extra_teacher.token)
+                        .send({id: student_one.id})
+                        .end(function(err, res){
+                            should.not.exist(err);
+                            res.status.should.be.eql(403);
+                            done();
+                        });
+                    });
+
+                    it('As a teacher I can not add another teacher to a course I do not each', function(done){
+                        request.post(extra_course.tas_url)
+                        .set('X-Auth-Token', extra_teacher.token)
+                        .send({id: teacher_two.id})
+                        .end(function(err, res){
+                            should.not.exist(err);
+                            res.status.should.be.eql(403);
+                            done();
+
+                        });
+                    });
+
+                    it('As a student I can not add a teacher as a course teacher', function(done) {
+                        request.post(extra_course.tas_url)
+                        .set('X-Auth-Token', student_one.token)
+                        .send({id: teacher_two.id})
+                        .end(function(err, res){
+                            should.not.exist(err);
+                            res.status.should.be.eql(403);
+                            done();
+
+                        });
+                    });
+
+                    it('As a student I can not add another student as a course teacher', function(done) {
+                        request.post(extra_course.tas_url)
+                        .set('X-Auth-Token', student_one.token)
+                        .send({id: student_two.id})
+                        .end(function(err, res){
+                            should.not.exist(err);
+                            res.status.should.be.eql(403);
+                            done();
+                        });
+                    });
+
+                    it('As a student I can only add myself once to a course', function(done){
+                        request.post(extra_course.students_url)
+                        .set('X-Auth-Token', student_one.token)
+                        .send({id: student_one.id})
+                        .end(function(err, res){
+                            should.not.exist(err);
+                            res.status.should.be.eql(204);
+                            request.post(extra_course.students_url)
+                            .set('X-Auth-Token', student_one.token)
+                            .send({id: student_one.id})
+                            .end(function(err, res){
+                                should.not.exist(err);
+                                res.status.should.be.eql(422);
+                                done();
+                            });
+                        });
+                    });
+
+                    it('As a teacher I can not add a student twice to a course', function(done){
+                        request.post(extra_course.students_url)
+                        .set('X-Auth-Token', teacher_one.token)
+                        .send({id: student_two.id})
+                        .end(function(err, res){
+                            should.not.exist(err);
+                            res.status.should.be.eql(204);
+                            request.post(extra_course.students_url)
+                            .set('X-Auth-Token', teacher_one.token)
+                            .send({id: student_two.id})
+                            .end(function(err, res){
+                                should.not.exist(err);
+                                res.status.should.be.eql(422);
+                                done();
+                            });
+                        });
+                    });
+
+                    it('As a teacher I can not add a teacher twice to a course', function(done){
+                        request.post(extra_course.tas_url)
+                        .set('X-Auth-Token', teacher_one.token)
+                        .send({id: teacher_two.id})
+                        .end(function(err, res){
+                            should.not.exist(err);
+                            res.status.should.be.eql(204);
+                            request.post(extra_course.tas_url)
+                            .set('X-Auth-Token', teacher_one.token)
+                            .send({id: teacher_two.id})
+                            .end(function(err, res){
+                                should.not.exist(err);
+                                res.status.should.be.eql(422);
+                                done();
+                            });
+                        });
+                    });
+
+                });
+
+
             });
 
         }); // Initial describe

@@ -99,19 +99,21 @@ class CourseTeachers(Resource):
     def post(self, name):
         """
         Adds a teacher to the course.
-        Logged in user must be a course teacher.
+        Logged in user must be a teacher.
         """
         course = Course.objects.get_or_404(name=name)
-        if g.user in course.teachers:
-            user = User.objects.get_or_404(id=user_parser.parse_args()['id'])
-            if not isinstance(user, Student):
-                course.teachers.append(user)
-                course.save()
-                return {}, 204
-            else:
-                abort(400)
+        teacher = User.objects.get_or_404(id=user_parser.parse_args()['id'])
+        if not isinstance(teacher, Student):
+            if not (g.user.id == teacher.id or g.user in course.teachers):
+                # I can add myself or I can be added by existing course staff
+                abort(403)
+            if teacher in course.teachers:
+                abort(422)
+            course.teachers.append(teacher)
+            course.save()
+            return {}, 204
         else:
-            abort(403, message='Only course teachers may add new TAs.')
+            abort(400, message="can not add student as a teacher")
 
     @teacher_required
     def delete(self, name):
@@ -139,11 +141,14 @@ class CourseStudents(Resource):
     def post(self, name):
         """
         Adds a student to the course.
+        Logged in user must be student to be added or a course teacher
         """
-        student = Student.objects.get_or_404(id=user_parser.parse_args()['id'])
+        student = User.objects.get_or_404(id=user_parser.parse_args()['id'])
         if isinstance(student, Student):
             course = Course.objects.get_or_404(name=name)
             if g.user in course.teachers or g.user.id == student.id:
+                if student in course.students:
+                    abort(422)
                 course.students.append(student)
                 course.save()
                 return {}, 204
@@ -186,9 +191,14 @@ class CourseProjects(Resource):
         """
         Lists course projects.
         name is parent course name
+        returns 403 if not a course teacher or student.
         """
         course = Course.objects.get_or_404(name=name)
-        return [project.to_dict(parent_course=course) for project in course.projects]
+        if g.user in course.students or g.user in course.teachers:
+            return [project.to_dict(parent_course=course) for project in course.projects]
+        else:
+            abort(403)
+          
 
     @teacher_required
     def post(self, name):

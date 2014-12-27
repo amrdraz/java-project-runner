@@ -33,7 +33,10 @@ def run():
 
 @manager.command
 def report_coverage():
-    """Generate coverage report under coverage directory"""
+    """
+    Generate coverage report under coverage directory.
+    Send SIGINT when done.
+    """
     cov = coverage(branch=True, omit=['env/*', 'manage.py'])
     cov.start()
     def signal_handler(signal, frame):
@@ -50,7 +53,7 @@ def report_coverage():
 def profile():
     """Runs in profiling mode."""
     from werkzeug.contrib.profiler import ProfilerMiddleware
-    app.config['PROGILE'] = True
+    app.config['PROFILE'] = True
     app.wsgi_app = ProfilerMiddleware(app.wsgi_app, restrictions=[30])
     app.run(use_reloader=True, threaded=True, host='0.0.0.0', port=8080)
 
