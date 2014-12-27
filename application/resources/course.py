@@ -1,7 +1,7 @@
 """Defines Course related endpoints."""
 from application import api, db
 from application.models import Course, Student, Project, User
-from application.resources import allowed_file
+from application.resources import allowed_test_file
 from parsers import course_parser, project_parser, user_parser
 from decorators import login_required, login_mutable, teacher_required
 from flask import g, request
@@ -11,6 +11,7 @@ from werkzeug import secure_filename
 import itertools
 
 # Primary Course resources
+
 
 class CoursesResource(Resource):
 
@@ -64,6 +65,7 @@ class CourseResource(Resource):
 
 # Course related resources
 
+
 class CourseSubmissions(Resource):
     method_decorators = [teacher_required, marshal_with(submission_fields)]
 
@@ -72,10 +74,14 @@ class CourseSubmissions(Resource):
         Lists all submissions related to the course.
         """
         course = Course.objects.get_or_404(name=name)
+        if g.user not in course.teachers:
+            abort(401)
         submissions = []
         for project in course.projects:
-            submissions = itertools.chain(submissions, project.submissions)
-        return map(lambda s: s.to_dict(), submissions)
+            submissions = map(lambda subm: subm.to_dict(parent_project=project, parent_course=course),
+                                         itertools.chain(submissions, project.submissions))
+        return submissions
+
 
 class CourseTeachers(Resource):
 
@@ -93,19 +99,21 @@ class CourseTeachers(Resource):
     def post(self, name):
         """
         Adds a teacher to the course.
-        Logged in user must be a course teacher.
+        Logged in user must be a teacher.
         """
         course = Course.objects.get_or_404(name=name)
-        if g.user in course.teachers:
-            user = User.objects.get_or_404(id=user_parser.parse_args()['id'])
-            if not isinstance(user, Student):
-                course.teachers.append(user)
-                course.save()
-                return {}, 204
-            else:
-                abort(400)
+        teacher = User.objects.get_or_404(id=user_parser.parse_args()['id'])
+        if not isinstance(teacher, Student):
+            if not (g.user.id == teacher.id or g.user in course.teachers):
+                # I can add myself or I can be added by existing course staff
+                abort(403)
+            if teacher in course.teachers:
+                abort(422)
+            course.teachers.append(teacher)
+            course.save()
+            return {}, 204
         else:
-            abort(403, message='Only supervisor may add new TAs.')
+            abort(400, message="can not add student as a teacher")
 
     @teacher_required
     def delete(self, name):
@@ -115,7 +123,8 @@ class CourseTeachers(Resource):
         """
         course = Course.objects.get_or_404(name=name)
         if g.user in course.teachers:
-            teacher = User.objects.get_or_404(id=user_parser.parse_args()['id'])
+            teacher = User.objects.get_or_404(
+                id=user_parser.parse_args()['id'])
             if teacher in course.teachers:
                 course.teachers.remove(teacher)
                 course.save()
@@ -132,12 +141,14 @@ class CourseStudents(Resource):
     def post(self, name):
         """
         Adds a student to the course.
+        Logged in user must be student to be added or a course teacher
         """
-        student = Student.objects.get_or_404(id=user_parser.parse_args()['id'])
+        student = User.objects.get_or_404(id=user_parser.parse_args()['id'])
         if isinstance(student, Student):
             course = Course.objects.get_or_404(name=name)
-            if (g.user == course.supervisor or g.user in course.teachers or
-                g.user.id == student.id):
+            if g.user in course.teachers or g.user.id == student.id:
+                if student in course.students:
+                    abort(422)
                 course.students.append(student)
                 course.save()
                 return {}, 204
@@ -169,6 +180,7 @@ class CourseStudents(Resource):
         else:
             abort(403)
 
+
 class CourseProjects(Resource):
 
     """Course projects as collection"""
@@ -179,9 +191,14 @@ class CourseProjects(Resource):
         """
         Lists course projects.
         name is parent course name
+        returns 403 if not a course teacher or student.
         """
         course = Course.objects.get_or_404(name=name)
-        return [project.to_dict() for project in course.projects]
+        if g.user in course.students or g.user in course.teachers:
+            return [project.to_dict(parent_course=course) for project in course.projects]
+        else:
+            abort(403)
+          
 
     @teacher_required
     def post(self, name):
@@ -199,9 +216,10 @@ class CourseProjects(Resource):
             abort(422)
         project = Project(name=name, language=language)
         for test_case in request.files.values():
-            if allowed_file(test_case.filename):
+            if allowed_test_file(test_case.filename):
                 grid_file = db.GridFSProxy()
-                grid_file.put(test_case, filename=secure_filename(test_case.filename))
+                grid_file.put(
+                    test_case, filename=secure_filename(test_case.filename))
                 project.tests.append(grid_file)
             else:
                 abort(
@@ -209,7 +227,7 @@ class CourseProjects(Resource):
         project.save()
         course.projects.append(project)
         course.save()
-        return marshal(project.to_dict(), project_fields), 201
+        return marshal(project.to_dict(parent_course=course), project_fields), 201
 
 
 api.add_resource(CourseProjects, '/course/<string:name>/projects',

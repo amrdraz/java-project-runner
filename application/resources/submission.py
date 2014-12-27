@@ -1,7 +1,7 @@
 """
 Submission resource's endpoints.
 """
-from application.models import Student, Submission
+from application.models import Student, Submission, Project, Course
 from application import api
 from decorators import login_required
 from fields import submission_fields
@@ -18,10 +18,18 @@ class SingleSubmission(Resource):
         Logged in user must be submitter or a teacher.
         """
         subm = Submission.objects.get_or_404(id=id)
-        if isinstance(g.user, Student) and g.user != subm.submitter:
-            abort(403)
+        if isinstance(g.user, Student):
+            if g.user == subm.submitter:
+                return subm.to_dict()
+            else:
+                abort(403)
         else:
-            return subm
+            proj = Project.objects.get(submissions=subm)
+            course = Course.objects.get(projects=proj)
+            if g.user in course.teachers:
+                return subm.to_dict(parent_project=proj, parent_course=course)
+            else:
+                abort(403)
 
 
 api.add_resource(

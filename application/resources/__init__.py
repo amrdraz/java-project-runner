@@ -9,10 +9,13 @@ from flask.ext import restful
 
 
 
-def allowed_file(filename):
+def allowed_code_file(filename):
     """Returns true if file with name filename is allowed."""
-    return '.' in filename and filename.rsplit('.', 1)[1] in app.config['ALLOWED_EXTENSIONS']
+    return '.' in filename and filename.rsplit('.', 1)[1] in app.config['ALLOWED_CODE_EXTENSIONS']
 
+def allowed_test_file(filename):
+    """Returns true if file with name filename is allowed."""
+    return '.' in filename and filename.rsplit('.', 1)[1] in app.config['ALLOWED_TEST_EXTENSIONS']
 
 class ClearDB(restful.Resource):
     def get(self):

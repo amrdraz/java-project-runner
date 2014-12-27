@@ -41,6 +41,7 @@ course_fields = dict(course_fields.items() + public_course_fields.items())
 
 
 project_fields = {
+    "id": fields.String,
     "name": fields.String,
     "course": fields.Nested(course_fields),
     "url": fields.Url(endpoint='project_ep'),
