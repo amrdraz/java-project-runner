@@ -10,30 +10,30 @@ describe('Project', function() {
 
     // create fixtures of two teachers and two students
     // create a course whose only teacher is teacher_one
-    teacher_one = {
+    var teacher_one = {
         name: 'Teacher One',
         email: 'teacher1.project@guc.edu.eg',
         password: 'pass'
     };
-    teacher_two = {
+    var teacher_two = {
         name: 'Teacher Two',
         email: 'teacher2.project@guc.edu.eg',
         password: 'pass'
     };
-    student_one = {
+    var student_one = {
         name: 'Student One',
         email: 'student1.project@student.guc.edu.eg',
         password: 'pass',
         guc_id: '22-1111'
     };
 
-    student_two = {
+    var student_two = {
         name: 'Student Two',
         email: 'student2.project@student.guc.edu.eg',
         password: 'pass',
         guc_id: '22-1112'
     };
-    course = {
+    var course = {
         name: 'CSEN 4XX',
         description: 'This is a very exciting course, people love it!'
     };

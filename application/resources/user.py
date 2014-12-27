@@ -57,7 +57,7 @@ class UserResource(Resource):
         """
         if str(g.user.id) == id:
             arguments = user_parser.parse_args()
-            if "guc_id" in arguments and arguments['guc_id'] != '' and not isinstance(g, Student):
+            if "guc_id" in arguments and arguments['guc_id'] != '' and not isinstance(g.user, Student):
                 abort(400)
             args = {
                 "set__{0}".format(key): val for key, val in arguments.items()
@@ -67,7 +67,8 @@ class UserResource(Resource):
                 g.user.update(**args)
             if arguments['password'] is not None and arguments['password'] != '':
                 g.user.password = arguments['password']
-            g.user.save()
+                g.user.save()
+            g.user.reload()
             return g.user.to_dict()
         else:
             abort(403)
