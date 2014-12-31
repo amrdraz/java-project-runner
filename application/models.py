@@ -195,7 +195,9 @@ class Submission(db.Document):
             "submitter": self.submitter.to_dict(),
             "tests": [test.to_dict() for test in self.test_results],
             "project": (parent_project.to_dict(**kwargs) if parent_project is not None
-                        else Project.objects.get(submissions=self).to_dict(**kwargs))
+                        else Project.objects.get(submissions=self).to_dict(**kwargs)),
+            'compile_status': self.compile_status,
+            'compiler_out': self.compiler_out
         }
         dic['project_name'] = dic['project']['name']
         dic['course_name'] = dic['project']['course_name']

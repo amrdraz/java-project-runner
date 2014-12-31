@@ -31,7 +31,7 @@ class TokenResource(Resource):
                     user = user[0]
                 if user.verify_pass(values[1]):
                     remember = token_parser.parse_args()['remember']
-                    duration = 12 * 30 * 24 * 60 * 60 if remember == 'true' else  10 * 60;
+                    duration = 12 * 30 * 24 * 60 * 60 if remember == 'true' else  10 * 60
                     token = user.generate_auth_token(duration)
                     return marshal({"token": token, "valid_for": duration, "user": user.to_dict()}, token_fields), 201
                 else:
