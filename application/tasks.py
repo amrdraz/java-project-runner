@@ -57,6 +57,7 @@ def junit_task(submission_id):
         #            'bash', renamed_files.get(app.config['ANT_RUN_FILE_NAME'], app.config['ANT_RUN_FILE_NAME'])]
         command = ['bash', os.path.join(working_directory, renamed_files.get(app.config['ANT_RUN_FILE_NAME'], app.config['ANT_RUN_FILE_NAME']))]
         # Actually Run the command
+        os.chdir(working_directory)
         app.logger.info('Launching {0}'.format(' '.join(command)))
         p = subprocess.Popen(
             command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
