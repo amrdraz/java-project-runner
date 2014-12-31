@@ -69,7 +69,9 @@ def junit_task(submission_id):
             # Parse test output
             tests = os.path.join(working_directory, renamed_files.get(
                 app.config['ANT_BUILD_DIR_NAME'], app.config['ANT_BUILD_DIR_NAME']))
+            app.logger.info(os.listdir(tests))
             tests = os.path.join(tests, 'tests')
+            app.logger.info(os.listdir(tests))
             parse_junit_results(tests, subm)
             
 
