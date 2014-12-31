@@ -46,9 +46,6 @@ def junit_task(submission_id):
             app.logger.warning(
                 'Junit task launched with processed submission, id: {0}.'.format(submission_id))
             return
-        else:
-            subm.processed = True
-            subm.save()
         # Create a temporary directory
         working_directory = mkdtemp()
 
@@ -59,6 +56,7 @@ def junit_task(submission_id):
         command = ['sandbox', '-M', '-H', working_directory, '-T', selinux_tmp,
                    'bash', renamed_files.get(app.config['ANT_RUN_FILE_NAME'], app.config['ANT_RUN_FILE_NAME'])]
         # Actually Run the command
+        app.logger.info('Running command {0} for {1}'.format(' '.join(command), submission_id))
         p = subprocess.Popen(
             command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         stdout, stderr = p.communicate()
@@ -66,7 +64,7 @@ def junit_task(submission_id):
         subm.compile_status = 'Compile failed' not in stderr
         subm.compiler_out = stdout
         subm.save()
-
+        app.logger.info('Compile status {0}, has_tests {1}'.format(subm.compile_status, has_tests))
         if subm.compile_status and has_tests:
             # Parse test output
             tests = os.path.join(working_directory, renamed_files.get(
@@ -77,6 +75,8 @@ def junit_task(submission_id):
 
         rmtree(working_directory)
         rmtree(selinux_tmp)
+        subm.processed = True
+        subm.save()
     except db.DoesNotExist:
         app.logger.warning(
             'Junit task launched with invalid submission_id {0}.'.format(submission_id))
