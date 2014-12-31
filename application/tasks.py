@@ -62,7 +62,6 @@ def junit_task(submission_id):
         p.wait()
         subm.compile_status = 'Compile failed' not in stderr
         subm.compiler_out = stdout
-        app.logger.info('{0}'.format(stderr))
         subm.save()
 
         if subm.compile_status and has_tests:
