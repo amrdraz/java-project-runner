@@ -64,9 +64,10 @@ def junit_task(submission_id):
         p.wait()
         subm.compile_status = 'Compile failed' not in stderr
         app.logger.info(stderr)
+        app.logger.info(stdout)
         subm.compiler_out = stdout
         subm.save()
-
+        app.logger.info(os.listdir(working_directory))
         if subm.compile_status and has_tests:
             # Parse test output
             tests = os.path.join(working_directory, renamed_files.get(
