@@ -57,11 +57,13 @@ def junit_task(submission_id):
         #            'bash', renamed_files.get(app.config['ANT_RUN_FILE_NAME'], app.config['ANT_RUN_FILE_NAME'])]
         command = ['bash', os.path.join(working_directory, renamed_files.get(app.config['ANT_RUN_FILE_NAME'], app.config['ANT_RUN_FILE_NAME']))]
         # Actually Run the command
+        app.logger.info('Launching {0}'.format(' '.join(command)))
         p = subprocess.Popen(
             command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         stdout, stderr = p.communicate()
         p.wait()
         subm.compile_status = 'Compile failed' not in stderr
+        app.logger.info(stderr)
         subm.compiler_out = stdout
         subm.save()
 
