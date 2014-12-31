@@ -53,8 +53,9 @@ def junit_task(submission_id):
         renamed_files, has_tests = setup_junit_dir(
             subm, proj, working_directory)
         selinux_tmp = mkdtemp()
-        command = ['sandbox', '-M', '-H', working_directory, '-T', selinux_tmp,
-                   'bash', renamed_files.get(app.config['ANT_RUN_FILE_NAME'], app.config['ANT_RUN_FILE_NAME'])]
+        # command = ['sandbox', '-M', '-H', working_directory, '-T', selinux_tmp,
+        #            'bash', renamed_files.get(app.config['ANT_RUN_FILE_NAME'], app.config['ANT_RUN_FILE_NAME'])]
+        command = ['bash', os.path.join(working_directory, renamed_files.get(app.config['ANT_RUN_FILE_NAME'], app.config['ANT_RUN_FILE_NAME']))]
         # Actually Run the command
         p = subprocess.Popen(
             command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
