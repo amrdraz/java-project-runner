@@ -39,6 +39,7 @@ def junit_task(submission_id):
     Processes a junit submission.
     """
     try:
+        app.logger.info('Starting Junit for {0}'.format(submission_id))
         subm = Submission.objects.get(id=submission_id)
         proj = Project.objects.get(submissions=subm)
         if subm.processed:
