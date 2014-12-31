@@ -56,7 +56,7 @@ def junit_task(submission_id):
         command = ['sandbox', '-M', '-H', working_directory, '-T', selinux_tmp,
                    'bash', renamed_files.get(app.config['ANT_RUN_FILE_NAME'], app.config['ANT_RUN_FILE_NAME'])]
         # Actually Run the command
-         p = subprocess.Popen(
+        p = subprocess.Popen(
             command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         stdout, stderr = p.communicate()
         p.wait()
