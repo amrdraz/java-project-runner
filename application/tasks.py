@@ -84,3 +84,8 @@ def junit_task(submission_id):
     except db.DoesNotExist:
         app.logger.warning(
             'Junit task launched with invalid submission_id {0}.'.format(submission_id))
+    except:
+        app.logger.error('Unforseen error while processing {0}'.format(submission_id))
+        subm.processed = True
+        subm.compile_status = False
+        subm.save()

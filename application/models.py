@@ -184,7 +184,7 @@ class Submission(db.Document):
     submitter = db.ReferenceField('Student', required=True)
     code = db.FileField(required=True)
     compile_status = db.BooleanField(default=False, required=True)
-    compiler_out = db.StringField(max_length=2048)
+    compiler_out = db.StringField(max_length=8086)
 
     def to_dict(self, **kwargs):
         parent_project = kwargs.get('parent_project', None)
