@@ -56,22 +56,20 @@ def junit_task(submission_id):
         command = ['sandbox', '-M', '-H', working_directory, '-T', selinux_tmp,
                    'bash', renamed_files.get(app.config['ANT_RUN_FILE_NAME'], app.config['ANT_RUN_FILE_NAME'])]
         # Actually Run the command
-        app.logger.info('Running command {0} for {1}'.format(' '.join(command), submission_id))
-        p = subprocess.Popen(
+         p = subprocess.Popen(
             command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         stdout, stderr = p.communicate()
         p.wait()
         subm.compile_status = 'Compile failed' not in stderr
         subm.compiler_out = stdout
+        app.logger.info('{0}'.format(stderr))
         subm.save()
-        app.logger.info('Compile status {0}, has_tests {1}'.format(subm.compile_status, has_tests))
+
         if subm.compile_status and has_tests:
             # Parse test output
             tests = os.path.join(working_directory, renamed_files.get(
                 app.config['ANT_BUILD_DIR_NAME'], app.config['ANT_BUILD_DIR_NAME']))
-            app.logger.info(os.listdir(tests))
             tests = os.path.join(tests, 'tests')
-            app.logger.info(os.listdir(tests))
             parse_junit_results(tests, subm)
             
 
