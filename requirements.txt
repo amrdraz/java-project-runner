@@ -35,4 +35,5 @@ pytz==2014.10
 redis==2.10.3
 regex==2014.12.15
 six==1.8.0
+subprocess32==3.2.6
 wsgiref==0.1.2

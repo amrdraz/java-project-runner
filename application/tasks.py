@@ -8,7 +8,7 @@ from celery import Celery
 from shutil import rmtree
 import os
 import re
-import subprocess
+import subprocess32 as subprocess
 from tempfile import mkdtemp
 
 
@@ -46,13 +46,14 @@ def junit_task(submission_id):
             app.logger.warning(
                 'Junit task launched with processed submission, id: {0}.'.format(submission_id))
             return
-        # Create a temporary directory
+        # Create a temporary directories
         working_directory = mkdtemp()
+        selinux_tmp = mkdtemp()
 
         # Populate directory
         renamed_files, has_tests = setup_junit_dir(
             subm, proj, working_directory)
-        selinux_tmp = mkdtemp()
+        
         command = ['sandbox', '-M', '-H', working_directory, '-T', selinux_tmp,
                    'bash', renamed_files.get(app.config['ANT_RUN_FILE_NAME'],
                     app.config['ANT_RUN_FILE_NAME'])]
@@ -62,8 +63,8 @@ def junit_task(submission_id):
 
         process = subprocess.Popen(
             command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        # communicate waits for the process to finish
         stdout, stderr = process.communicate()
-        process.wait() # Wait for command to finish
         subm.compile_status = 'Compile failed' not in stderr
         app.logger.info(stderr)
         app.logger.info(stdout)
