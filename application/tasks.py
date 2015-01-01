@@ -54,28 +54,31 @@ def junit_task(submission_id):
             subm, proj, working_directory)
         selinux_tmp = mkdtemp()
         command = ['sandbox', '-M', '-H', working_directory, '-T', selinux_tmp,
-                   'bash', renamed_files.get(app.config['ANT_RUN_FILE_NAME'], app.config['ANT_RUN_FILE_NAME'])]
+                   'bash', renamed_files.get(app.config['ANT_RUN_FILE_NAME'],
+                    app.config['ANT_RUN_FILE_NAME'])]
         # Actually Run the command
-        os.chdir(working_directory)
+        
         app.logger.info('Launching {0}'.format(' '.join(command)))
-        p = subprocess.Popen(
+
+        process = subprocess.Popen(
             command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        stdout, stderr = p.communicate()
-        p.wait()
+        stdout, stderr = process.communicate()
+        process.wait() # Wait for command to finish
         subm.compile_status = 'Compile failed' not in stderr
         app.logger.info(stderr)
         app.logger.info(stdout)
         subm.compiler_out = stdout
         subm.save()
-        app.logger.info(os.listdir(working_directory))
+        ant_build_dir_name = renamed_files.get(
+                app.config['ANT_BUILD_DIR_NAME'], app.config['ANT_BUILD_DIR_NAME'])
+        # If some other error occured and for some reason ant didn't even run
+        subm.compile_status &= ant_build_dir_name in os.listdir(working_directory)
         if subm.compile_status and has_tests:
             # Parse test output
-            tests = os.path.join(working_directory, renamed_files.get(
-                app.config['ANT_BUILD_DIR_NAME'], app.config['ANT_BUILD_DIR_NAME']))
+            tests = os.path.join(working_directory, ant_build_dir_name)
             tests = os.path.join(tests, 'tests')
             parse_junit_results(tests, subm)
             
-
         rmtree(working_directory)
         rmtree(selinux_tmp)
         subm.processed = True
