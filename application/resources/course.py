@@ -75,7 +75,7 @@ class CourseSubmissions(Resource):
         """
         course = Course.objects.get_or_404(name=name)
         if g.user not in course.teachers:
-            abort(401)
+            abort(403)
         submissions = []
         for project in course.projects:
             submissions = map(lambda subm: subm.to_dict(parent_project=project, parent_course=course),

@@ -24,8 +24,8 @@ class SingleSubmission(Resource):
             else:
                 abort(403)
         else:
-            proj = Project.objects.get(submissions=subm)
-            course = Course.objects.get(projects=proj)
+            proj = Project.objects.get_or_404(submissions=subm)
+            course = Course.objects.get_or_404(projects=proj)
             if g.user in course.teachers:
                 return subm.to_dict(parent_project=proj, parent_course=course)
             else:
