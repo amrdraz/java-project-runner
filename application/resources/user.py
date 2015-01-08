@@ -2,15 +2,15 @@
 Defines User resource's endpoints.
 """
 from application import api, db
-from application.models import User, Student
+from application.models import User, Student, BadSignature
 from application.tasks import activation_mail_task
 from flask.ext.restful import Resource, abort, marshal, marshal_with
 from fields import user_fields
 from parsers import user_parser
 from decorators import login_required
-from flask import g
+from flask import g, request
 from flanker.addresslib import address
-
+import datetime
 
 class UsersResource(Resource):
 
@@ -85,5 +85,47 @@ class UserResource(Resource):
         """
         return User.objects.get_or_404(id=id).to_dict()
 
+
+
+class UserActivation(Resource):
+    def get(self):
+        """
+        Attempts to activate user.
+        """
+        token = request.args.get('token')
+        if token is not None:
+            try:
+                user = User.verify_activation_token(token)
+                user.active = True
+                user.save()
+                return {}, 204
+            except (BadSignature):
+                abort(404, message="Bad Token")
+        else:
+            abort(400, message="Missing activation token.")
+
+    def post(self):
+        """
+        Resends activation email.
+        """
+        json = request.get_json(silent=True)
+        if json and 'email' in json:
+            user = User.objects.get_or_404(email=json['email'])
+            if user.active:
+                abort(422, message="Account is already active.")
+            elif user.activation_sent_at is None:
+                activation_mail_task.delay(str(user.id))
+                return {}, 204
+            elif (user.activation_sent_at < 
+                    datetime.datetime.utcnow() - datetime.timedelta(hours=1)):
+                activation_mail_task.delay(str(user.id))
+                return {}, 204
+            else:
+                abort(420, message='Stay calm and check your spam folder.')
+        else:
+            abort(400)
+
+
 api.add_resource(UsersResource, '/users', endpoint='users_ep')
 api.add_resource(UserResource, '/user/<string:id>', endpoint='user_ep')
+api.add_resource(UserActivation, '/activate', endpoint='activation_ep')
