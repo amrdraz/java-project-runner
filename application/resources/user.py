@@ -83,17 +83,5 @@ class UserResource(Resource):
         """
         return User.objects.get_or_404(id=id).to_dict()
 
-    def delete(self, id):
-        """
-        Deletes the currently logged in user.
-        Redundant id parameter is to be consistent with REST conventions 
-        or just not to stray too much from the middle.
-        """
-        if str(g.user.id) == id:
-            g.user.delete()
-            return {}, 204
-        else:
-            abort(400)
-
 api.add_resource(UsersResource, '/users', endpoint='users_ep')
 api.add_resource(UserResource, '/user/<string:id>', endpoint='user_ep')
