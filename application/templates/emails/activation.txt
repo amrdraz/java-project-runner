@@ -1,0 +1,3 @@
+Hello {{user.name}},
+Welcome to evaluator.in. To confirm your email address please visit {{activation_url}}.
+If you did not signup for an account on evaluator.in, please ignore this email.

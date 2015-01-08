@@ -20,8 +20,8 @@ class ProjectSubmissions(Resource):
             abort(403)  # Must be a course student to submit
         if not project in course.projects:
             abort(404)
-        if course.name != course_name:
-            abort(404)
+        if not project.can_submit:
+            abort(498, message="Due date hass passed, tough luck!")
         if len(request.files.values()) == 1:
             subm = Submission(submitter=g.user)
             for file in request.files.values():

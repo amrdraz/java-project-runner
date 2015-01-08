@@ -3,9 +3,10 @@ import os
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 DEBUG = False
 DROP_ENDPOINT = True
-
+ENABLE_EMAIL_ACTIVATION = False
+MAIL_FAIL_SILENTLY = True
 MONGODB_SETTINGS = {
-'DB': "project_runner"
+    'DB': "project_runner"
 }
 
 CELERY_BROKER_URL = 'amqp://localhost'

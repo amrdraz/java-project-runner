@@ -8,6 +8,7 @@ from flask import g, request
 from flask.ext.restful import Resource, abort, marshal_with, marshal
 from fields import course_fields, public_course_fields, project_fields, user_fields, submission_fields
 from werkzeug import secure_filename
+import dateutil
 import itertools
 
 # Primary Course resources
@@ -212,9 +213,16 @@ class CourseProjects(Resource):
         args = project_parser.parse_args()
         name = args['name']
         language = args['language']
+        due_date = args['due_date']
+        if due_date is None or due_date == '':
+            abort(400, message="Project must have due date.")
+        try:
+            due_date = dateutil.parser.parse(due_date)
+        except:
+            abort(400, message="Incorrect due date format.")
         if len([p for p in course.projects if p.name == name]) != 0:
             abort(422)
-        project = Project(name=name, language=language)
+        project = Project(name=name, language=language, due_date=due_date)
         for test_case in request.files.values():
             if allowed_test_file(test_case.filename):
                 grid_file = db.GridFSProxy()

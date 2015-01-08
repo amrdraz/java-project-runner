@@ -3,7 +3,7 @@ Submission resource's endpoints.
 """
 from application.models import Student, Submission, Project, Course
 from application import api
-from decorators import login_required
+from decorators import login_required, student_required
 from fields import submission_fields
 from flask.ext.restful import Resource, marshal_with, abort
 from flask import g
@@ -30,7 +30,18 @@ class SingleSubmission(Resource):
                 return subm.to_dict(parent_project=proj, parent_course=course)
             else:
                 abort(403)
-
+    
+    @student_required
+    def delete(self, id):
+        """
+        Deletes a submission, only it's submitter can delete it.
+        """
+        subm = Submission.objects.get_or_404(id=id)
+        if g.user == subm.submitter:
+            subm.delete()
+            return {}, 204 
+        else:
+            abort(403)
 
 api.add_resource(
     SingleSubmission, '/submission/<string:id>', endpoint='submission_ep')

@@ -152,7 +152,7 @@ def setup_junit_dir(subm, proj, working_directory):
 def parse_junit_results(test_res_dir, subm):
     """
     Parses XML output. Creates embedded TestResult and TestCase documents.
-    saves submission.
+    Doesn't save submission.
     param: ters_res_dir path to directory where reports are.
     param: subm submission document instance.
     """
@@ -179,5 +179,5 @@ def parse_junit_results(test_res_dir, subm):
             test_results[class_name].success &= case.passed
 
     subm.test_results = test_results.values()
-    subm.save()
+    
 

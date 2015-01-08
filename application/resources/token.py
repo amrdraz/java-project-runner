@@ -29,6 +29,8 @@ class TokenResource(Resource):
                     abort(401)
                 else:
                     user = user[0]
+                if api.app.config['ENABLE_EMAIL_ACTIVATION'] and not user.active:
+                    abort(401)
                 if user.verify_pass(values[1]):
                     remember = token_parser.parse_args()['remember']
                     duration = 12 * 30 * 24 * 60 * 60 if remember == 'true' else  10 * 60

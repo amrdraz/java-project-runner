@@ -3,6 +3,7 @@ Defines User resource's endpoints.
 """
 from application import api, db
 from application.models import User, Student
+from application.tasks import activation_mail_task
 from flask.ext.restful import Resource, abort, marshal, marshal_with
 from fields import user_fields
 from parsers import user_parser
@@ -36,6 +37,7 @@ class UsersResource(Resource):
             user = User(email=email, name=name)
         user.password = password
         user.save()
+        activation_mail_task.delay(str(user.id))
         return marshal(user.to_dict(), user_fields), 201
 
     @marshal_with(user_fields)

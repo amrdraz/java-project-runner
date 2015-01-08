@@ -20,10 +20,7 @@ def login_required(f):
         if token is not None:
             try:
                 g.user = User.verify_auth_token(token)
-                if g.user is not None:
-                    return f(*args, **kwargs)
-                else:
-                    abort(401)
+                return f(*args, **kwargs)
             except(BadSignature, SignatureExpired):
                 abort(401)
         else:

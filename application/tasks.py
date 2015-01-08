@@ -2,8 +2,10 @@
 Defines Celery instance and tasks.
 """
 from application import app, db
-from application.models import Submission, Project
+from application.models import Submission, Project, User
 from application.junit import setup_junit_dir, parse_junit_results
+from flask.ext.sendmail import Mail, Message
+from flask import render_template
 from celery import Celery
 from shutil import rmtree
 import os
@@ -11,6 +13,7 @@ import re
 import subprocess32 as subprocess
 from tempfile import mkdtemp
 
+mail = Mail(app)
 
 def make_celery(app):
     """
@@ -32,6 +35,25 @@ def make_celery(app):
 celery = make_celery(app)
 
 
+@celery.task
+def activation_mail_task(user_id):
+    """
+    Sends an activation email.
+    """
+    try: 
+        user = User.objects.get(id=user_id)
+        # Generate link
+        activation_token = user.generate_activation_token()
+        activation_url = 'https//evaluator.in/activate/?token={0}'.format(activation_token)
+        # send email
+        msg = Message("Activate your evaluator.in account")
+        msg.add_recipient(user.email)
+        msg.sender = "no-reply@evaluator.in"
+        context = {'user': user.to_dict(), 'activation_url': activation_url}
+        msg.body = render_template('emails/activation.txt', **context)
+        mail.send(msg)
+    except (db.DoesNotExist):
+        app.logger.warning('Attempted to send mail to non existing user.')
 
 @celery.task
 def junit_task(submission_id):
@@ -69,7 +91,7 @@ def junit_task(submission_id):
         app.logger.info(stderr)
         app.logger.info(stdout)
         subm.compiler_out = stdout
-        subm.save()
+        subm.safe_save()
         ant_build_dir_name = renamed_files.get(
                 app.config['ANT_BUILD_DIR_NAME'], app.config['ANT_BUILD_DIR_NAME'])
         # If some other error occured and for some reason ant didn't even run
@@ -83,7 +105,7 @@ def junit_task(submission_id):
         rmtree(working_directory)
         rmtree(selinux_tmp)
         subm.processed = True
-        subm.save()
+        subm.safe_save()
     except db.DoesNotExist:
         app.logger.warning(
             'Junit task launched with invalid submission_id {0}.'.format(submission_id))
@@ -91,4 +113,4 @@ def junit_task(submission_id):
         app.logger.error('Unforseen error while processing {0}'.format(submission_id))
         subm.processed = True
         subm.compile_status = False
-        subm.save()
+        subm.safe_save()

@@ -4,7 +4,7 @@ Document definitions.
 from application import db, app
 from flask.ext.bcrypt import generate_password_hash, check_password_hash
 import datetime
-from itsdangerous import TimedJSONWebSignatureSerializer, SignatureExpired, BadSignature
+from itsdangerous import TimedJSONWebSignatureSerializer, URLSafeSerializer, SignatureExpired, BadSignature
 
 
 class User(db.DynamicDocument):
@@ -16,7 +16,8 @@ class User(db.DynamicDocument):
         max_length=256, min_length=1, required=True, unique=True)
     name = db.StringField(max_length=512, min_length=1, required=True)
     password_hash = db.StringField(max_length=60, required=True)
-
+    active = db.BooleanField(default=False, required=True)
+    activation_sent_at = db.DateTimeField()
     meta = {'allow_inheritance': True,
             "indexes": [
                 {
@@ -43,10 +44,33 @@ class User(db.DynamicDocument):
         return check_password_hash(self.password_hash, password)
 
     def generate_auth_token(self, expires_in):
-        """Creates a token to uniquely identify this user."""
+        """Creates an expiring token to uniquely identify this user."""
         seriliezer = TimedJSONWebSignatureSerializer(
             app.config['SECRET_KEY'], expires_in=expires_in)
         return seriliezer.dumps({'id': str(self.id)})
+
+    def generate_activation_token(self):
+        """
+        Creates a token to uniquely identify this user.
+        Token is URL safe.
+        """
+        seriliezer = URLSafeSerializer(app.config['SECRET_KEY'])
+        self.activation_sent_at = datetime.datetime.utcnow()
+        return seriliezer.dumps({'email': self.email})
+
+    @staticmethod
+    def verify_activation_token(token):
+        """
+        Retrieves user who is identified by this token.
+        Raises BadSignature if bad token.
+        """
+        serializer = URLSafeSerializer(app.config['SECRET_KEY'])
+        data = serializer.loads(token)
+        matches = User.objects(email=data['email'])
+        if matches.count() != 1:
+            raise BadSignature("Could not identify owner.")
+        return matches[0]
+
 
     @staticmethod
     def verify_auth_token(token):
@@ -58,7 +82,7 @@ class User(db.DynamicDocument):
         data = s.loads(token)
         matches = User.objects(id=data['id'])
         if matches.count() != 1:
-            return None
+            raise BadSignature("Could not identify owner.")
         return matches[0]
 
     def to_dict(self, **kwargs):
@@ -67,7 +91,8 @@ class User(db.DynamicDocument):
             "created_at": self.created_at,
             "email": self.email,
             "password": self.password,
-            "name": self.name
+            "name": self.name,
+            "active": self.active
         }
 
 
@@ -118,6 +143,7 @@ class Project(db.Document):
     LANGUAGES = [('J', 'Java Project')]
     created_at = db.DateTimeField(
         default=datetime.datetime.utcnow, required=True)
+    due_date = db.DateTimeField(required=True)
     name = db.StringField(max_length=256, min_length=5, required=True)
     tests = db.ListField(db.FileField())
     language = db.StringField(
@@ -125,6 +151,10 @@ class Project(db.Document):
     test_timeout_seconds = db.LongField(
         default=600, max_value=1800, required=True)
     submissions = db.ListField(db.ReferenceField('Submission'))
+
+    @property
+    def can_submit(self):
+        return self.due_date <= datetime.datetime.utcnow()
 
     def to_dict(self, **kwargs):
         parent_course = kwargs.get('parent_course', None)
@@ -135,7 +165,9 @@ class Project(db.Document):
             "created_at": self.created_at,
             "tests": [f.name for f in self.tests],
             "course": (parent_course.to_dict(**kwargs) if parent_course is not None
-                       else Course.objects.get(projects=self).to_dict(**kwargs))
+                       else Course.objects.get(projects=self).to_dict(**kwargs)),
+            "can_submit": self.can_submit,
+            "due_date": self.due_date
         }
         dic['course_name'] = dic['course']['name']
         return dic
@@ -185,6 +217,14 @@ class Submission(db.Document):
     code = db.FileField(required=True)
     compile_status = db.BooleanField(default=False, required=True)
     compiler_out = db.StringField(max_length=8086)
+
+    def safe_save(self):
+        """Saves only if the object still exists."""
+        try:
+            self.update()
+            self.save()
+        except (db.DoesNotExist):
+            pass
 
     def to_dict(self, **kwargs):
         parent_project = kwargs.get('parent_project', None)
