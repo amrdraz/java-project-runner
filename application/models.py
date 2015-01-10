@@ -2,7 +2,6 @@
 Document definitions.
 """
 from application import db, app
-from application.tasks import activation_mail_task
 from flask.ext.bcrypt import generate_password_hash, check_password_hash
 import datetime
 from itsdangerous import TimedJSONWebSignatureSerializer, URLSafeSerializer, SignatureExpired, BadSignature
@@ -42,6 +41,8 @@ class User(db.DynamicDocument):
         self.password_hash = generate_password_hash(value, 12)
 
     def send_activation_mail(self):
+        """Updates sent_at time and schedules a task."""
+        from application.tasks import activation_mail_task
         self.activation_sent_at = datetime.datetime.utcnow()
         self.save()
         activation_mail_task.delay(str(self.id))

@@ -3,7 +3,6 @@ Defines User resource's endpoints.
 """
 from application import api, db
 from application.models import User, Student, BadSignature
-from application.tasks import activation_mail_task
 from flask.ext.restful import Resource, abort, marshal, marshal_with
 from fields import user_fields
 from parsers import user_parser
