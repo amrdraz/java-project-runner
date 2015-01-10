@@ -37,7 +37,7 @@ class UsersResource(Resource):
             user = User(email=email, name=name)
         user.password = password
         user.save()
-        activation_mail_task.delay(str(user.id))
+        user.send_activation_mail()
         return marshal(user.to_dict(), user_fields), 201
 
     @marshal_with(user_fields)
@@ -114,11 +114,11 @@ class UserActivation(Resource):
             if user.active:
                 abort(422, message="Account is already active.")
             elif user.activation_sent_at is None:
-                activation_mail_task.delay(str(user.id))
+                user.send_activation_mail()
                 return {}, 204
             elif (user.activation_sent_at < 
                     datetime.datetime.utcnow() - datetime.timedelta(hours=1)):
-                activation_mail_task.delay(str(user.id))
+                user.send_activation_mail()
                 return {}, 204
             else:
                 abort(420, message='Stay calm and check your spam folder.')

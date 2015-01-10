@@ -2,6 +2,7 @@
 Document definitions.
 """
 from application import db, app
+from application.tasks import activation_mail_task
 from flask.ext.bcrypt import generate_password_hash, check_password_hash
 import datetime
 from itsdangerous import TimedJSONWebSignatureSerializer, URLSafeSerializer, SignatureExpired, BadSignature
@@ -39,6 +40,11 @@ class User(db.DynamicDocument):
     def password(self, value):
         """Hashes password."""
         self.password_hash = generate_password_hash(value, 12)
+
+    def send_activation_mail(self):
+        self.activation_sent_at = datetime.datetime.utcnow()
+        self.save()
+        activation_mail_task.delay(str(self.id))
 
     def verify_pass(self, password):
         return check_password_hash(self.password_hash, password)
