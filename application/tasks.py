@@ -44,7 +44,7 @@ def activation_mail_task(user_id):
         user = User.objects.get(id=user_id)
         # Generate link
         activation_token = user.generate_activation_token()
-        activation_url = 'https//evaluator.in/activate/?token={0}'.format(activation_token)
+        activation_url = 'https://evaluator.in/activate/?token={0}'.format(activation_token)
         # send email
         msg = Message("Activate your evaluator.in account")
         msg.add_recipient(user.email)
