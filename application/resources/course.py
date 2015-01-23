@@ -221,7 +221,7 @@ class CourseProjects(Resource):
         except:
             abort(400, message="Incorrect due date format.")
         if len([p for p in course.projects if p.name == name]) != 0:
-            abort(422)
+            abort(422, message="Request makes no sense, grab a programmer.")
         project = Project(name=name, language=language, due_date=due_date)
         for test_case in request.files.values():
             if allowed_test_file(test_case.filename):
