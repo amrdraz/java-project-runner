@@ -2,9 +2,9 @@
 Defines User resource's endpoints.
 """
 from application import api, db
-from application.models import User, Student, BadSignature
+from application.models import User, Student, Course, BadSignature
 from flask.ext.restful import Resource, abort, marshal, marshal_with
-from fields import user_fields
+from fields import user_fields, course_fields
 from parsers import user_parser
 from decorators import login_required
 from flask import g, request
@@ -125,6 +125,18 @@ class UserActivation(Resource):
             abort(400)
 
 
+class UserDashboard(Resource):
+    method_decorators = [login_required]
+    @marshal_with(course_fields)
+    def get(self):
+        if isinstance(g.user, Student):
+            courses = Course.objects(students=g.user)
+        else:
+            courses = Course.objects(teachers=g.user)
+        return [course.to_dict() for course in courses]
+
+
 api.add_resource(UsersResource, '/users', endpoint='users_ep')
 api.add_resource(UserResource, '/user/<string:id>', endpoint='user_ep')
 api.add_resource(UserActivation, '/activate', endpoint='activation_ep')
+api.add_resource(UserDashboard, '/user/dashboard', endpoint='dashboard')
