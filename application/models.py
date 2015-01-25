@@ -161,7 +161,7 @@ class Project(db.Document):
 
     @property
     def can_submit(self):
-        return self.due_date <= datetime.datetime.utcnow()
+        return self.due_date >= datetime.datetime.utcnow()
 
     def to_dict(self, **kwargs):
         parent_course = kwargs.get('parent_course', None)
