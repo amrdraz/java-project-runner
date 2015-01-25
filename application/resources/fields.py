@@ -10,7 +10,7 @@ user_fields = {
     'guc_id': fields.String,
     'id': fields.String,
     'created_at': fields.DateTime('iso8601'),
-    'active': fields.Boolean(),
+    'active': fields.Boolean,
     'url': fields.Url(endpoint='user_ep')
 }
 
@@ -47,8 +47,8 @@ project_fields = {
     "course": fields.Nested(course_fields),
     "url": fields.Url(endpoint='project_ep'),
     'submissions_url': fields.Url(endpoint='project_submissions_ep'),
-    'language': fields.String(),
-    'can_submit': fields.Boolean(),
+    'language': fields.String,
+    'can_submit': fields.Boolean,
     'due_date': fields.DateTime('iso8601'),
     'created_at': fields.DateTime('iso8601')
 }
