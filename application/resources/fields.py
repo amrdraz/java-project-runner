@@ -71,7 +71,7 @@ submission_fields = {
     "url": fields.Url('submission_ep'),
     "submitter": fields.Nested(user_fields),
     "tests": fields.List(fields.Nested(test_result_fields)),
-    "processed": fields.String,
+    "processed": fields.Boolean,
     "project": fields.Nested(project_fields),
     'compiler_out': fields.String,
     'compile_status': fields.Boolean,
