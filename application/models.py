@@ -225,14 +225,6 @@ class Submission(db.Document):
     compile_status = db.BooleanField(default=False, required=True)
     compiler_out = db.StringField(max_length=8086)
 
-    def safe_save(self):
-        """Saves only if the object still exists."""
-        try:
-            self.update()
-            self.save()
-        except (db.DoesNotExist):
-            pass
-
     def to_dict(self, **kwargs):
         parent_project = kwargs.get('parent_project', None)
         dic = {

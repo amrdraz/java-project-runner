@@ -91,7 +91,7 @@ def junit_task(submission_id):
         app.logger.info(stderr)
         app.logger.info(stdout)
         subm.compiler_out = stdout
-        subm.safe_save()
+        subm.save()
         ant_build_dir_name = renamed_files.get(
                 app.config['ANT_BUILD_DIR_NAME'], app.config['ANT_BUILD_DIR_NAME'])
         # If some other error occured and for some reason ant didn't even run
@@ -105,7 +105,7 @@ def junit_task(submission_id):
         rmtree(working_directory)
         rmtree(selinux_tmp)
         subm.processed = True
-        subm.safe_save()
+        subm.save()
     except db.DoesNotExist:
         app.logger.warning(
             'Junit task launched with invalid submission_id {0}.'.format(submission_id))
@@ -113,4 +113,4 @@ def junit_task(submission_id):
         app.logger.error('Unforseen error while processing {0}'.format(submission_id))
         subm.processed = True
         subm.compile_status = False
-        subm.safe_save()
+        subm.save()
