@@ -56,13 +56,13 @@ project_fields = {
 test_case_fields = {
     "name": fields.String,
     "detail": fields.String,
-    "passed": fields.String
+    "passed": fields.Boolean
 }
 
 test_result_fields = {
     "name": fields.String,
     "cases": fields.List(fields.Nested(test_case_fields)),
-    "success": fields.String,
+    "success": fields.Boolean,
     'created_at': fields.DateTime('iso8601')
 }
 
