@@ -76,7 +76,7 @@ class CourseSubmissions(Resource):
         """
         course = Course.objects.get_or_404(name=name)
         if g.user not in course.teachers:
-            abort(403)
+            abort(403, message='message must be a course teacher to view all submissions')
         submissions = []
         for project in course.projects:
             submissions = map(lambda subm: subm.to_dict(parent_project=project, parent_course=course),
@@ -107,14 +107,14 @@ class CourseTeachers(Resource):
         if not isinstance(teacher, Student):
             if not (g.user.id == teacher.id or g.user in course.teachers):
                 # I can add myself or I can be added by existing course staff
-                abort(403)
+                abort(403, message='Can only add self, or must be a course teacher to add others.')
             if teacher in course.teachers:
-                abort(422)
+                abort(422, message='Already a course teacher.')
             course.teachers.append(teacher)
             course.save()
             return {}, 204
         else:
-            abort(400, message="can not add student as a teacher")
+            abort(400, message="Can not add student as a course teacher.")
 
     @teacher_required
     def delete(self, name):
@@ -131,7 +131,7 @@ class CourseTeachers(Resource):
                 course.save()
                 return {}, 204
             else:
-                abort(404)
+                abort(404, message="Not a course teacher.")
         else:
             abort(403, message='Must be a course teacher')
 
@@ -149,14 +149,14 @@ class CourseStudents(Resource):
             course = Course.objects.get_or_404(name=name)
             if g.user in course.teachers or g.user.id == student.id:
                 if student in course.students:
-                    abort(422)
+                    abort(422, message='Student already registered for course.')
                 course.students.append(student)
                 course.save()
                 return {}, 204
             else:
-                abort(403)
+                abort(403, message='Can only add self as student or be added by a course teacher.')
         else:
-            abort(400)  # Terrible request
+            abort(400, message='Can not add a teacher as a course student.')  # Terrible request
 
     @marshal_with(user_fields)
     def get(self, name):
@@ -179,7 +179,7 @@ class CourseStudents(Resource):
             course.save()
             return {}, 204
         else:
-            abort(403)
+            abort(403, message='Can only unregister self.')
 
 
 class CourseProjects(Resource):
@@ -198,7 +198,7 @@ class CourseProjects(Resource):
         if g.user in course.students or g.user in course.teachers:
             return [project.to_dict(parent_course=course) for project in course.projects]
         else:
-            abort(403)
+            abort(403,  message='Must be course teacher or student to view projects')
           
 
     @teacher_required
@@ -209,7 +209,7 @@ class CourseProjects(Resource):
         """
         course = Course.objects.get_or_404(name=name)
         if g.user not in course.teachers:
-            abort(403)
+            abort(403, message='Must be course teacher to add a project.')
         args = project_parser.parse_args()
         name = args['name']
         language = args['language']

@@ -26,23 +26,23 @@ class TokenResource(Resource):
                 values = auth.split(':')
                 user = User.objects(email=values[0])
                 if len(user) != 1:
-                    abort(401)
+                    abort(401, message='Invalid email or password')
                 else:
                     user = user[0]
                 if api.app.config['ENABLE_EMAIL_ACTIVATION'] and not user.active:
-                    abort(422)
+                    abort(422, message='Inactive user')
                 if user.verify_pass(values[1]):
                     remember = token_parser.parse_args()['remember']
                     duration = 12 * 30 * 24 * 60 * 60 if remember == 'true' else  10 * 60
                     token = user.generate_auth_token(duration)
                     return marshal({"token": token, "valid_for": duration, "user": user.to_dict()}, token_fields), 201
                 else:
-                    abort(401)
+                    abort(401, message='Invalid email or password')
             except TypeError:
                 # Wasn't a base 64 string
-                abort(400)
+                abort(400, message="Not a base 64 string")
         else:
-            abort(400)
+            abort(400, message="Missing authorization field")
 
 
 api.add_resource(TokenResource, '/token', endpoint='token_ep')
