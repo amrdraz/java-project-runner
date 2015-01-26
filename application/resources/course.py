@@ -227,7 +227,7 @@ class CourseProjects(Resource):
             if allowed_test_file(test_case.filename):
                 grid_file = db.GridFSProxy()
                 grid_file.put(
-                    test_case, filename=secure_filename(test_case.filename))
+                    test_case, filename=secure_filename(test_case.filename), content_type=request.mimetype)
                 project.tests.append(grid_file)
             else:
                 abort(
