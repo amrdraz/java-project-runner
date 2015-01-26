@@ -18,7 +18,7 @@ class TokenResource(Resource):
         since this is still creating a new resource,while granted 
         it only lives on the client side yet is still a new instance.
         """
-        auth = request.headers.get('Authorization', None)
+        auth = request.headers.get('X-Auth', None)
         if auth is not None:
             auth = auth.replace('Basic ', '', 1)
             try:
@@ -42,7 +42,7 @@ class TokenResource(Resource):
                 # Wasn't a base 64 string
                 abort(400, message="Not a base 64 string")
         else:
-            abort(400, message="Missing authorization field")
+            abort(400, message="Missing X-Auth field")
 
 
 api.add_resource(TokenResource, '/token', endpoint='token_ep')
