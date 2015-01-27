@@ -100,12 +100,12 @@ class ProjectsResource(Resource):
 class ProjectTestFileDownload(Resource):
 
     @teacher_required
-    def get(self, project_id, file_name):
+    def get(self, project_id, name):
         project = Project.objects.get_or_404(id=project_id)
         course = Course.objects.get_or_404(projects=project)
         if g.user not in course.teachers:
             abort(403, message="Must be course teacher to view test files.")
-        file = [f for f in project.tests if f.filename == file_name]
+        file = [f for f in project.tests if f.filename == name]
         if len(file) == 0:
             abort(404, message="File not found.")
         elif len(file) == 1:
