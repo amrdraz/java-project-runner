@@ -1,4 +1,4 @@
-exports.host = 'http://localhost:8080';
+exports.host = 'https://api.evaluator.in';
 
 exports.auth_header_value = function(email, password) {
     return ["Basic", Buffer([email, password].join(':')).toString('base64')].join(' ');

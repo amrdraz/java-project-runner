@@ -86,7 +86,7 @@ describe('profile', function(){
 
     before(function(done) {
         request.post(utils.token_ep)
-            .set('Authorization',
+            .set('X-Auth',
                 utils.auth_header_value(teacher.email,
                     teacher.password))
             .end(function(err, res) {
@@ -99,7 +99,7 @@ describe('profile', function(){
 
     before(function(done) {
         request.post(utils.token_ep)
-            .set('Authorization',
+            .set('X-Auth',
                 utils.auth_header_value(extra_student.email,
                     extra_student.password))
             .end(function(err, res) {
@@ -112,7 +112,7 @@ describe('profile', function(){
 
     before(function(done) {
         request.post(utils.token_ep)
-            .set('Authorization',
+            .set('X-Auth',
                 utils.auth_header_value(extra_teacher.email,
                     extra_teacher.password))
             .end(function(err, res) {
@@ -125,7 +125,7 @@ describe('profile', function(){
 
     before(function(done) {
         request.post(utils.token_ep)
-            .set('Authorization',
+            .set('X-Auth',
                 utils.auth_header_value(student.email,
                     student.password))
             .end(function(err, res) {

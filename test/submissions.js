@@ -64,7 +64,7 @@ describe('Submission', function() {
 
     before(function(done) {
         request.post(utils.token_ep)
-            .set('Authorization',
+            .set('X-Auth',
                 utils.auth_header_value(student.email,
                     'pass'))
             .end(function(err, res) {
@@ -76,7 +76,7 @@ describe('Submission', function() {
     });
     before(function(done) {
         request.post(utils.token_ep)
-            .set('Authorization',
+            .set('X-Auth',
                 utils.auth_header_value(teacher.email,
                     'pass'))
             .end(function(err, res) {
@@ -103,6 +103,7 @@ describe('Submission', function() {
         request.post(course.projects_url)
             .field('name', project.name)
             .field('language', project.language)
+            .field('due_date', '2020-01-26T16:14:49Z' )
             .set('X-Auth-Token', teacher.token)
             .attach('FooTest', 'test/fixtures/project_alpha/FooTest.java')
             .attach('BarTest', 'test/fixtures/project_alpha/BarTest.java')
@@ -173,7 +174,7 @@ describe('Submission', function() {
          });
         before(function(done) {
              request.post(utils.token_ep)
-                 .set('Authorization',
+                 .set('X-Auth',
                      utils.auth_header_value(bad_student.email,
                          'pass'))
                  .end(function(err, res) {
@@ -185,7 +186,7 @@ describe('Submission', function() {
          });
          before(function(done) {
              request.post(utils.token_ep)
-                 .set('Authorization',
+                 .set('X-Auth',
                      utils.auth_header_value(bad_teacher.email,
                          'pass'))
                  .end(function(err, res) {

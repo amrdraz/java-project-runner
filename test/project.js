@@ -90,7 +90,7 @@ describe('Project', function() {
 
     before(function(done) {
         request.post(utils.token_ep)
-            .set('Authorization',
+            .set('X-Auth',
                 utils.auth_header_value(teacher_one.email,
                     teacher_one.password))
             .end(function(err, res) {
@@ -102,7 +102,7 @@ describe('Project', function() {
 
     before(function(done) {
         request.post(utils.token_ep)
-            .set('Authorization',
+            .set('X-Auth',
                 utils.auth_header_value(teacher_two.email,
                     teacher_two.password))
             .end(function(err, res) {
@@ -114,7 +114,7 @@ describe('Project', function() {
 
     before(function(done) {
         request.post(utils.token_ep)
-            .set('Authorization',
+            .set('X-Auth',
                 utils.auth_header_value(student_one.email,
                     student_one.password))
             .end(function(err, res) {
@@ -126,7 +126,7 @@ describe('Project', function() {
 
     before(function(done) {
         request.post(utils.token_ep)
-            .set('Authorization',
+            .set('X-Auth',
                 utils.auth_header_value(student_two.email,
                     student_two.password))
             .end(function(err, res) {
@@ -159,6 +159,7 @@ describe('Project', function() {
         request.post(course.projects_url)
             .set('X-Auth-Token', student_one.token)
             .field('name', dummy_project.name)
+            .field('due_date', '2020-01-26T16:14:49Z' )
             .field('language', dummy_project.language)
             .attach('FooTest', 'test/fixtures/project_alpha/FooTest.java')
             .attach('BarTest', 'test/fixtures/project_alpha/BarTest.java')
@@ -242,12 +243,15 @@ describe('Project', function() {
                 .set('X-Auth-Token', teacher_one.token)
                 .field('name', project.name)
                 .field('language', project.language)
+                .field('due_date', '2020-01-26T16:14:49Z' )
                 .attach('FooTest', 'test/fixtures/project_alpha/FooTest.java')
                 .attach('BarTest', 'test/fixtures/project_alpha/BarTest.java')
                 .end(function(err, res) {
                     should.not.exist(err);
                     res.status.should.be.eql(201);
                     project = res.body;
+                    project.tests.should.be.an.instanceOf(Array)
+                    .and.have.a.lengthOf(2);
                     done();
             });
         });

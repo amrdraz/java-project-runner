@@ -85,7 +85,7 @@ describe('Courses', function() {
 
     before(function(done) {
         request.post(utils.token_ep)
-            .set('Authorization',
+            .set('X-Auth',
                 utils.auth_header_value(teacher_one.email,
                     teacher_one.password))
             .end(function(err, res) {
@@ -97,7 +97,7 @@ describe('Courses', function() {
 
     before(function(done) {
         request.post(utils.token_ep)
-            .set('Authorization',
+            .set('X-Auth',
                 utils.auth_header_value(teacher_two.email,
                     teacher_two.password))
             .end(function(err, res) {
@@ -109,7 +109,7 @@ describe('Courses', function() {
 
     before(function(done) {
         request.post(utils.token_ep)
-            .set('Authorization',
+            .set('X-Auth',
                 utils.auth_header_value(student_one.email,
                     student_one.password))
             .end(function(err, res) {
@@ -121,7 +121,7 @@ describe('Courses', function() {
 
     before(function(done) {
         request.post(utils.token_ep)
-            .set('Authorization',
+            .set('X-Auth',
                 utils.auth_header_value(student_two.email,
                     student_two.password))
             .end(function(err, res) {
@@ -411,7 +411,7 @@ describe('Courses', function() {
 
                     before(function(done) {
                         request.post(utils.token_ep)
-                        .set('Authorization',
+                        .set('X-Auth',
                             utils.auth_header_value(extra_teacher.email,
                                 extra_teacher.password))
                         .end(function(err, res) {
@@ -622,6 +622,7 @@ describe('Courses', function() {
                     .set('X-Auth-Token', teacher_one.token)
                     .field('name', project_one.name)
                     .field('language', project_one.language)
+                    .field('due_date', '2020-01-26T16:14:49Z' )
                     .attach('FooTest', 'test/fixtures/project_alpha/FooTest.java')
                     .end(function(err, res) {
                         should.not.exist(err);
@@ -636,6 +637,7 @@ describe('Courses', function() {
                     .set('X-Auth-Token', teacher_one.token)
                     .field('name', project_two.name)
                     .field('language', project_two.language)
+                    .field('due_date', '2020-01-26T16:14:49Z' )
                     .attach('FooTest.java', 'test/fixtures/project_alpha/FooTest.java')
                     .end(function(err, res) {
                         should.not.exist(err);
@@ -654,6 +656,7 @@ describe('Courses', function() {
                     request.post(course_three.projects_url)
                         .field('name', project_two.name)
                         .field('language', project_two.language)
+                        .field('due_date', '2020-01-26T16:14:49Z' )
                         .attach('FooTest.java', 'test/fixtures/project_alpha/FooTest.java')
                         .set('X-Auth-Token', teacher_two.token)
                         .end(function(err, res) {
@@ -674,6 +677,7 @@ describe('Courses', function() {
                         .attach('FooTest.java', 'test/fixtures/project_alpha/FooTest.java')
                         .field('name', 'This should 403')
                         .field('language', 'J')
+                        .field('due_date', '2020-01-26T16:14:49Z' )
                         .set('X-Auth-Token', student_one.token)
                         .end(function(err, res) {
                             should.not.exist(err);
@@ -688,12 +692,14 @@ describe('Courses', function() {
                         .field('name', 'DUPLICATE PROJECT')
                         .field('language', 'J')
                         .set('X-Auth-Token', teacher_one.token)
+                        .field('due_date', '2020-01-26T16:14:49Z' )
                         .end(function(err, res) {
                             should.not.exist(err);
                             res.status.should.be.eql(201);
                             request.post(course_four.projects_url)
                                 .field('name', 'DUPLICATE PROJECT')
                                 .field('language', 'J')
+                                .field('due_date', '2020-01-26T16:14:49Z' )
                                 .set('X-Auth-Token', teacher_one.token)
                                 .end(function(err, res) {
                                     should.not.exist(err);
@@ -708,6 +714,7 @@ describe('Courses', function() {
                         .attach('FooTest.java', 'test/fixtures/project_alpha/FooTest.java')
                         .field('name', 'GOOD DUPLICATE')
                         .field('language', 'J')
+                        .field('due_date', '2020-01-26T16:14:49Z' )
                         .set('X-Auth-Token', teacher_one.token)
                         .end(function(err, res) {
                             should.not.exist(err);
@@ -715,6 +722,7 @@ describe('Courses', function() {
                             request.post(course_three.projects_url)
                                 .attach('FooTest.java', 'test/fixtures/project_alpha/FooTest.java')
                                 .field('name', 'GOOD DUPLICATE')
+                                .field('due_date', '2020-01-26T16:14:49Z' )
                                 .field('language', 'J')
                                 .set('X-Auth-Token', teacher_one.token)
                                 .end(function(err, res) {

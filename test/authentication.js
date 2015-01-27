@@ -230,7 +230,7 @@ describe('Authentication', function() {
 
         before(function(done) {
             request.post(utils.token_ep)
-                .set('Authorization',
+                .set('X-Auth',
                     utils.auth_header_value(teacher_one.email,
                         teacher_one.password))
                 .end(function(err, res) {
@@ -242,7 +242,7 @@ describe('Authentication', function() {
 
         before(function(done) {
             request.post(utils.token_ep)
-                .set('Authorization',
+                .set('X-Auth',
                     utils.auth_header_value(teacher_two.email,
                         teacher_two.password))
                 .end(function(err, res) {
@@ -254,7 +254,7 @@ describe('Authentication', function() {
 
         before(function(done) {
             request.post(utils.token_ep)
-                .set('Authorization',
+                .set('X-Auth',
                     utils.auth_header_value(student_one.email,
                         student_one.password))
                 .end(function(err, res) {
@@ -266,7 +266,7 @@ describe('Authentication', function() {
 
         before(function(done) {
             request.post(utils.token_ep)
-                .set('Authorization',
+                .set('X-Auth',
                     utils.auth_header_value(student_two.email,
                         student_two.password))
                 .end(function(err, res) {
@@ -339,7 +339,7 @@ describe('Authentication', function() {
                         res.body.should.have.property('id', teacher_one.id);
                         // Get new token
                         request.post(utils.token_ep)
-                            .set('Authorization', utils.auth_header_value(teacher_one.email,
+                            .set('X-Auth', utils.auth_header_value(teacher_one.email,
                                 teacher_one.password))
                             .end(function(err, res) {
                                 should.not.exist(err);
@@ -433,7 +433,7 @@ describe('Authentication', function() {
                         res.body.should.have.property('id', student_one.id);
                         // Get new token
                         request.post(utils.token_ep)
-                            .set('Authorization', utils.auth_header_value(student_one.email,
+                            .set('X-Auth', utils.auth_header_value(student_one.email,
                                 student_one.password))
                             .end(function(err, res) {
                                 should.not.exist(err);
@@ -472,7 +472,7 @@ describe('Authentication', function() {
 
         it('Should 404 on non existing email', function(done) {
             request.post(utils.token_ep)
-                .set('Authorization', utils.auth_header_value('non.existant@guc.edu.eg',
+                .set('X-Auth', utils.auth_header_value('non.existant@guc.edu.eg',
                     'pass'))
                 .end(function(err, res) {
                     should.not.exist(err);
@@ -483,7 +483,7 @@ describe('Authentication', function() {
 
         it('Should 401 on invalid password', function(done) {
             request.post(utils.token_ep)
-                .set('Authorization', utils.auth_header_value(student_two.email,
+                .set('X-Auth', utils.auth_header_value(student_two.email,
                     student_two.pass + '22'))
                 .end(function(err, res) {
                     should.not.exist(err);
@@ -494,7 +494,7 @@ describe('Authentication', function() {
 
         it('Should 400 on invalid Authentication value', function(done) {
             request.post(utils.token_ep)
-                .set('Authorization', 'not a token')
+                .set('X-Auth', 'not a token')
                 .end(function(err, res) {
                     should.not.exist(err);
                     res.status.should.be.eql(400);
