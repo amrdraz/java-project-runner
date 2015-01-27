@@ -222,7 +222,7 @@ class CourseProjects(Resource):
             abort(400, message="Incorrect due date format.")
         if len([p for p in course.projects if p.name == name]) != 0:
             abort(422, message="Request makes no sense, grab a programmer.")
-        filenames = [f.name for f in request.files.values()]
+        filenames = [f.filename for f in request.files.values()]
         if len(filenames) != len(set(filenames)):
             abort(400, message="Test file names must be unique.")
         project = Project(name=name, language=language, due_date=due_date)
