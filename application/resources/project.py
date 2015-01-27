@@ -120,7 +120,7 @@ class ProjectTestFileDownload(Resource):
 
 
 api.add_resource(
-    ProjectTestFileDownload, '/project/<string:project_id/tests/<string:name>')
+    ProjectTestFileDownload, '/project/<string:project_id>/tests/<string:name>')
 
 api.add_resource(ProjectSubmissions, '/course/<string:course_name>/projects/<string:name>/submissions',
                  endpoint='project_submissions_ep')
