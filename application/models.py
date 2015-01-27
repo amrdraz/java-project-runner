@@ -170,13 +170,20 @@ class Project(db.Document):
             "name": self.name,
             "language": self.language,
             "created_at": self.created_at,
-            "tests": [f.name for f in self.tests],
             "course": (parent_course.to_dict(**kwargs) if parent_course is not None
                        else Course.objects.get(projects=self).to_dict(**kwargs)),
             "can_submit": self.can_submit,
             "due_date": self.due_date
         }
         dic['course_name'] = dic['course']['name']
+        def file_to_dic(project_id, file):
+            dic = {
+                "name": file.filename,
+                "mimetype": file.content_type,
+                "project_id": project_name
+            }
+            return dic
+        dic['tests'] = [file_to_dic(self.id, f) for f in self.tests]
         return dic
 
 

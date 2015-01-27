@@ -1,9 +1,9 @@
 from flask.ext.restful import Resource, abort, marshal_with, marshal
 from application import api, db
 from application.models import Course, Project, Submission, Student
-from decorators import student_required, login_required
+from decorators import student_required, login_required, teacher_required
 from fields import submission_fields, project_fields
-from flask import g, request
+from flask import g, request, make_response
 from werkzeug import secure_filename
 from application.tasks import junit_task
 from application.resources import allowed_code_file
@@ -31,14 +31,14 @@ class ProjectSubmissions(Resource):
                         file, filename=secure_filename(file.filename), content_type=request.mimetype)
                     subm.code = grid_file
                 else:
-                    abort(400)
+                    abort(400, messag="Only ")
             subm.save()
             project.submissions.append(subm)
             project.save()
             junit_task.delay(str(subm.id))
             return marshal(subm.to_dict(parent_course=course, parent_project=project), submission_fields), 201
         else:
-            abort(400)  # Bad request
+            abort(400, message="Can only submit one file.")  # Bad request
 
     @login_required
     @marshal_with(submission_fields)
@@ -95,6 +95,32 @@ class ProjectsResource(Resource):
             courses = Course.objects(teachers=g.user)
             return [[project.to_dict(parent_course=c) for project in c.projects]
                     for c in courses]
+
+
+class ProjectTestFileDownload(Resource):
+
+    @teacher_required
+    def get(self, project_id, file_name):
+        project = Project.objects.get_or_404(id=project_id)
+        course = Course.objects.get_or_404(projects=project)
+        if g.user not in course.teachers:
+            abort(403, message="Must be course teacher to view test files.")
+        file = [f for f in project.tests if f.filename == file_name]
+        if len(file) == 0:
+            abort(404, message="File not found.")
+        elif len(file) == 1:
+            file = file[0]
+            response = make_response(file.read())
+            response.headers['Content-Type'] = file.content_type
+            response.headers[
+                'Content-Disposition'] = 'attachment; filename="{0}"'.format(file.filename)
+            return response
+        else:
+            abort(500, message="More than one file found, server is confused.")
+
+
+api.add_resource(
+    ProjectTestFileDownload, '/project/<string:project_id/tests/<string:name>')
 
 api.add_resource(ProjectSubmissions, '/course/<string:course_name>/projects/<string:name>/submissions',
                  endpoint='project_submissions_ep')

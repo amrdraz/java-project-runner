@@ -41,11 +41,17 @@ course_fields = {
 course_fields = dict(course_fields.items() + public_course_fields.items())
 
 
+test_file_fields = {
+    "name": fields.String,
+    "download_url": fields.Url(endpoint='project_test_file_ep')
+}
+
 project_fields = {
     "id": fields.String,
     "name": fields.String,
     "course": fields.Nested(course_fields),
     "url": fields.Url(endpoint='project_ep'),
+    "tests": fields.List(field.Nested(test_file_fields)),
     'submissions_url': fields.Url(endpoint='project_submissions_ep'),
     'language': fields.String,
     'can_submit': fields.Boolean,
@@ -75,5 +81,6 @@ submission_fields = {
     "project": fields.Nested(project_fields),
     'compiler_out': fields.String,
     'compile_status': fields.Boolean,
-    'created_at': fields.DateTime('iso8601')
+    'created_at': fields.DateTime('iso8601'),
+    'download_url': fields.Url(endpoint='submission_download_ep')
 }
