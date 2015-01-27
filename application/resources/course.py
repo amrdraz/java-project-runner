@@ -217,7 +217,7 @@ class CourseProjects(Resource):
         if due_date is None or due_date == '':
             abort(400, message="Project must have due date.")
         try:
-            due_date = dateutil.parser.parse(due_date)
+            due_date = dateutil.parser.parse(due_date).astimezone(dateutil.tz.gettz('UTC')).replace(tzinfo=None)
         except:
             abort(400, message="Incorrect due date format.")
         if len([p for p in course.projects if p.name == name]) != 0:
