@@ -51,7 +51,7 @@ project_fields = {
     "name": fields.String,
     "course": fields.Nested(course_fields),
     "url": fields.Url(endpoint='project_ep'),
-    "tests": fields.List(field.Nested(test_file_fields)),
+    "tests": fields.List(fields.Nested(test_file_fields)),
     'submissions_url': fields.Url(endpoint='project_submissions_ep'),
     'language': fields.String,
     'can_submit': fields.Boolean,
