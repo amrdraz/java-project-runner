@@ -180,7 +180,7 @@ class Project(db.Document):
             dic = {
                 "name": file.filename,
                 "mimetype": file.content_type,
-                "project_id": project_name
+                "project_id": project_id
             }
             return dic
         dic['tests'] = [file_to_dic(self.id, f) for f in self.tests]
