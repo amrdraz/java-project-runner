@@ -36,7 +36,8 @@ class UsersResource(Resource):
             user = User(email=email, name=name)
         user.password = password
         user.save()
-        user.send_activation_mail()
+        if api.app.config['ENABLE_EMAIL_ACTIVATION']:
+            user.send_activation_mail()
         return marshal(user.to_dict(), user_fields), 201
 
     @marshal_with(user_fields)
