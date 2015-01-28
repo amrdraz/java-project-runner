@@ -1,5 +1,6 @@
 from flask.ext.restful import Resource, abort, marshal_with, marshal
 from application import api, db
+from application.resources import allowed_test_file
 from application.models import Course, Project, Submission, Student
 from decorators import student_required, login_required, teacher_required
 from fields import submission_fields, project_fields
@@ -7,7 +8,8 @@ from flask import g, request, make_response
 from werkzeug import secure_filename
 from application.tasks import junit_task
 from application.resources import allowed_code_file
-
+from parsers import project_parser
+import dateutil
 
 class ProjectSubmissions(Resource):
 
@@ -73,7 +75,51 @@ class ProjectResource(Resource):
             if g.user in course.teachers or g.user in course.students:
                 return proj.to_dict(parent_course=course)
             else:
-                abort(403)
+                abort(403, message="Must be a course teacher or student to view project.")
+        except StopIteration:
+            abort(
+                500, message="Found project with no parent course, Quick call an adult!")
+
+    @teacher_required
+    @marshal_with(project_fields)
+    def put(self, id):
+        """
+        Modifies the due_data and test files fields.
+        Test files are simply replaced.
+        """
+        proj = Project.objects.get_or_404(id=id)
+        try:
+            course = next(
+                course for course in Course.objects if proj in course.projects)
+            if g.user in course.teachers:
+                args = project_parser.parse_args()
+                if len(args['due_date']) > 0:
+                    try:
+                        due_date = args['due_date']
+                        due_date = dateutil.parser.parse(due_date).astimezone(dateutil.tz.gettz('UTC')).replace(tzinfo=None)
+                        proj.due_date = due_date
+                    except:
+                        abort(400, message="Incorrect due date format.")
+                if len(request.files.values()) > 0:
+                    filenames = [f.filename for f in request.files.values()]
+                    if len(filenames) != len(set(filenames)):
+                        abort(400, message="Test file names must be unique.")
+                    for test in proj.tests:
+                        test.delete()
+                    proj.tests = []
+                    proj.save()
+                    for test_case in request.files.values():
+                        if allowed_test_file(test_case.filename):
+                            grid_file = db.GridFSProxy()
+                            grid_file.put(
+                                test_case, filename=secure_filename(test_case.filename), content_type=request.mimetype)
+                            proj.tests.append(grid_file)
+                        else:
+                            abort(
+                                400, message="{0} extension not allowed".format(test_case.filename))
+            else:
+                abort(403, message="Must be a course teacher to modify a project.")
+            proj.save()
         except StopIteration:
             abort(
                 500, message="Found project with no parent course, Quick call an adult!")
