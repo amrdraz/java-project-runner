@@ -170,7 +170,7 @@ def parse_junit_results(test_res_dir, subm):
                 # Create new result if needed
                 test_results[class_name] = TestResult(name=class_name, success=True)
             # Populate case
-            case = TestCase(name=test_case_elm.attrib['name'], passed=True, detail=' ')
+            case = TestCase(name=test_case_elm.attrib['name'], passed=True, detail='')
             for failure in test_case_elm.iterfind('failure'):
                 # If it has a failure child then it failed.
                 case.passed = False
