@@ -28,7 +28,7 @@ class ProjectSubmissions(Resource):
                 if allowed_code_file(file.filename):
                     grid_file = db.GridFSProxy()
                     grid_file.put(
-                        file, filename=secure_filename(file.filename), content_type=request.mimetype)
+                        file, filename=secure_filename(file.filename), content_type=file.mimetype)
                     subm.code = grid_file
                 else:
                     abort(400, messag="Only ")
