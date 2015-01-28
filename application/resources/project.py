@@ -93,6 +93,8 @@ class ProjectResource(Resource):
                 course for course in Course.objects if proj in course.projects)
             if g.user in course.teachers:
                 args = project_parser.parse_args()
+                if args['test_timeout'] != -1:
+                    proj.test_timeout_seconds = args['test_timeout']
                 if len(args['due_date']) > 0:
                     try:
                         due_date = args['due_date']

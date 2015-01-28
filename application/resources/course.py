@@ -226,6 +226,8 @@ class CourseProjects(Resource):
         if len(filenames) != len(set(filenames)):
             abort(400, message="Test file names must be unique.")
         project = Project(name=name, language=language, due_date=due_date)
+        if args['test_timeout'] != -1:
+            project.test_timeout_seconds = args['test_timeout']
         for test_case in request.files.values():
             if allowed_test_file(test_case.filename):
                 grid_file = db.GridFSProxy()
