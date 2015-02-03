@@ -176,7 +176,7 @@ def parse_junit_results(test_res_dir, subm):
                 case.passed = False
                 case.detail += failure.text + '\n'
             for err in test_case_elm.iterfind('error'):
-                # If it has a failure child then it failed.
+                # If it has an error child then it failed.
                 case.passed = False
                 case.error = True
                 case.detail += err.text + '\n'
