@@ -4,6 +4,10 @@
     </target>
 
     <target name="compile">
+        <classpath>
+            <pathelement location="{{build_dir}}/classes"/>
+            <pathelement location="{{build_dir}}/tests"/>
+        </classpath>
         <mkdir dir="{{build_dir}}/classes"/>
         <javac includeantruntime="false" srcdir="{{src_dir}}" destdir="{{build_dir}}/classes"/>
         {% if has_tests %}
