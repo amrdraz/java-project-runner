@@ -532,7 +532,11 @@
     + Body 
 
             {
-                "name": "Milestone 1"
+                "name": "Milestone 1",
+                "language": "J",
+                "due_date": "2015-02-05T17:55:00.000Z",
+                "test_timeout": 600,
+                "file[0]": ...,
             }
 
 + Response 200 (application/json)
@@ -540,21 +544,39 @@
     + Body
 
             {
-                "name": "Milestone 1",
+                "created_at": "2015-02-03T07:03:03+00:00",
                 "course": {
-                    "name": "csen401",
-                    "url": "/course/csen401",
                     "supervisor": {
-                       "id": 22,
-                       "name": "John TA",
-                       "url": "/user/22"
+                        "guc_id": null,
+                        "name": "Teacher One",
+                        "url": "/user/54c8b1172d1f907fef478b91",
+                        "created_at": "2015-01-28T09:51:19+00:00",
+                        "email": "teacher1@guc.edu.eg",
+                        "active": false,
+                        "id": "54c8b1172d1f907fef478b91"
                     },
-                    "tas_url": "/course/csen401/tas",
-                    "students_url": "/course/csen401/students",
-                    "projects_url": "/courses/csen401/projects"
+                    "name": "Test Course",
+                    "url": "/course/Test%20Course",
+                    "tas_url": "/course/Test%20Course/tas",
+                    "submissions_url": "/course/Test%20Course/submissions",
+                    "projects_url": "/course/Test%20Course/projects",
+                    "created_at": "2015-01-28T09:52:15+00:00",
+                    "students_url": "/course/Test%20Course/students",
+                    "description": "Please Ignore"
                 },
-                "url": "/course/csen401/projects/milestone1",
-                "submission_url": "/course/csen401/projects/milestone1/submissions"
+                "tests": [
+                    {
+                        "name": "M1Tests.java",
+                        "download_url": "/project/54d072a72d1f900f3e1b7d97/tests/M1Tests.java"
+                    }
+                ],
+                "name": "New Project",
+                "language": "J",
+                "due_date": "2015-02-05T17:55:00+00:00",
+                "url": "/project/54d072a72d1f900f3e1b7d97",
+                "submissions_url": "/course/Test%20Course/projects/New%20Project/submissions",
+                "id": "54d072a72d1f900f3e1b7d97",
+                "can_submit": true
             }
 
 
@@ -676,7 +698,7 @@
             }
 
 
-## Single project [/course/{course_name}/projects/{project_name}]
+## Single project [/project/{project_name}]
 
 + Parameters
     
@@ -713,6 +735,64 @@
                 },
                 "url": "/course/csen401/projects/milestone1",
                 "submission_url": "/course/csen401/projects/milestone1/submissions"
+            }
+
+### PUT
+
+Modifies the due_data and test files fields.
+Test files are simply replaced.
+
++ Request (application/json)
+
+    + Header
+
+            -X-Auth-Token: <auth-token>
+
+    + Body 
+
+            {
+                "due_date": "2015-02-06T17:55:00.000Z",
+                "file[0]": ...,
+            }
+
++ Response 200 (application/json)
+    
+    + Body
+
+            {
+                "created_at": "2015-02-03T07:03:03+00:00",
+                "course": {
+                    "supervisor": {
+                        "guc_id": null,
+                        "name": "Teacher One",
+                        "url": "/user/54c8b1172d1f907fef478b91",
+                        "created_at": "2015-01-28T09:51:19+00:00",
+                        "email": "teacher1@guc.edu.eg",
+                        "active": false,
+                        "id": "54c8b1172d1f907fef478b91"
+                    },
+                    "name": "Test Course",
+                    "url": "/course/Test%20Course",
+                    "tas_url": "/course/Test%20Course/tas",
+                    "submissions_url": "/course/Test%20Course/submissions",
+                    "projects_url": "/course/Test%20Course/projects",
+                    "created_at": "2015-01-28T09:52:15+00:00",
+                    "students_url": "/course/Test%20Course/students",
+                    "description": "Please Ignore"
+                },
+                "tests": [
+                    {
+                        "name": "M1Tests.java",
+                        "download_url": "/project/54d072a72d1f900f3e1b7d97/tests/M1Tests.java"
+                    }
+                ],
+                "name": "New Project",
+                "language": "J",
+                "due_date": "2015-02-05T17:55:00+00:00",
+                "url": "/project/54d072a72d1f900f3e1b7d97",
+                "submissions_url": "/course/Test%20Course/projects/New%20Project/submissions",
+                "id": "54d072a72d1f900f3e1b7d97",
+                "can_submit": true
             }
 
 

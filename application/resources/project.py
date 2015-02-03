@@ -19,7 +19,7 @@ class ProjectSubmissions(Resource):
         course = Course.objects.get_or_404(name=course_name)
         project = Project.objects.get_or_404(name=name)
         if not g.user in course.students:
-            abort(403)  # Must be a course student to submit
+            abort(403, message="Must be a course student to submit")
         if not project in course.projects:
             abort(404)
         if not project.can_submit:
