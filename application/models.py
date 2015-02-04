@@ -192,14 +192,12 @@ class TestCase(db.EmbeddedDocument):
     """Single case of a TestResult."""
     name = db.StringField(max_length=512, min_length=1, required=True)
     detail = db.StringField(max_length=512, required=True)
-    error = db.BooleanField(default=False, required=True)
     passed = db.BooleanField(default=False, required=True)
 
     def to_dict(self, **kwargs):
         return {
             "name": self.name,
             "detail": self.detail,
-            "error": self.error,
             "passed": self.passed
         }
 
