@@ -12,7 +12,7 @@ MONGODB_SETTINGS = {
 CELERY_BROKER_URL = 'amqp://localhost'
 
 SECRET_KEY = "123?"
-
+PASS_RESET_EXPIRATION = 60 * 60 # in seconds
 ALLOWED_CODE_EXTENSIONS = ['zip', 'tar', 'gz', 'bz', 'rar', '7z']
 ALLOWED_TEST_EXTENSIONS = ['java']
 # 512 Mi

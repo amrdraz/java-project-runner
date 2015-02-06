@@ -86,6 +86,38 @@ class UserResource(Resource):
         return User.objects.get_or_404(id=id).to_dict()
 
 
+class UserPassReset(Resource):
+    def get(self):
+        """
+        sends new password.
+        """
+        token = request.args.get('token')
+        if token is not None:
+            try:
+                user = User.verify_pass_reset_token(token)
+                user.reset_pass()
+                return {}, 204
+            except (BadSignature):
+                abort(404, message="Bad Token")
+        else:
+            abort(400, message="Missing activation token.")
+
+    def post(self):
+        """
+        Sends reset email.
+        """
+        data = request.get_json()
+        if data and data['email']:
+            user = User.objects.get_or_404(email=data['email'])
+            if (user.reset_sent_at is None 
+                or user.reset_sent_at < datetime.datetime.utcnow() - datetime.timedelta(hours=12)):
+                user.send_password_reset_mail()
+                return {}, 204
+            else:
+                abort(420, message='Stay calm and check your spam folder.')
+        else:
+            abort(400, message="Missing email field.")
+        
 
 class UserActivation(Resource):
     def get(self):
@@ -141,3 +173,4 @@ api.add_resource(UsersResource, '/users', endpoint='users_ep')
 api.add_resource(UserResource, '/user/<string:id>', endpoint='user_ep')
 api.add_resource(UserActivation, '/activate', endpoint='activation_ep')
 api.add_resource(UserDashboard, '/user/dashboard', endpoint='dashboard')
+api.add_resource(UserPassReset, '/user/reset', endpoint='pass_reset_ep')

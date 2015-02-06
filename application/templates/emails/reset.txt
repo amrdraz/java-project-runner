@@ -1,0 +1,5 @@
+Hello {{user.name}},
+In order to reset your password follow this link {{reset_url}}
+If you haven't requested a password reset and don't know why you are getting this email.
+Simply ignore it.
+If you keep getting these requests persistently please grab one of your TAs and report it.

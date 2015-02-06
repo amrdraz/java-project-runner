@@ -4,7 +4,7 @@ Document definitions.
 from application import db, app
 from flask.ext.bcrypt import generate_password_hash, check_password_hash
 import datetime
-from itsdangerous import TimedJSONWebSignatureSerializer, URLSafeSerializer, SignatureExpired, BadSignature
+from itsdangerous import TimedJSONWebSignatureSerializer, URLSafeSerializer, SignatureExpired, BadSignature, URLSafeTimedSerializer
 
 
 class User(db.DynamicDocument):
@@ -18,6 +18,7 @@ class User(db.DynamicDocument):
     password_hash = db.StringField(max_length=60, required=True)
     active = db.BooleanField(default=False, required=True)
     activation_sent_at = db.DateTimeField()
+    reset_sent_at = db.DateTimeField()
     meta = {'allow_inheritance': True,
             "indexes": [
                 {
@@ -46,6 +47,34 @@ class User(db.DynamicDocument):
         self.activation_sent_at = datetime.datetime.utcnow()
         self.save()
         activation_mail_task.delay(str(self.id))
+
+    def send_password_reset_mail(self):
+        """Updates reset_sent_at time and schedules a task."""
+        from application.tasks import password_reset_mail_task
+        self.reset_sent_at = datetime.datetime.utcnow()
+        self.save()
+        password_reset_mail_task.delay(str(self.id))
+
+    def reset_pass(self):
+        from application.tasks import send_random_password
+        send_random_password.delay(str(self.id))
+
+    def generate_pass_reset_token(self):
+        serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'], expires_in=app.config['PASS_RESET_EXPIRATION'])
+        return serializer.dumps({'id': str(self.id), 'email': self.email, 'type': 'reset_pass'})
+
+    @staticmethod
+    def verify_pass_reset_token(token):
+        """
+        Retrieves user who is identified by this token.
+        Raises SignatureExpired, BadSignature if expired or malformed.
+        """
+        serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'])
+        data = serializer.loads(token)
+        matches = User.objects(id=data[id])
+        if matches.count() != 1 or matches[0].email != data['email'] or data['type'] != 'reset_pass':
+            raise BadSignature("Could not verify password reset token")
+        return matches[0]
 
     def verify_pass(self, password):
         return check_password_hash(self.password_hash, password)
@@ -77,7 +106,6 @@ class User(db.DynamicDocument):
         if matches.count() != 1:
             raise BadSignature("Could not identify owner.")
         return matches[0]
-
 
     @staticmethod
     def verify_auth_token(token):
@@ -176,6 +204,7 @@ class Project(db.Document):
             "due_date": self.due_date
         }
         dic['course_name'] = dic['course']['name']
+
         def file_to_dic(project_id, file):
             dic = {
                 "name": file.filename,

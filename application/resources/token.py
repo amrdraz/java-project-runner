@@ -24,6 +24,8 @@ class TokenResource(Resource):
             try:
                 auth = base64.b64decode(auth)
                 values = auth.split(':')
+                if len(values) != 2:
+                    abort(400, message="Malformed X-Auth Header.")
                 user = User.objects(email=values[0])
                 if len(user) != 1:
                     abort(401, message='Invalid email or password')

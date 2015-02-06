@@ -10,7 +10,7 @@ from functools import wraps
 
 def login_required(f):
     """
-    Sets g.current user to logged in User instance
+    Sets g.user to logged in User instance
     prior to calling f. Calls abort with 401 status if can not verify
     credentials or expired token.
     """

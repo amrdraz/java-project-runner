@@ -41,3 +41,4 @@ regex==2014.12.15
 six==1.8.0
 subprocess32==3.2.6
 wsgiref==0.1.2
+xkcdpass==1.2.5
