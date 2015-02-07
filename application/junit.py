@@ -110,6 +110,8 @@ def setup_junit_dir(subm, proj, working_directory):
             code_outfile.write(buff)
             buff = subm.code.read(BUFFER_SIZE)
 
+    for f  in os.listdir(working_directory):
+       app.logger.warning(f)
     # Extract Archive
     patoolib.extract_archive(abs_src_arch_name, outdir=working_directory)
     os.remove(abs_src_arch_name)
