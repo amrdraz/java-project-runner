@@ -32,7 +32,7 @@ class TokenResource(Resource):
                     abort(401, message='Invalid email or password')
                 else:
                     user = user[0]
-                if api.app.config['ENABLE_EMAIL_ACTIVATION'] and not user.active and isinstance(user, Student):
+                if api.app.config['ENABLE_EMAIL_ACTIVATION'] and not user.active and not isinstance(user, Student):
                     abort(422, message='Inactive user')
                 if user.verify_pass(values[1]):
                     remember = token_parser.parse_args()['remember']
