@@ -4,7 +4,7 @@ Defines Celery instance and tasks.
 from application import app, db
 from application.models import Submission, Project, User
 from application.junit import setup_junit_dir, parse_junit_results
-from flaskext.mail import Mail, Message
+from flask.ext.mail import Mail, Message
 from flask import render_template
 from celery import Celery
 from shutil import rmtree
