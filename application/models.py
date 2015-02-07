@@ -132,7 +132,7 @@ class User(db.DynamicDocument):
 
 
 class Student(User):
-    guc_id = db.StringField(max_length=32, min_length=7, required=True)
+    guc_id = db.StringField(max_length=32, min_length=2, required=True)
 
     def to_dict(self, **kwargs):
         dic = User.to_dict(self)
