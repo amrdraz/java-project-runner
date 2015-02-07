@@ -28,7 +28,7 @@ CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 
 
-MAIL_SERVER = "smtp@gmail.com"
+MAIL_SERVER = "smtp.gmail.com"
 MAIL_PORT=465
 MAIL_USE_SSL = True
 MAIL_USERNAME = 'evaluatorin@gmail.com'
