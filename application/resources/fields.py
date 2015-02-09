@@ -63,7 +63,7 @@ test_case_fields = {
     "name": fields.String,
     "detail": fields.String,
     "passed": fields.Boolean,
-    "error": fieds.Boolean
+    "error": fields.Boolean
 }
 
 test_result_fields = {
