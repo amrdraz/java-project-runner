@@ -1,20 +1,20 @@
 """
 Defines Celery instance and tasks.
 """
-from application import app, db
-from application.models import Submission, Project, User
-from application.junit import setup_junit_dir, parse_junit_results
-from flask.ext.sendmail import Mail, Message
-from flask import render_template
-from celery import Celery
-from shutil import rmtree
 import os
 import re
 import subprocess32 as subprocess
+import application.mail_tasks as mtasks
 from tempfile import mkdtemp
-import xkcdpass.xkcd_password as xp
+from application import app, db
+from application.models import Submission, Project, User
+from application.junit import setup_junit_dir, parse_junit_results
+from flask import render_template
+from celery import Celery
+from shutil import rmtre
 
-mail = Mail(app)
+
+
 
 def make_celery(app):
     """
@@ -40,19 +40,7 @@ def send_random_password(user_id):
     """
     Generates and sends a new random password.
     """
-    try:
-        user = User.objects.get(id=user_id)
-        wordfile = xp.locate_wordfile()
-        mywords = xp.generate_wordlist(wordfile=wordfile, min_length=5, max_length=10)
-        password = xp.generate_xkcdpassword(mywords)
-        msg = Message('Your new password')
-        msg.sender = "no-reply@evaluator.in"
-        msg.add_recipient(user.email)
-        context = {'user': user.to_dict(), 'password': password}
-        msg.body = render_template('emails/pass.txt', **context)
-        mail.send(msg)
-    except (db.DoesNotExist):
-        app.logger.warning('Attempted to send new password to non existing user.')
+    mtasks.random_password(user_id)
 
 
 
@@ -61,38 +49,14 @@ def password_reset_mail_task(user_id):
     """
     Sends a password reset mail.
     """
-    try:
-        user = User.objects.get(id=user_id)
-        reset_token = user.generate_pass_reset_token()
-        reset_url = 'https://evaluator.in/reset/?token={0}'.format(reset_token)
-        msg = Message('Password reset')
-        context = {'user': user.to_dict(), 'reset_url': reset_url}
-        msg.sender = "no-reply@evaluator.in"
-        msg.add_recipient(user.email)
-        msg.body = render_template('emails/reset.txt', **context)
-        mail.send(msg)
-    except (db.DoesNotExist):
-        app.logger.warning('Attempted to reset password of non existing user')
+    mtasks.reset_password(user_id)
 
 @celery.task
 def activation_mail_task(user_id):
     """
     Sends an activation email.
     """
-    try: 
-        user = User.objects.get(id=user_id)
-        # Generate link
-        activation_token = user.generate_activation_token()
-        activation_url = 'https://evaluator.in/activate/?token={0}'.format(activation_token)
-        # send email
-        msg = Message("Activate your evaluator.in account")
-        msg.add_recipient(user.email)
-        msg.sender = "no-reply@evaluator.in"
-        context = {'user': user.to_dict(), 'activation_url': activation_url}
-        msg.body = render_template('emails/activation.txt', **context)
-        mail.send(msg)
-    except (db.DoesNotExist):
-        app.logger.warning('Attempted to send mail to non existing user.')
+    mtasks.activate_account(user_id)
 
 @celery.task
 def junit_task(submission_id):
