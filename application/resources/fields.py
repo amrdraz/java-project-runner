@@ -62,7 +62,8 @@ project_fields = {
 test_case_fields = {
     "name": fields.String,
     "detail": fields.String,
-    "passed": fields.Boolean
+    "passed": fields.Boolean,
+    "error": fieds.Boolean
 }
 
 test_result_fields = {
