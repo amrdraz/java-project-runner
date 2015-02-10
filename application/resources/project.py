@@ -72,7 +72,7 @@ class ProjectResource(Resource):
         try:
             course = next(
                 course for course in Course.objects if proj in course.projects)
-            if g.user in course.teachers or g.user in course.students:
+            if g.user.can_view_project(proj, course):
                 return proj.to_dict(parent_course=course)
             else:
                 abort(403, message="Must be a course teacher or student to view project.")
@@ -121,6 +121,10 @@ class ProjectResource(Resource):
                                 400, message="{0} extension not allowed".format(test_case.filename))
             else:
                 abort(403, message="Must be a course teacher to modify a project.")
+            if args['published'] == 'True':
+                proj.published = True
+            elif args['published'] == 'False':
+                proj.published == False
             proj.save()
         except StopIteration:
             abort(
@@ -135,15 +139,7 @@ class ProjectsResource(Resource):
         """
         Projects of courses user teaches if teacher, only those registered for if student.
         """
-        if isinstance(g.user, Student):
-            courses = Course.objects(students=g.user)
-            return [[project.to_dict(parent_course=c) for project in c.projects]
-                    for c in courses]
-        else:
-            courses = Course.objects(teachers=g.user)
-            return [[project.to_dict(parent_course=c) for project in c.projects]
-                    for c in courses]
-
+        return [p.to_dict() for p in g.user.all_accessible_projects()]
 
 class ProjectTestFileDownload(Resource):
 

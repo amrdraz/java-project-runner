@@ -20,7 +20,7 @@ token_fields = {
     'user': fields.Nested(user_fields)
 }
 
-# Public course fieldsself.
+# Public course fields.
 public_course_fields = {
     "name": fields.String,
     "description": fields.String,
@@ -33,6 +33,7 @@ course_fields = {
     "tas_url": fields.Url(endpoint='course_tas_ep'),
     "students_url": fields.Url(endpoint='course_students_ep'),
     "projects_url": fields.Url(endpoint='course_projects_ep'),
+    "published": fields.String,
     "submissions_url": fields.Url(endpoint='course_submissions_ep'),
     "supervisor": fields.Nested(user_fields)
 
@@ -55,6 +56,7 @@ project_fields = {
     'submissions_url': fields.Url(endpoint='project_submissions_ep'),
     'language': fields.String,
     'can_submit': fields.Boolean,
+    'published': fields.String,
     'due_date': fields.DateTime('iso8601'),
     'created_at': fields.DateTime('iso8601')
 }

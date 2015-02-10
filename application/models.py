@@ -32,6 +32,31 @@ class User(db.DynamicDocument):
             }
 
     @property
+    def is_student(self):
+        return False
+    @property
+    def is_teacher(self):
+        return not self.is_student
+
+    def all_accessible_projects(self):
+        return [p for p in self.all_accessible_courses if self.can_view_project(p)]
+
+    def all_accessible_courses(self):
+        return [c for c in Course.objects if self.can_view_course(c)]
+
+    def can_view_course(self, course):
+        """Checks if the user has authorization to view a course."""
+        return (self.is_teacher or (self.is_student and course.published))
+
+
+    def can_view_project(self, project, course):
+        """Checks if the user has authorization to view a project."""
+        return (course.is_user_associated(self) and 
+            (self.is_teacher and self in course.teachers) or
+            (self in course.students and project.published))
+
+
+    @property
     def password(self):
         """Returns password hash, not actual password."""
         return self.password_hash
@@ -133,7 +158,9 @@ class User(db.DynamicDocument):
 
 class Student(User):
     guc_id = db.StringField(max_length=32, min_length=2, required=True)
-
+    @property
+    def is_student(self):
+        return True
     def to_dict(self, **kwargs):
         dic = User.to_dict(self)
         dic['guc_id'] = self.guc_id
@@ -152,6 +179,11 @@ class Course(db.Document):
         db.ReferenceField('User', reverse_delete_rule=db.PULL))
     students = db.ListField(
         db.ReferenceField('Student', reverse_delete_rule=db.PULL))
+    published = db.BooleanField(default=True)
+
+    def is_user_associated(self, user):
+        """Checks if user in course students or teachers."""
+        return user in self.students or user in self.teachers
 
     meta = {
         "indexes": [
@@ -168,6 +200,7 @@ class Course(db.Document):
             "name": self.name,
             "description": self.description,
             "created_at": self.created_at,
+            "published": self.published,
             "supervisor": self.supervisor.to_dict()
         }
 
@@ -181,11 +214,16 @@ class Project(db.Document):
     due_date = db.DateTimeField(required=True)
     name = db.StringField(max_length=256, min_length=5, required=True)
     tests = db.ListField(db.FileField())
+    published = db.BooleanField(default=True, required=True)
     language = db.StringField(
         max_length=3, min_length=1, choices=LANGUAGES, required=True)
     test_timeout_seconds = db.LongField(
         default=600, max_value=1800, required=True)
     submissions = db.ListField(db.ReferenceField('Submission'))
+
+    @property
+    def has_tests(self):
+        return len(tests) >= 1
 
     @property
     def can_submit(self):
@@ -201,7 +239,8 @@ class Project(db.Document):
             "course": (parent_course.to_dict(**kwargs) if parent_course is not None
                        else Course.objects.get(projects=self).to_dict(**kwargs)),
             "can_submit": self.can_submit,
-            "due_date": self.due_date
+            "due_date": self.due_date,
+            'published': self.published
         }
         dic['course_name'] = dic['course']['name']
 

@@ -30,6 +30,12 @@ class CoursesResource(Resource):
         course = Course(
             name=name, description=description, supervisor=g.user)
         course.teachers.append(g.user)
+        if arguments['published'] == 'True':
+            course.published = True
+        elif arguments['published'] == 'False':
+            course.published = False
+        else:
+            abort(400, message="published field must be True or False as a string.")
         try:
             course.save()
             return marshal(course.to_dict(), course_fields), 201
@@ -44,9 +50,11 @@ class CoursesResource(Resource):
         """
         if g.user is None:
             model_fields = public_course_fields
+            courses = Course.objects(published=True)
         else:
             model_fields = course_fields
-        return marshal([course.to_dict() for course in Course.objects], model_fields)
+            courses = g.user.all_accessible_courses()
+        return marshal([course.to_dict() for course in courses], model_fields)
 
 
 class CourseResource(Resource):
@@ -62,6 +70,8 @@ class CourseResource(Resource):
         else:
             model_fields = course_fields
         course = Course.objects.get_or_404(name=name)
+        if not g.user.can_view_course(course):
+            abort(403, message="You can not view this course. It is probably not ready for you!")
         return marshal(course.to_dict(), model_fields), 200
 
 # Course related resources
@@ -196,7 +206,7 @@ class CourseProjects(Resource):
         """
         course = Course.objects.get_or_404(name=name)
         if g.user in course.students or g.user in course.teachers:
-            return [project.to_dict(parent_course=course) for project in course.projects]
+            return [project.to_dict(parent_course=course) for project in course.projects if g.user.can_view_project(project, course)]
         else:
             abort(403,  message='Must be course teacher or student to view projects')
           
@@ -237,6 +247,12 @@ class CourseProjects(Resource):
             else:
                 abort(
                     400, message="{0} extension not allowed".format(test_case.filename))
+        if args['published'] == 'True':
+            project.published = True
+        elif args['published'] == 'False':
+            project.published = False
+        else:
+            abort(400, message="published value must be True or False as string.")
         project.save()
         course.projects.append(project)
         course.save()

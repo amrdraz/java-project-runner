@@ -19,12 +19,14 @@ user_parser.add_argument('id', str)
 course_parser = reqparse.RequestParser()
 course_parser.add_argument('name', str)
 course_parser.add_argument('description', str)
+course_parser.add_argument('published', str)
 
 # project parser
 project_parser = reqparse.RequestParser()
 project_parser.add_argument('name', str)
 project_parser.add_argument('language', str)
 project_parser.add_argument('due_date', str)
+project_parser.add_argument('published', str)
 project_parser.add_argument('test_timeout', default=-1, type=int)
 # submission parser
 
