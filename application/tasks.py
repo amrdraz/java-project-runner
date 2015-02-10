@@ -1,8 +1,6 @@
 """
 Defines Celery instance and tasks.
 """
-import os
-import re
 from application import app, db
 from celery import Celery
 import application.mail_tasks as mtasks
