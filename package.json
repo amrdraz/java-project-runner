@@ -1,6 +1,6 @@
 {
   "name": "java-project-runner",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "An api server that runns java projects against tests",
   "directories": {
     "test": "tests"
