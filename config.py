@@ -27,3 +27,5 @@ ANT_BUILD_DIR_NAME = 'build'
 ANT_RUN_FILE_NAME = 'ant_script.sh'
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
+
+CLEAN_TEMP_DIRS = True

@@ -3,15 +3,13 @@ Defines Celery instance and tasks.
 """
 import os
 import re
-import subprocess32 as subprocess
-import application.mail_tasks as mtasks
-from tempfile import mkdtemp
 from application import app, db
-from application.models import Submission, Project, User
-from application.junit import setup_junit_dir, parse_junit_results
-from flask import render_template
 from celery import Celery
-from shutil import rmtre
+import application.mail_tasks as mtasks
+from application.models import Submission, Project
+from application.junit import junit_submission
+
+
 
 
 
@@ -65,55 +63,20 @@ def junit_task(submission_id):
     """
     try:
         app.logger.info('Starting Junit for {0}'.format(submission_id))
-        subm = Submission.objects.get(id=submission_id)
-        proj = Project.objects.get(submissions=subm)
-        if subm.processed:
+        submission = Submission.objects.get(id=submission_id)
+        project = Project.objects.get(submissions=submission)
+        if submission.processed:
             app.logger.warning(
                 'Junit task launched with processed submission, id: {0}.'.format(submission_id))
-            return
-        # Create a temporary directories
-        working_directory = mkdtemp()
-        selinux_tmp = mkdtemp()
-
-        # Populate directory
-        renamed_files, has_tests = setup_junit_dir(
-            subm, proj, working_directory)
+        junit_submission(submission, project)
         
-        command = ['sandbox', '-M', '-H', working_directory, '-T', selinux_tmp,
-                   'bash', renamed_files.get(app.config['ANT_RUN_FILE_NAME'],
-                    app.config['ANT_RUN_FILE_NAME'])]
-        # Actually Run the command
-        
-        app.logger.info('Launching {0}'.format(' '.join(command)))
-
-        process = subprocess.Popen(
-            command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        # communicate waits for the process to finish
-        stdout, stderr = process.communicate()
-        subm.compile_status = 'Compile failed' not in stderr
-        app.logger.info(stderr)
-        app.logger.info(stdout)
-        subm.compiler_out = stdout
-        subm.save()
-        ant_build_dir_name = renamed_files.get(
-                app.config['ANT_BUILD_DIR_NAME'], app.config['ANT_BUILD_DIR_NAME'])
-        # If some other error occured and for some reason ant didn't even run
-        subm.compile_status &= ant_build_dir_name in os.listdir(working_directory)
-        if subm.compile_status and has_tests:
-            # Parse test output
-            tests = os.path.join(working_directory, ant_build_dir_name)
-            tests = os.path.join(tests, 'tests')
-            parse_junit_results(tests, subm)
-            
-        rmtree(working_directory)
-        rmtree(selinux_tmp)
-        subm.processed = True
-        subm.save()
     except db.DoesNotExist:
         app.logger.warning(
             'Junit task launched with invalid submission_id {0}.'.format(submission_id))
-    except:
+    except Exception as e:
         app.logger.error('Unforseen error while processing {0}'.format(submission_id))
-        subm.processed = True
-        subm.compile_status = False
-        subm.save()
+        app.logger.error('Exception {0}'.format(e))
+        submission.processed = True
+        submission.compile_status = False
+        submission.compiler_out = 'Unforseen error occured while processing, please tell someone {0}'.format(e)
+        submission.save()

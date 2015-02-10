@@ -1,15 +1,18 @@
 """
 Helpers for processing JUnit evaluations.
 """
+import os
+import stat
+import patoolib
+import glob
+import subprocess32 as subprocess
 from application import app
 from application.models import TestResult, TestCase
 from flask import render_template
 from shutil import move
 import xml.etree.ElementTree as ET
-import os
-import stat
-import patoolib
-import glob
+from shutil import rmtree
+from tempfile import mkdtemp
 
 
 class Enumerator(object):
@@ -52,7 +55,21 @@ class Enumerator(object):
             self.increment_helper()
 
 
-def copy_junit_tests(proj, working_directory, BUFFER_SIZE):
+class DirectoryError(Exception):
+
+    def __init__(self, value):
+        self.value = value
+        super(DirectoryError, self).__init__()
+
+
+class SRCError(Exception):
+
+    def __init__(self, value):
+        self.value = value
+        super(SRCError, self).__init__()
+
+
+def copy_junit_tests(project, working_directory, buffer_size):
     """
     Creates JUNIT directory structure.
     """
@@ -60,96 +77,143 @@ def copy_junit_tests(proj, working_directory, BUFFER_SIZE):
         working_directory, app.config['ANT_TESTS_DIR_NAME'])
     os.mkdir(tests_dir)
     # Write each junit in the project to the tests dir
-    for junit in proj.tests:
+    for junit in project.tests:
         with open(os.path.join(tests_dir, junit.filename), "wb") as outfile:
-            buff = junit.read(BUFFER_SIZE)
+            buff = junit.read(buffer_size)
             while len(buff) != 0:
                 outfile.write(buff)
-                buff = junit.read(BUFFER_SIZE)
+                buff = junit.read(buffer_size)
 
 
-def setup_junit_dir(subm, proj, working_directory):
+def prepare_for_source(submission, enumerator, in_use_names, working_directory):
     """
-    Sets up test directory layout, generates ant build file and returns a dict of
-    renamed files (build file or tests dir).
-    dict is old_name: new_name, Important to note that names are relative
+    Makes sure the source archive can be written without overwriting any existing files.
+    returns dict of renamed files.
+    Doesn't rename source archive.
     """
-    # TODO: Support other test frameworks and languages
-    BUFFER_SIZE = app.config['FILE_BUFFER_SIZE']
-    has_tests = len(proj.tests) >= 1
-    if has_tests:
-        copy_junit_tests(proj, working_directory, BUFFER_SIZE)
-    # Extract submitted code
-    src_arch_name = subm.code.get().filename
-    abs_src_arch_name = os.path.join(working_directory, src_arch_name)
-    src_arch_nm_split = src_arch_name.split('.')
-    if len(src_arch_nm_split) > 1:
-        arch_no_ext_nm = src_arch_nm_split[-2]
-    else:
-        arch_no_ext_nm = src_arch_nm_split[0]
-
-    abs_arch_no_ext_nm = os.path.join(working_directory, arch_no_ext_nm)
-    # Handle possible clashes
-    # Handle them such that extracted code dir's name will not change
-    in_use_names = os.listdir(
-        working_directory) + [app.config['ANT_BUILD_FILE_NAME'] + app.config['ANT_RUN_FILE_NAME'] + app.config['ANT_BUILD_DIR_NAME']]
-    enumerator = Enumerator(banned_words_list=in_use_names)
     renamed_files = {}
+    src_arch_name = submission.code.get().filename
+    src_arch_name_split = src_arch_name.split('.')
+    arch_no_ext_nm = src_arch_name_split[0]
+    abs_arch_no_ext_nm = os.path.join(working_directory, arch_no_ext_nm)
     if arch_no_ext_nm in in_use_names:
-        # Generate new safe name
-        # Top level are tests dir, build file and run file only
         renamed_files[arch_no_ext_nm] = enumerator.get_token()
-        # Move file
-        move(abs_arch_no_ext_nm,
-             os.path.join(working_directory, renamed_files[working_directory]))
+        move(abs_arch_no_ext_nm, os.path.join(
+            working_directory, renamed_files[arch_no_ext_nm]))
+    if src_arch_name in in_use_names and src_arch_name != arch_no_ext_nm:
+        renamed_files[src_arch_name] = enumerator.get_token()
+        move(abs_arch_no_ext_nm, os.path.join(
+            working_directory, renamed_files[src_arch_name]))
+    return renamed_files
 
-    # Write archive to directory
-    with open(abs_src_arch_name, "wb") as code_outfile:
-        buff = subm.code.read(BUFFER_SIZE)
+
+def extract_source(submission, working_directory, buffer_size):
+    """Writes the source archive and extracts it."""
+    # Copy archive
+    abs_arch_name = os.path.join(
+        working_directory, submission.code.get().filename)
+    prev_entry_count = len(os.listdir(working_directory))
+    with open(abs_arch_name, "wb") as archive_out:
+        buff = submission.code.read(buffer_size)
         while len(buff) != 0:
-            code_outfile.write(buff)
-            buff = subm.code.read(BUFFER_SIZE)
+            archive_out.write(buff)
+            buff = submission.code.read(buffer_size)
+    after_entry_count = len(os.listdir(working_directory))
+    if after_entry_count != prev_entry_count + 1:
+        message = 'Working directory entry count assertion failed. Before write {0} after write {1}'.format(
+            prev_entry_count, after_entry_count)
+        app.logger.error(message)
+        raise DirectoryError(message)
+    # Extract archive
+    prev_entry_count = after_entry_count
+    patoolib.extract_archive(abs_arch_name, outdir=working_directory)
+    after_entry_count = len(os.listdir(working_directory))
+    os.remove(abs_arch_name)
+    if after_entry_count != prev_entry_count + 1:
+        message = 'Working directory entry count assertion failed. Before extraction {0} after extraction {1}'.format(
+            prev_entry_count, after_entry_count)
+        app.logger.error(message)
+        raise DirectoryError(message)
 
-    # Extract Archive
-    patoolib.extract_archive(abs_src_arch_name, outdir=working_directory)
-    os.remove(abs_src_arch_name)
 
-    for f  in os.listdir(working_directory):
-       app.logger.warning(f)
+def determine_src_dir(in_use_names, renamed_files, working_directory):
+    """Attempts to determine source directory name"""
+    candidates = [entry for entry in os.listdir(working_directory)
+                  if (entry not in in_use_names) and (entry not in renamed_files.values())]
 
-    # Paths in build.xml are relevant not absolute
+    if len(candidates) != 1:
+        message = 'Could not determine working directory. Candidates {0},\ndirectory entries{1},\nrenamed_files {2},\nin_use_names: {1}'
+        message.format(','.join(candidates), ','.join(os.listdir(
+            working_directory)), ','.join(renamed_files.items()), ','.join(in_use_names))
+        app.logger.error(message)
+        raise SRCError(message)
+    else:
+        return candidates[0]
+
+
+def create_ant_build_file(project, in_use_names, renamed_files, working_directory):
+    """Creates ant build file."""
+    src_dir = determine_src_dir(in_use_names, renamed_files, working_directory)
+    # Paths in build.xml are relative not absolute.
     context = {
-        "src_dir": arch_no_ext_nm,
+        "src_dir": src_dir,
         "tests_dir": renamed_files.get(app.config['ANT_TESTS_DIR_NAME'], app.config['ANT_TESTS_DIR_NAME']),
         "plain_format": False,
         "xml_format": True,
         "build_dir": renamed_files.get(app.config['ANT_BUILD_DIR_NAME'], app.config['ANT_BUILD_DIR_NAME']),
-        "has_tests": has_tests
+        "has_tests": project.has_tests
     }
-
-    # Create template file
     ant_build_template = render_template('runner/build.xml', **context)
-
     build_abs_fname = os.path.join(
         working_directory, renamed_files.get(app.config['ANT_BUILD_FILE_NAME'], app.config['ANT_BUILD_FILE_NAME']))
-    with open(build_abs_fname, "wb") as ant_build_file:
-        ant_build_file.write(ant_build_template)
-    # Render script
+    with open(build_abs_fname, "w") as script_file:
+        script_file.write(ant_build_template)
+
+
+def create_ant_script_file(project, in_use_names, renamed_files, working_directory):
+    """Creates ant script runner"""
     script_abs_fname = os.path.join(working_directory, renamed_files.get(
         app.config['ANT_RUN_FILE_NAME'], app.config['ANT_RUN_FILE_NAME']))
     context = {
         'buildfile_name': renamed_files.get(app.config['ANT_BUILD_FILE_NAME'], app.config['ANT_BUILD_FILE_NAME']),
-        'has_tests': has_tests,
-        'test_timeout': proj.test_timeout_seconds
+        'has_tests': project.has_tests,
+        'test_timeout': project.test_timeout_seconds
     }
     rendered_script = render_template('runner/ant_script.sh', **context)
     with open(script_abs_fname, "w") as script_file:
         script_file.write(rendered_script)
-
     script_st = os.stat(script_abs_fname)
     os.chmod(script_abs_fname, script_st.st_mode | stat.S_IEXEC)
-    return renamed_files, has_tests
 
+
+def setup_directory(submission, project, working_directory):
+    """
+    Sets up the directory layout.
+    """
+    BUFFER_SIZE = app.config['FILE_BUFFER_SIZE']
+    if project.has_tests:
+        copy_junit_tests(project, working_directory, BUFFER_SIZE)
+
+    # Check if archive clashes
+    in_use_names = os.listdir(working_directory) + [app.config[
+        'ANT_BUILD_FILE_NAME'] + app.config['ANT_RUN_FILE_NAME'] + app.config['ANT_BUILD_DIR_NAME']]
+    enumerator = Enumerator(in_use_names)
+    renamed_files = prepare_for_source(
+        submission, enumerator, in_use_names, working_directory)
+    extract_source(submission, working_directory, BUFFER_SIZE)
+    app.logger.info('Directory after extraction:[{0}]'.format(
+        ','.join(os.listdir(working_directory))))
+    before_ant_scripts = os.listdir(working_directory)
+    create_ant_build_file(
+        project, in_use_names, renamed_files, working_directory)
+    create_ant_script_file(
+        project, in_use_names, renamed_files, working_directory)
+    after_ant_scripts = os.listdir(working_directory)
+    if after_ant_scripts != before_ant_scripts + 1:
+        message = 'Failed before and after sanity check for ant scripts entries: {0}'.format(
+            ','.join(os.listdir(working_directory)))
+        app.logger.error(message)
+    return renamed_files
 
 
 def parse_junit_results(test_res_dir, subm):
@@ -167,13 +231,15 @@ def parse_junit_results(test_res_dir, subm):
         for test_case_elm in tree.iterfind('testcase'):
             # Process each test case in a junit file
             class_name = test_case_elm.attrib['classname']
-            # class name is something like FooTest which is the class 
+            # class name is something like FooTest which is the class
             # the tests were declared at
             if class_name not in test_results:
                 # Create new result if needed
-                test_results[class_name] = TestResult(name=class_name, success=True)
+                test_results[class_name] = TestResult(
+                    name=class_name, success=True)
             # Populate case
-            case = TestCase(name=test_case_elm.attrib['name'], passed=True, detail='')
+            case = TestCase(
+                name=test_case_elm.attrib['name'], passed=True, detail='')
             for failure in test_case_elm.iterfind('failure'):
                 # If it has a failure child then it failed.
                 case.passed = False
@@ -187,5 +253,60 @@ def parse_junit_results(test_res_dir, subm):
             test_results[class_name].success &= case.passed
 
     subm.test_results = test_results.values()
-    
 
+
+def run_sandbox(working_directory, selinux_directory, renamed_files, submission):
+    """Initiates SELinux Sanbox."""
+    command = ['sandbox', '-M', '-H', working_directory, '-T',
+               selinux_directory, 'bash',
+               renamed_files.get(app.config['ANT_RUN_FILE_NAME'], app.config['ANT_RUN_FILE_NAME'])]
+    app.logger.info('Lauching {0}'.format(' '.join(command)))
+    process = subprocess.Popen(
+        command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    stdout, stderr = process.communicate()
+    submission.compile_status = 'Compile failed' not in stderr
+    app.logger.info(stderr)
+    app.logger.info(stdout)
+    submission.compiler_out = stderr + '\n' + stdout
+    ant_build_dir_name = renamed_files.get(
+        app.config['ANT_BUILD_DIR_NAME'], app.config['ANT_BUILD_DIR_NAME'])
+    if submission.compile_status and not ant_build_dir_name in os.listdir(working_directory):
+        app.logger.error('Error unknown reason for compilation faliure.')
+    submission.compile_status &= ant_build_dir_name in os.listdir(
+        working_directory)
+
+
+def junit_submission(submission, project):
+    if submission.processed:
+        app.logger.error(
+            'Junit task launched with processed submission, id: {0}.'.format(submission.id))
+        return
+    # First we need to create the temporary directories
+
+    class TempDirectories(object):
+
+        def __enter__(self):
+            return mkdtemp(), mkdtemp()
+
+        def __exit__(self, type, value, traceback):
+            if app.config['CLEAN_TEMP_DIRS']:
+                rmtree(value[0])
+                rmtree(value[1])
+    with TempDirectories() as directories:
+        try:
+            working_directory, selinux_directory = directories
+            # Populate directory
+            renamed_files = setup_directory(
+                submission, project, working_directory)
+            run_sandbox(
+                working_directory, selinux_directory, renamed_files, submission)
+            if submission.compile_status and project.has_tests:
+                pass
+        except DirectoryError as de:
+            submission.compile_status = False
+            submission.compiler_out = de.value
+            submission.save()
+        except SRCError as se:
+            submission.compile_status = False
+            submission.compiler_out = se.value
+            submission.save()
