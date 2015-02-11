@@ -11,7 +11,7 @@ from application.tasks import junit_task
 from application.resources import allowed_code_file
 from parsers import project_parser
 import dateutil
-import itertools
+from operator import attrgetter
 
 class ProjectSubmissions(Resource):
 
@@ -53,6 +53,7 @@ class ProjectSubmissions(Resource):
         if isinstance(g.user, Student):
             # Filter all submissions            
             subs = [sub for sub in project.submissions if g.user.can_view_submission(sub, project, course)]
+            subs.sort(key=attrgetter('submission.created_at'), reverse=True)
             # Paginate
             paginated = paginate_iterable(subs, page, per_page)
             # Convert to dicts for marshalling
@@ -61,7 +62,9 @@ class ProjectSubmissions(Resource):
                 parent_course=course, parent_project=project)
         elif g.user in course.teachers:
             # No need to filter
-            paginated = paginate_iterable(project.submissions, page, per_page)
+            sorted_subs = sorted(project.submissions,
+                key=attrgetter('submission.created_at'), reverse=True)
+            paginated = paginate_iterable(sorted_subs, page, per_page)
             return custom_paginate_to_dict(paginated, 'submissions',
                 page, len(project.submissions), per_page, True,
                 parent_course=course, parent_project=project)
