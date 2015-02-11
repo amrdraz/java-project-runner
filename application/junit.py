@@ -204,12 +204,12 @@ def setup_directory(submission, project, working_directory):
     extract_source(submission, working_directory, BUFFER_SIZE)
     app.logger.info('Directory after extraction:[{0}]'.format(
         ','.join(os.listdir(working_directory))))
-    before_ant_scripts = os.listdir(working_directory)
+    before_ant_scripts = len(os.listdir(working_directory))
     create_ant_build_file(
         project, in_use_names, renamed_files, working_directory)
     create_ant_script_file(
         project, in_use_names, renamed_files, working_directory)
-    after_ant_scripts = os.listdir(working_directory)
+    after_ant_scripts = len(os.listdir(working_directory))
     if after_ant_scripts != before_ant_scripts + 1:
         message = 'Failed before and after sanity check for ant scripts entries: {0}'.format(
             ','.join(os.listdir(working_directory)))
