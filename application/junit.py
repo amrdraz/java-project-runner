@@ -304,7 +304,12 @@ def junit_submission(submission, project):
             run_sandbox(
                 working_directory, selinux_directory, renamed_files, submission)
             if submission.compile_status and project.has_tests:
-                pass
+                tests_dir = os.path.join(working_directory, 
+                    renamed_files.get(app.config['ANT_BUILD_DIR_NAME'], app.config['ANT_BUILD_DIR_NAME']))
+                tests_dir = os.path.join(tests_dir, 'tests')
+                parse_junit_results(tests_dir, submission)
+            submission.processed = True
+            submission.save()
         except DirectoryError as de:
             submission.compile_status = False
             submission.compiler_out = de.value
