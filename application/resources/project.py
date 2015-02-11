@@ -53,7 +53,7 @@ class ProjectSubmissions(Resource):
         if isinstance(g.user, Student):
             # Filter all submissions            
             subs = [sub for sub in project.submissions if g.user.can_view_submission(sub, project, course)]
-            subs.sort(key=attrgetter('submission.created_at'), reverse=True)
+            subs.sort(key=attrgetter('created_at'), reverse=True)
             # Paginate
             paginated = paginate_iterable(subs, page, per_page)
             # Convert to dicts for marshalling
@@ -63,7 +63,7 @@ class ProjectSubmissions(Resource):
         elif g.user in course.teachers:
             # No need to filter
             sorted_subs = sorted(project.submissions,
-                key=attrgetter('submission.created_at'), reverse=True)
+                key=attrgetter('created_at'), reverse=True)
             paginated = paginate_iterable(sorted_subs, page, per_page)
             return custom_paginate_to_dict(paginated, 'submissions',
                 page, len(project.submissions), per_page, True,
