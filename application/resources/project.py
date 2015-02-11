@@ -18,34 +18,31 @@ class ProjectSubmissions(Resource):
     @student_required
     def post(self, course_name, name, page=1):
         """Creates a new submission."""
-        try:
-            course = Course.objects.get_or_404(name=course_name)
-            project = Project.objects.get_or_404(name=name)
-            if not g.user in course.students:
-                abort(403, message="Must be a course student to submit")
-            if not project in course.projects:
-                abort(404, message="Project not found.")
-            if not project.can_submit:
-                abort(498, message="Due date hass passed, tough luck!")
-            if len(request.files.values()) == 1:
-                subm = Submission(submitter=g.user)
-                for file in request.files.values():
-                    if allowed_code_file(file.filename):
-                        grid_file = db.GridFSProxy()
-                        grid_file.put(
-                            file, filename=secure_filename(file.filename), content_type=file.mimetype)
-                        subm.code = grid_file
-                    else:
-                        abort(400, message="Only {0} files allowed".format(','.join(api.app.config['ALLOWED_CODE_EXTENSIONS'])))
-                subm.save()
-                project.submissions.append(subm)
-                project.save()
-                junit_task.delay(str(subm.id))
-                return marshal(subm.to_dict(parent_course=course, parent_project=project), submission_fields), 201
-            else:
-                abort(400, message="Can only submit one file.")  # Bad request
-        except Exception as e:
-            abort(422, message=e.value)
+        course = Course.objects.get_or_404(name=course_name)
+        project = Project.objects.get_or_404(name=name)
+        if not g.user in course.students:
+            abort(403, message="Must be a course student to submit")
+        if not project in course.projects:
+            abort(404, message="Project not found.")
+        if not project.can_submit:
+            abort(498, message="Due date hass passed, tough luck!")
+        if len(request.files.values()) == 1:
+            subm = Submission(submitter=g.user)
+            for file in request.files.values():
+                if allowed_code_file(file.filename):
+                    grid_file = db.GridFSProxy()
+                    grid_file.put(
+                        file, filename=secure_filename(file.filename), content_type=file.mimetype)
+                    subm.code = grid_file
+                else:
+                    abort(400, message="Only {0} files allowed".format(','.join(api.app.config['ALLOWED_CODE_EXTENSIONS'])))
+            subm.save()
+            project.submissions.append(subm)
+            project.save()
+            junit_task.delay(str(subm.id))
+            return marshal(subm.to_dict(parent_course=course, parent_project=project), submission_fields), 201
+        else:
+            abort(400, message="Can only submit one file.")  # Bad request
 
     @login_required
     @marshal_with(submission_page_fields)
