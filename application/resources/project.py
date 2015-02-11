@@ -45,7 +45,7 @@ class ProjectSubmissions(Resource):
             else:
                 abort(400, message="Can only submit one file.")  # Bad request
         except Exception as e:
-            abort(500, message=e.value)
+            abort(422, message=e.value)
 
     @login_required
     @marshal_with(submission_page_fields)
