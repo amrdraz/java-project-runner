@@ -287,12 +287,13 @@ def junit_submission(submission, project):
     class TempDirectories(object):
 
         def __enter__(self):
-            return mkdtemp(), mkdtemp()
+            self.dirs = mkdtemp(), mkdtemp()
+            return self.dirs
 
         def __exit__(self, type, value, traceback):
             if app.config['CLEAN_TEMP_DIRS']:
-                rmtree(value[0])
-                rmtree(value[1])
+                rmtree(self.dirs[0])
+                rmtree(self.dirs[1])
     with TempDirectories() as directories:
         try:
             working_directory, selinux_directory = directories
