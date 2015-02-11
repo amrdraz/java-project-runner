@@ -227,7 +227,7 @@ class Project(db.Document):
 
     @property
     def has_tests(self):
-        return len(tests) >= 1
+        return len(self.tests) >= 1
 
     @property
     def can_submit(self):
