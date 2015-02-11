@@ -3,18 +3,20 @@ from application import api, db
 from application.resources import allowed_test_file
 from application.models import Course, Project, Submission, Student
 from decorators import student_required, login_required, teacher_required
-from fields import submission_fields, project_fields
+from fields import submission_fields, project_fields, submission_page_fields
+from pagination import custom_paginate_to_dict, paginate_iterable
 from flask import g, request, make_response
 from werkzeug import secure_filename
 from application.tasks import junit_task
 from application.resources import allowed_code_file
 from parsers import project_parser
 import dateutil
+import itertools
 
 class ProjectSubmissions(Resource):
 
     @student_required
-    def post(self, course_name, name):
+    def post(self, course_name, name, page=1):
         """Creates a new submission."""
         course = Course.objects.get_or_404(name=course_name)
         project = Project.objects.get_or_404(name=name)
@@ -43,19 +45,28 @@ class ProjectSubmissions(Resource):
             abort(400, message="Can only submit one file.")  # Bad request
 
     @login_required
-    @marshal_with(submission_fields)
-    def get(self, course_name, name):
+    @marshal_with(submission_page_fields)
+    def get(self, course_name, name, page=1):
         course = Course.objects.get_or_404(name=course_name)
         project = Project.objects.get_or_404(name=name)
-        submissions = [subm.to_dict(parent_course=course, parent_project=project)
-                       for subm in project.submissions]
-
         if isinstance(g.user, Student):
-            return [subm for subm in submissions if subm['submitter']['id'] == g.user.id]
+            # Filter all submissions            
+            subs = [sub for sub in project.submissions if g.user.can_view_submission(sub, project, course)]
+            per_page = api.app.config['SUMBISSIONS_PAGE_SIZE']
+            # Paginate
+            paginated = paginate_iterable(subs, page, per_page)
+            # Convert to dicts for marshalling
+            return custom_paginate_to_dict(paginated, 'submissions',
+                page, len(subs), per_page, True,
+                parent_course=course, parent_project=project)
         elif g.user in course.teachers:
-            return submissions
+            # No need to filter
+            paginated = paginate_iterable(project.submissions, page, per_page)
+            return custom_paginate_to_dict(paginated, 'submissions',
+                page, len(project.submissions), per_page, True,
+                parent_course=course, parent_project=project)
         else:
-            abort(403)  # not a student and not a course teacher
+            abort(403, message="You are not a student or course teacher.")  # not a student and not a course teacher
 
 
 class ProjectResource(Resource):
@@ -166,7 +177,7 @@ class ProjectTestFileDownload(Resource):
 api.add_resource(
     ProjectTestFileDownload, '/project/<string:project_id>/tests/<string:name>', endpoint="project_test_file_ep")
 
-api.add_resource(ProjectSubmissions, '/course/<string:course_name>/projects/<string:name>/submissions',
+api.add_resource(ProjectSubmissions, '/course/<string:course_name>/projects/<string:name>/submissions/<int:page>',
                  endpoint='project_submissions_ep')
 
 api.add_resource(

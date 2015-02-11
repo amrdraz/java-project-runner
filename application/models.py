@@ -48,11 +48,14 @@ class User(db.DynamicDocument):
         """Checks if the user has authorization to view a course."""
         return (self.is_teacher or (self.is_student and course.published))
 
+    def can_view_submission(self, submission, project, course):
+        return (self.can_view_project(project, course) and 
+            (self.is_teacher or (submission.submitter == self)))
 
     def can_view_project(self, project, course):
         """Checks if the user has authorization to view a project."""
         return (course.is_user_associated(self) and 
-            (self.is_teacher and self in course.teachers) or
+            (self.is_teacher) or
             (self in course.students and project.published))
 
 
@@ -201,7 +204,8 @@ class Course(db.Document):
             "description": self.description,
             "created_at": self.created_at,
             "published": self.published,
-            "supervisor": self.supervisor.to_dict()
+            "supervisor": self.supervisor.to_dict(),
+            'page': 1
         }
 
 
@@ -240,7 +244,8 @@ class Project(db.Document):
                        else Course.objects.get(projects=self).to_dict(**kwargs)),
             "can_submit": self.can_submit,
             "due_date": self.due_date,
-            'published': self.published
+            'published': self.published,
+            'page': 1
         }
         dic['course_name'] = dic['course']['name']
 

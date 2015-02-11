@@ -87,3 +87,11 @@ submission_fields = {
     'created_at': fields.DateTime('iso8601'),
     'download_url': fields.Url(endpoint='submission_download_ep')
 }
+
+
+# Pagination fields
+page = {
+    "page": fields.Integer,
+    "pages": fields.Integer
+}
+submission_page_fields = dict(page, **{'submissions': fields.List(fields.Nested(submission_fields))})

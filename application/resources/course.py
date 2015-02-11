@@ -2,11 +2,12 @@
 from application import api, db
 from application.models import Course, Student, Project, User
 from application.resources import allowed_test_file
-from parsers import course_parser, project_parser, user_parser
-from decorators import login_required, login_mutable, teacher_required
+from application.resources.parsers import course_parser, project_parser, user_parser
+from application.resources.decorators import login_required, login_mutable, teacher_required
 from flask import g, request
 from flask.ext.restful import Resource, abort, marshal_with, marshal
 from fields import course_fields, public_course_fields, project_fields, user_fields, submission_fields
+from application.resources.pagination import paginate_iterable
 from werkzeug import secure_filename
 import dateutil
 import itertools
@@ -80,18 +81,17 @@ class CourseResource(Resource):
 class CourseSubmissions(Resource):
     method_decorators = [teacher_required, marshal_with(submission_fields)]
 
-    def get(self, name):
+    def get(self, name, page=1):
         """
         Lists all submissions related to the course.
         """
         course = Course.objects.get_or_404(name=name)
-        if g.user not in course.teachers:
+        if not g.user.can_view_course(course):
             abort(403, message='message must be a course teacher to view all submissions')
-        submissions = []
-        for project in course.projects:
-            submissions = map(lambda subm: subm.to_dict(parent_project=project, parent_course=course),
-                                         itertools.chain(submissions, project.submissions))
-        return submissions
+        all_submissions = itertools.imap(lambda proj: proj.submissions, course.projects)
+        flat_submissions = itertools.chain.from_iterable(all_submissions)
+        all_submissions = paginate_iterable(flat_submissions, page, api.app.config['SUMBISSIONS_PAGE_SIZE'])
+        return [subm.to_dict(parent_course=course) for subm in all_submissions]
 
 
 class CourseTeachers(Resource):
@@ -267,5 +267,5 @@ api.add_resource(CourseStudents, '/course/<string:name>/students',
                  endpoint='course_students_ep')
 api.add_resource(CourseTeachers, '/course/<string:name>/tas',
                  endpoint='course_tas_ep')
-api.add_resource(CourseSubmissions, '/course/<string:name>/submissions',
+api.add_resource(CourseSubmissions, '/course/<string:name>/submissions/<int:page>',
                  endpoint='course_submissions_ep')

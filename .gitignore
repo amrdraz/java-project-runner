@@ -30,3 +30,4 @@ node_modules
 *.pyc
 profile.info
 env/
+dumps/

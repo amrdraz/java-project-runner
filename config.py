@@ -1,7 +1,7 @@
 import os
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
-DEBUG = False
+DEBUG = True
 DROP_ENDPOINT = True
 ENABLE_EMAIL_ACTIVATION = False
 MAIL_FAIL_SILENTLY = True
@@ -29,3 +29,5 @@ CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 
 CLEAN_TEMP_DIRS = True
+
+SUMBISSIONS_PAGE_SIZE = 10
