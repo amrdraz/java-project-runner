@@ -49,10 +49,10 @@ class ProjectSubmissions(Resource):
     def get(self, course_name, name, page=1):
         course = Course.objects.get_or_404(name=course_name)
         project = Project.objects.get_or_404(name=name)
+        per_page = api.app.config['SUMBISSIONS_PAGE_SIZE']
         if isinstance(g.user, Student):
             # Filter all submissions            
             subs = [sub for sub in project.submissions if g.user.can_view_submission(sub, project, course)]
-            per_page = api.app.config['SUMBISSIONS_PAGE_SIZE']
             # Paginate
             paginated = paginate_iterable(subs, page, per_page)
             # Convert to dicts for marshalling
