@@ -35,7 +35,7 @@ class ProjectSubmissions(Resource):
                         file, filename=secure_filename(file.filename), content_type=file.mimetype)
                     subm.code = grid_file
                 else:
-                    abort(400, messag="Only ")
+                    abort(400, messag="Only {0} files allowed".format(api.app.config['ALLOWED_CODE_EXTENSIONS']))
             subm.save()
             project.submissions.append(subm)
             project.save()
