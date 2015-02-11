@@ -75,6 +75,7 @@ def copy_junit_tests(project, working_directory, buffer_size):
     """
     tests_dir = os.path.join(
         working_directory, app.config['ANT_TESTS_DIR_NAME'])
+    app.logger.info('using {0} as test directory initially'.format(tests_dir))
     os.mkdir(tests_dir)
     # Write each junit in the project to the tests dir
     for junit in project.tests:
