@@ -295,6 +295,7 @@ def junit_submission(submission, project):
     with TempDirectories() as directories:
         try:
             working_directory, selinux_directory = directories
+            app.logger.info('using {0} and {1} as directories'.format(working_directory, selinux_directory))
             # Populate directory
             renamed_files = setup_directory(
                 submission, project, working_directory)
