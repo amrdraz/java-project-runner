@@ -23,7 +23,7 @@ class ProjectSubmissions(Resource):
         if not g.user in course.students:
             abort(403, message="Must be a course student to submit")
         if not project in course.projects:
-            abort(404)
+            abort(404, message="Project not found.")
         if not project.can_submit:
             abort(498, message="Due date hass passed, tough luck!")
         if len(request.files.values()) == 1:
@@ -35,7 +35,7 @@ class ProjectSubmissions(Resource):
                         file, filename=secure_filename(file.filename), content_type=file.mimetype)
                     subm.code = grid_file
                 else:
-                    abort(400, messag="Only {0} files allowed".format(api.app.config['ALLOWED_CODE_EXTENSIONS']))
+                    abort(400, messag="Only {0} files allowed".format(','.join(api.app.config['ALLOWED_CODE_EXTENSIONS'])))
             subm.save()
             project.submissions.append(subm)
             project.save()
