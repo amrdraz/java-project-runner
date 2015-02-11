@@ -52,7 +52,7 @@ class ProjectSubmissions(Resource):
         per_page = api.app.config['SUMBISSIONS_PAGE_SIZE']
         if isinstance(g.user, Student):
             # Filter all submissions            
-            subs = [sub for sub in Submission.objects(submitter=g.user) if g.user.can_view_submission(sub, project, course)]
+            subs = Submission.objects(submitter=g.user)
             subs.sort(key=attrgetter('created_at'), reverse=True)
             # Paginate
             paginated = paginate_iterable(subs, page, per_page)
