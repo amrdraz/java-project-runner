@@ -2,14 +2,14 @@ from flask.ext.restful import Resource, abort, marshal_with, marshal
 from application import api, db
 from application.resources import allowed_test_file
 from application.models import Course, Project, Submission, Student
-from decorators import student_required, login_required, teacher_required
-from fields import submission_fields, project_fields, submission_page_fields
-from pagination import custom_paginate_to_dict, paginate_iterable
+from application.resources.decorators import student_required, login_required, teacher_required
+from application.resources.fields import submission_fields, project_fields, submission_page_fields
+from application.resources.pagination import custom_paginate_to_dict, paginate_iterable
 from flask import g, request, make_response
 from werkzeug import secure_filename
 from application.tasks import junit_task
 from application.resources import allowed_code_file
-from parsers import project_parser
+from application.resources.parsers import project_parser
 import dateutil
 from operator import attrgetter
 
