@@ -6,8 +6,8 @@ from application.resources.parsers import course_parser, project_parser, user_pa
 from application.resources.decorators import login_required, login_mutable, teacher_required
 from flask import g, request
 from flask.ext.restful import Resource, abort, marshal_with, marshal
-from fields import course_fields, public_course_fields, project_fields, user_fields, submission_fields
-from application.resources.pagination import paginate_iterable
+from application.fields import course_fields, public_course_fields, project_fields, user_fields, submission_page_fields
+from application.resources.pagination import paginate_iterable, custom_paginate_to_dict
 from werkzeug import secure_filename
 import dateutil
 import itertools
@@ -79,19 +79,23 @@ class CourseResource(Resource):
 
 
 class CourseSubmissions(Resource):
-    method_decorators = [teacher_required, marshal_with(submission_fields)]
+    method_decorators = [teacher_required, marshal_with(submission_page_fields)]
 
     def get(self, name, page=1):
         """
         Lists all submissions related to the course.
         """
         course = Course.objects.get_or_404(name=name)
+        per_page = api.app.config['SUMBISSIONS_PAGE_SIZE']
         if not g.user.can_view_course(course):
             abort(403, message='message must be a course teacher to view all submissions')
         all_submissions = itertools.imap(lambda proj: proj.submissions, course.projects)
         flat_submissions = itertools.chain.from_iterable(all_submissions)
-        all_submissions = paginate_iterable(flat_submissions, page, api.app.config['SUMBISSIONS_PAGE_SIZE'])
-        return [subm.to_dict(parent_course=course) for subm in all_submissions]
+        all_submissions = paginate_iterable(flat_submissions, page, per_page)
+
+        return custom_paginate_to_dict(all_submissions, 'submissions',
+                page, len(all_submissions), per_page, True,
+                parent_course=course)
 
 
 class CourseTeachers(Resource):
