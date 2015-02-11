@@ -6,7 +6,7 @@ from application.resources.parsers import course_parser, project_parser, user_pa
 from application.resources.decorators import login_required, login_mutable, teacher_required
 from flask import g, request
 from flask.ext.restful import Resource, abort, marshal_with, marshal
-from application.fields import course_fields, public_course_fields, project_fields, user_fields, submission_page_fields
+from application.resources.fields import course_fields, public_course_fields, project_fields, user_fields, submission_page_fields
 from application.resources.pagination import paginate_iterable, custom_paginate_to_dict
 from werkzeug import secure_filename
 import dateutil
