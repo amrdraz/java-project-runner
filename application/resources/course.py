@@ -110,8 +110,7 @@ class CourseTeachers(Resource):
         course = Course.objects.get_or_404(name=name)
         per_page = api.app.config['TA_PAGE_SIZE']
         paginated = paginate_iterable(course.teachers, page, per_page)
-        return custom_paginate_to_dict(paginated, 'users', page, total, per_page, True)
-        return [teacher.to_dict() for teacher in course.teachers]
+        return custom_paginate_to_dict(paginated, 'users', page, len(course.teachers), per_page, True)
 
     @teacher_required
     def post(self, name, page=1):
@@ -184,7 +183,7 @@ class CourseStudents(Resource):
         course = Course.objects.get_or_404(name=name)
         per_page = api.app.config['STUDENT_PAGE_SIZE']
         paginated = paginate_iterable(course.students, page, per_page)
-        return custom_paginate_to_dict(paginated, 'users', page, total, per_page, True)
+        return custom_paginate_to_dict(paginated, 'users', page, len(course.students), per_page, True)
 
     def delete(self, name, page=1):
         """
