@@ -101,7 +101,7 @@ class CourseSubmissions(Resource):
 class CourseTeachers(Resource):
 
     @login_required
-    @marshal_with(user_fields)
+    @marshal_with(user_page_fields)
     def get(self, name, page=1):
         """
         Lists the course's TAs.
