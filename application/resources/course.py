@@ -19,7 +19,7 @@ class CoursesResource(Resource):
 
     """Courses Collection."""
     @teacher_required
-    def post(self):
+    def post(self, page=1):
         """
         Creates a new course, 
         current user is set as supervisor.
@@ -44,7 +44,7 @@ class CoursesResource(Resource):
             abort(422, message='Course name already in use.')
 
     @login_mutable
-    def get(self):
+    def get(self, page=1):
         """
         Lists all courses.
         Must be logged in.
