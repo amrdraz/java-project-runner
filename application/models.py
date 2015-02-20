@@ -304,6 +304,7 @@ class Submission(db.Document):
     test_results = db.ListField(db.EmbeddedDocumentField('TestResult'))
     processed = db.BooleanField(default=False, required=True)
     submitter = db.ReferenceField('Student', required=True)
+    project = db.RegerenceField('Project', required=True)
     code = db.FileField(required=True)
     compile_status = db.BooleanField(default=False, required=True)
     compiler_out = db.StringField()
