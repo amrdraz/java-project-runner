@@ -4,7 +4,7 @@ from application.resources import allowed_test_file
 from application.models import Course, Project, Submission, Student
 from application.resources.decorators import student_required, login_required, teacher_required
 from application.resources.fields import submission_fields, project_fields, submission_page_fields
-from application.resources.pagination import custom_paginate_to_dict, paginate_iterable
+from application.resources.pagination import custom_paginate_to_dict, paginate_iterable, mongo_paginate_to_dict
 from flask import g, request, make_response
 from werkzeug import secure_filename
 from application.tasks import junit_task
@@ -27,7 +27,7 @@ class ProjectSubmissions(Resource):
         if not project.can_submit:
             abort(498, message="Due date has passed, tough luck!")
         if len(request.files.values()) == 1:
-            subm = Submission(submitter=g.user)
+            subm = Submission(submitter=g.user, project=project)
             for file in request.files.values():
                 if allowed_code_file(file.filename):
                     grid_file = db.GridFSProxy()
@@ -52,22 +52,14 @@ class ProjectSubmissions(Resource):
         per_page = api.app.config['SUMBISSIONS_PAGE_SIZE']
         if isinstance(g.user, Student) and project.published:
             # Filter all submissions            
-            subs = [sub for sub in project.submissions if g.user == sub.submitter]
-            subs.sort(key=attrgetter('created_at'), reverse=True)
-            # Paginate
-            paginated = paginate_iterable(subs, page, per_page)
-            # Convert to dicts for marshalling
-            return custom_paginate_to_dict(paginated, 'submissions',
-                page, len(subs), per_page, True,
-                parent_course=course, parent_project=project)
+            subs = Submission.objects(submitter=g.user,
+                project=project).order_by('-created_at').paginate(page,
+                per_page)
+            return mongo_paginate_to_dict(subs, 'submissions')
         elif g.user in course.teachers:
             # No need to filter
-            sorted_subs = sorted(project.submissions,
-                key=attrgetter('created_at'), reverse=True)
-            paginated = paginate_iterable(sorted_subs, page, per_page)
-            return custom_paginate_to_dict(paginated, 'submissions',
-                page, len(project.submissions), per_page, True,
-                parent_course=course, parent_project=project)
+            subs = Submission.objects(project=project).order_by('-created_at').paginate(page, per_page)
+            return mongo_paginate_to_dict(subs, 'submissions')
         else:
             abort(403, message="You are not a student or course teacher.")  # not a student and not a course teacher
 
