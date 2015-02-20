@@ -26,9 +26,9 @@ def mongo_paginate_to_dict(pages, items_key, convert_items=True, **nestedkwargs)
        'pages': pages.pages
     }
     if convert_items:
-        dic[items_key] = [item.to_dict(**nestedkwargs) for item in pages.items()]
+        dic[items_key] = [item.to_dict(**nestedkwargs) for item in pages.items]
     else:
-        dic[items_key] = pages.items()
+        dic[items_key] = pages.items
     return dic
 
 def custom_paginate_to_dict(iterable, items_key, page, total ,per_page, convert_items, **nestedkwargs):
