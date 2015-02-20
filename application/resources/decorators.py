@@ -22,9 +22,9 @@ def login_required(f):
                 g.user = User.verify_auth_token(token)
                 return f(*args, **kwargs)
             except(BadSignature, SignatureExpired):
-                abort(401)
+                abort(401, message="Invalid email/password.")
         else:
-            abort(401)
+            abort(401, message="Invalid email/password.")
     return decorator
 
 

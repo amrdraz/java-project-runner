@@ -6,7 +6,7 @@ from application.resources.parsers import course_parser, project_parser, user_pa
 from application.resources.decorators import login_required, login_mutable, teacher_required
 from flask import g, request
 from flask.ext.restful import Resource, abort, marshal_with, marshal
-from application.resources.fields import course_fields, public_course_fields, project_fields, user_fields, submission_page_fields
+from application.resources.fields import course_fields, public_course_fields, project_fields, user_fields, submission_page_fields, user_page_fields
 from application.resources.pagination import paginate_iterable, custom_paginate_to_dict
 from werkzeug import secure_filename
 import dateutil
@@ -102,16 +102,19 @@ class CourseTeachers(Resource):
 
     @login_required
     @marshal_with(user_fields)
-    def get(self, name):
+    def get(self, name, page=1):
         """
         Lists the course's TAs.
         Must be logged in to access the list.
         """
         course = Course.objects.get_or_404(name=name)
+        per_page = api.app.config['TA_PAGE_SIZE']
+        paginated = paginate_iterable(course.teachers, page, per_page)
+        return custom_paginate_to_dict(paginated, 'users', page, total, per_page, True)
         return [teacher.to_dict() for teacher in course.teachers]
 
     @teacher_required
-    def post(self, name):
+    def post(self, name, page=1):
         """
         Adds a teacher to the course.
         Logged in user must be a teacher.
@@ -131,7 +134,7 @@ class CourseTeachers(Resource):
             abort(400, message="Can not add student as a course teacher.")
 
     @teacher_required
-    def delete(self, name):
+    def delete(self, name, page=1):
         """
         Removes a teacher from the course.
         Logged in user must be a course teacher.
@@ -153,7 +156,7 @@ class CourseTeachers(Resource):
 class CourseStudents(Resource):
     method_decorators = [login_required]
 
-    def post(self, name):
+    def post(self, name, page=1):
         """
         Adds a student to the course.
         Logged in user must be student to be added or a course teacher
@@ -172,16 +175,18 @@ class CourseStudents(Resource):
         else:
             abort(400, message='Can not add a teacher as a course student.')  # Terrible request
 
-    @marshal_with(user_fields)
-    def get(self, name):
+    @marshal_with(user_page_fields)
+    def get(self, name, page=1):
         """
         Lists the course's student.
         Must be logged in to access the list.
         """
         course = Course.objects.get_or_404(name=name)
-        return [student.to_dict() for student in course.students]
+        per_page = api.app.config['STUDENT_PAGE_SIZE']
+        paginated = paginate_iterable(course.students, page, per_page)
+        return custom_paginate_to_dict(paginated, 'users', page, total, per_page, True)
 
-    def delete(self, name):
+    def delete(self, name, page=1):
         """
         Removes a student from the course.
         Logged in user must be a course teacher or the student in question.
@@ -265,11 +270,11 @@ class CourseProjects(Resource):
 
 api.add_resource(CourseProjects, '/course/<string:name>/projects',
                  endpoint='course_projects_ep')
-api.add_resource(CoursesResource, '/courses', endpoint='courses_ep')
+api.add_resource(CoursesResource, '/courses/<int:page>', endpoint='courses_ep')
 api.add_resource(CourseResource, '/course/<string:name>', endpoint='course_ep')
-api.add_resource(CourseStudents, '/course/<string:name>/students',
+api.add_resource(CourseStudents, '/course/<string:name>/students/<int:page>',
                  endpoint='course_students_ep')
-api.add_resource(CourseTeachers, '/course/<string:name>/tas',
+api.add_resource(CourseTeachers, '/course/<string:name>/tas/<int:page>',
                  endpoint='course_tas_ep')
 api.add_resource(CourseSubmissions, '/course/<string:name>/submissions/<int:page>',
                  endpoint='course_submissions_ep')

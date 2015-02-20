@@ -155,7 +155,8 @@ class User(db.DynamicDocument):
             "email": self.email,
             "password": self.password,
             "name": self.name,
-            "active": self.active
+            "active": self.active,
+            'page': 1
         }
 
 

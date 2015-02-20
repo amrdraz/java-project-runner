@@ -95,3 +95,4 @@ page = {
     "pages": fields.Integer
 }
 submission_page_fields = dict(page, **{'submissions': fields.List(fields.Nested(submission_fields))})
+user_page_fields = dict(page, **{'users': fields.List(fields.Nested(user_fields))})
