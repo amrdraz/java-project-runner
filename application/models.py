@@ -183,7 +183,7 @@ class Course(db.Document):
         db.ReferenceField('User', reverse_delete_rule=db.PULL))
     students = db.ListField(
         db.ReferenceField('Student', reverse_delete_rule=db.PULL))
-    published = db.BooleanField(default=True)
+    published = db.BooleanField(default=True, required=True)
 
     def is_user_associated(self, user):
         """Checks if user in course students or teachers."""
