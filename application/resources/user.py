@@ -35,6 +35,7 @@ class UsersResource(Resource):
         else:
             user = User(email=email, name=name)
         user.password = password
+        user.active = False
         user.save()
         if api.app.config['ENABLE_EMAIL_ACTIVATION']:
             user.send_activation_mail()
