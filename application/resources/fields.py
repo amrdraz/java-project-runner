@@ -42,6 +42,8 @@ course_fields = {
 course_fields = dict(course_fields.items() + public_course_fields.items())
 
 
+
+
 test_file_fields = {
     "name": fields.String,
     "download_url": fields.Url(endpoint='project_test_file_ep')
@@ -96,3 +98,7 @@ page = {
 }
 submission_page_fields = dict(page, **{'submissions': fields.List(fields.Nested(submission_fields))})
 user_page_fields = dict(page, **{'users': fields.List(fields.Nested(user_fields))})
+
+public_course_page_fields = dict(page, **{'courses': fields.List(fields.Nested(public_course_fields))})
+
+course_page_fields = dict(page, **{'courses': fields.List(fields.Nested(course_fields))})

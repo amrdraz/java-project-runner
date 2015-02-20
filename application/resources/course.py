@@ -6,8 +6,10 @@ from application.resources.parsers import course_parser, project_parser, user_pa
 from application.resources.decorators import login_required, login_mutable, teacher_required
 from flask import g, request
 from flask.ext.restful import Resource, abort, marshal_with, marshal
-from application.resources.fields import course_fields, public_course_fields, project_fields, user_fields, submission_page_fields, user_page_fields
-from application.resources.pagination import paginate_iterable, custom_paginate_to_dict
+from application.resources.fields import (course_fields, public_course_fields,
+    project_fields, user_fields, submission_page_fields, user_page_fields,
+    course_page_fields, public_course_page_fields)
+from application.resources.pagination import paginate_iterable, custom_paginate_to_dict, mongo_paginate_to_dict
 from werkzeug import secure_filename
 import dateutil
 import itertools
@@ -49,13 +51,18 @@ class CoursesResource(Resource):
         Lists all courses.
         Must be logged in.
         """
+        per_page = api.app.config['COURSE_PAGE_SIZE']
         if g.user is None:
-            model_fields = public_course_fields
-            courses = Course.objects(published=True)
+            model_fields = public_course_page_fields
+            paginated_courses = Course.objects(published=True).paginate(page, per_page)
+            pages = mongo_paginate_to_dict(paginated_courses, 'courses')
         else:
-            model_fields = course_fields
+            model_fields = course_page_fields
             courses = g.user.all_accessible_courses()
-        return marshal([course.to_dict() for course in courses], model_fields)
+            paginated_courses = paginate_iterable(courses, page, per_page)
+            pages = custom_paginate_to_dict(paginated_courses, "courses", page,
+                len(courses), per_page, True)
+        return marshal(pages, model_fields)
 
 
 class CourseResource(Resource):

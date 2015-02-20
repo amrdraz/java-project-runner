@@ -14,19 +14,19 @@ def paginate_iterable(iterable, page, per_page):
     return itertools.islice(iterable, start, end)
 
 
-def mongo_paginate_to_dict(page, items_key, convert_items=True, **nestedkwargs):
+def mongo_paginate_to_dict(pages, items_key, convert_items=True, **nestedkwargs):
     """
     Converts a page from mongoengine paginate to a dict for marshalling.
     optionally converts items to dict.
     """
     dic = {
-       'page': page.page,
-       'pages': page.pages
+       'page': pages.page,
+       'pages': pages.pages
     }
     if convert_items:
-        dic[items_key] = [item.to_dict(nestedkwargs) for item in page.items()]
+        dic[items_key] = [item.to_dict(**nestedkwargs) for item in pages.items()]
     else:
-        dic[items_key] = page.items()
+        dic[items_key] = pages.items()
     return dic
 
 def custom_paginate_to_dict(iterable, items_key, page, total ,per_page, convert_items, **nestedkwargs):
