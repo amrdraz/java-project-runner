@@ -25,7 +25,7 @@ class ProjectSubmissions(Resource):
         if not project in course.projects:
             abort(404, message="Project not found.")
         if not project.can_submit:
-            abort(498, message="Due date hass passed, tough luck!")
+            abort(498, message="Due date has passed, tough luck!")
         if len(request.files.values()) == 1:
             subm = Submission(submitter=g.user)
             for file in request.files.values():
