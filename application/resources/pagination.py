@@ -18,6 +18,8 @@ def mongo_paginate_to_dict(pages, items_key, convert_items=True, **nestedkwargs)
     """
     Converts a page from mongoengine paginate to a dict for marshalling.
     optionally converts items to dict.
+    pages: mongoengine page.
+    items_key: key to insert items in dict.
     """
     dic = {
        'page': pages.page,
