@@ -5,9 +5,9 @@
 
     <target name="compile">
         <mkdir dir="{{build_dir}}/classes"/>
-        <javac1.8 includeantruntime="true" failonerror="true" srcdir="{{src_dir}}" destdir="{{build_dir}}/classes"/>
+        <javac includeantruntime="true" failonerror="true" srcdir="{{src_dir}}" destdir="{{build_dir}}/classes"/>
         {% if has_tests %}
-        <javac1.8 includeantruntime="true" srcdir="{{tests_dir}}" destdir="{{build_dir}}/classes"/>
+        <javac includeantruntime="true" srcdir="{{tests_dir}}" destdir="{{build_dir}}/classes"/>
         {% endif %}
     </target>
     {% if has_tests %}
