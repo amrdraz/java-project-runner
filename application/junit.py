@@ -120,7 +120,7 @@ def extract_source(submission, working_directory, buffer_size):
             archive_out.write(buff)
             buff = submission.code.read(buffer_size)
     after_entry_count = len(os.listdir(working_directory))
-    if after_entry_count != prev_entry_count + 1:
+    if after_entry_count < prev_entry_count + 1:
         message = 'Working directory entry count assertion failed. Before write {0} after write {1}'.format(
             prev_entry_count, after_entry_count)
         app.logger.error(message)
@@ -130,7 +130,7 @@ def extract_source(submission, working_directory, buffer_size):
     patoolib.extract_archive(abs_arch_name, outdir=working_directory)
     after_entry_count = len(os.listdir(working_directory))
     os.remove(abs_arch_name)
-    if after_entry_count != prev_entry_count + 1:
+    if after_entry_count < prev_entry_count + 1:
         message = 'Working directory entry count assertion failed. Before extraction {0} after extraction {1}'.format(
             prev_entry_count, after_entry_count)
         app.logger.error(message)
