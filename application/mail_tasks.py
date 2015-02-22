@@ -27,7 +27,7 @@ def reset_password(user_id):
     try:
         user = User.objects.get(id=user_id)
         reset_token = user.generate_pass_reset_token()
-        reset_url = 'https://evaluator.in/reset/?token={0}'.format(reset_token)
+        reset_url = 'https://evaluator.in/#/reset/?token={0}'.format(reset_token)
         msg = create_message('Password reset', user.email)
         context = {'user': user.to_dict(), 'reset_url': reset_url}
         msg.body = render_template('emails/reset.txt', **context)
@@ -41,7 +41,7 @@ def activate_account(user_id):
         user = User.objects.get(id=user_id)
         # Generate link
         activation_token = user.generate_activation_token()
-        activation_url = 'https://evaluator.in/activate/?token={0}'.format(
+        activation_url = 'https://evaluator.in/#/activate/?token={0}'.format(
             activation_token)
         # send email
         msg = create_message("Activate your evaluator.in account", user.email)
