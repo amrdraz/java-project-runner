@@ -264,8 +264,8 @@ class Project(db.Document):
 class TestCase(db.EmbeddedDocument):
 
     """Single case of a TestResult."""
-    name = db.StringField(max_length=512, min_length=1, required=True)
-    detail = db.StringField(max_length=512, required=True)
+    name = db.StringField(min_length=1, required=True)
+    detail = db.StringField(required=True)
     error = db.BooleanField(default=False, required=True)
     passed = db.BooleanField(default=False, required=True)
 
@@ -283,7 +283,7 @@ class TestResult(db.EmbeddedDocument):
     """Results for a single test ran on a submission."""
     created_at = db.DateTimeField(
         default=datetime.datetime.utcnow, required=True)
-    name = db.StringField(max_length=256, min_length=1, required=True)
+    name = db.StringField(min_length=1, required=True)
     cases = db.ListField(db.EmbeddedDocumentField('TestCase'))
     success = db.BooleanField(default=False, required=True)
 
