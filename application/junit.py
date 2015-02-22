@@ -144,7 +144,7 @@ def determine_src_dir(in_use_names, renamed_files, working_directory):
 
     if len(candidates) != 1:
         message = 'Could not determine working directory. Candidates {0},\ndirectory entries{1},\nrenamed_files {2},\nin_use_names: {1}'
-        message.format(','.join(candidates), ','.join(os.listdir(
+        message = message.format(','.join(candidates), ','.join(os.listdir(
             working_directory)), ','.join(renamed_files.items()), ','.join(in_use_names))
         app.logger.error(message)
         raise SRCError(message)
