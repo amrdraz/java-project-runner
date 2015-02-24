@@ -21,7 +21,6 @@ def random_password(user_id):
         app.logger.warning(
             'Attempted to send new password to non existing user.')
 
-
 def reset_password(user_id):
     """Sends an email to confirm user password reset."""
     try:
