@@ -12,6 +12,9 @@
         {% endif %}
     </target>
     {% if has_tests %}
+    <target name="cleantestsrc">
+        <delete dir="{{tests_dir}}"/>
+    </target>
     <target name="test">
       <mkdir dir="{{build_dir}}/tests" />
       <junit includeantruntime="true" printsummary="withOutAndErr" haltonerror="no" haltonfailure="no" fork="yes" dir="{{src_dir}}">
