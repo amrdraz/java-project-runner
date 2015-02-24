@@ -7,16 +7,18 @@
         <mkdir dir="{{build_dir}}/classes"/>
         <javac includeantruntime="true" failonerror="true" srcdir="{{src_dir}}" destdir="{{build_dir}}/classes"/>
         {% if has_tests %}
-        <javac includeantruntime="true" srcdir="{{tests_dir}}" destdir="{{build_dir}}/classes"/>
+        <javac includeantruntime="true" srcdir="{{tests_dir}}" destdir="{{build_dir}}/testclasses"/>
         {% endif %}
     </target>
     {% if has_tests %}
     <target name="test">
       <mkdir dir="{{build_dir}}/tests" />
       <junit includeantruntime="true" printsummary="withOutAndErr" haltonerror="no" haltonfailure="no" fork="yes" dir="{{src_dir}}">
+                <delete dir="{{tests_dir}}" />
                 <classpath>
                         <pathelement location="{{build_dir}}/classes"/>
                         <pathelement location="{{build_dir}}/tests"/>
+                        <pathelement location="{{build_dir}}/testclasses" />
                 </classpath>
               {% if plain_format %}
                 <formatter type="plain"/>
@@ -25,11 +27,11 @@
                 <formatter type="xml"/>
               {% endif %}
               <batchtest todir="{{build_dir}}/tests" fork="yes">
-                <fileset dir="{{tests_dir}}">
-                  <include name="*.java"/>
+                <fileset dir="{{build_dir}}/testclasses">
+                  <include name="*.class"/>
                 </fileset>
               </batchtest>
-
+            
         </junit>
       </target>
     {% endif %}
