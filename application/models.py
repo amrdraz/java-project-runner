@@ -161,13 +161,19 @@ class User(db.DynamicDocument):
 
 
 class Student(User):
+    team_id = db.StringField(max_length=32, min_length=1, required=False)
     guc_id = db.StringField(max_length=32, min_length=2, required=True)
+    major = db.StringField(max_length=32, min_length=2, required=False)
+    tutorial = db.StringField(max_length=32, min_length=2, required=False)
     @property
     def is_student(self):
         return True
     def to_dict(self, **kwargs):
         dic = User.to_dict(self)
         dic['guc_id'] = self.guc_id
+        dic['team_id'] = self.team_id
+        dic['major'] = self.major
+        dic['tutorial'] = self.tutorial
         return dic
 
 
