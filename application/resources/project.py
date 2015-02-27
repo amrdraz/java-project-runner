@@ -114,7 +114,10 @@ class ProjectResource(Resource):
                         abort(400, message="Test file names must be unique.")
                     for test in proj.tests:
                         test.delete()
+                    old_tests = proj.tests
                     proj.tests = []
+                    for test in old_tests:
+                        test.delete()
                     proj.save()
                     for test_case in request.files.values():
                         if allowed_test_file(test_case.filename):
@@ -130,8 +133,9 @@ class ProjectResource(Resource):
             if args['published'] == 'True':
                 proj.published = True
             elif args['published'] == 'False':
-                proj.published == False
+                proj.published = False
             proj.save()
+            return proj
         except StopIteration:
             abort(
                 500, message="Found project with no parent course, Quick call an adult!")
