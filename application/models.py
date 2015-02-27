@@ -84,10 +84,12 @@ class User(db.DynamicDocument):
         password_reset_mail_task.delay(str(self.id))
 
     def reset_pass(self):
+        """Changes password and sends new one via email"""
         from application.tasks import send_random_password
         send_random_password.delay(str(self.id))
 
     def generate_pass_reset_token(self):
+        """Sends a password reset email."""
         serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'])
         return serializer.dumps({'id': str(self.id), 'email': self.email, 'type': 'reset_pass'})
 
