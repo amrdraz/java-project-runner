@@ -88,7 +88,7 @@ class User(db.DynamicDocument):
         send_random_password.delay(str(self.id))
 
     def generate_pass_reset_token(self):
-        serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'], expires_in=app.config['PASS_RESET_EXPIRATION'])
+        serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'])
         return serializer.dumps({'id': str(self.id), 'email': self.email, 'type': 'reset_pass'})
 
     @staticmethod
@@ -98,7 +98,7 @@ class User(db.DynamicDocument):
         Raises SignatureExpired, BadSignature if expired or malformed.
         """
         serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'])
-        data = serializer.loads(token)
+        data = serializer.loads(token, max_age=app.config['PASS_RESET_EXPIRATION'])
         matches = User.objects(id=data[id])
         if matches.count() != 1 or matches[0].email != data['email'] or data['type'] != 'reset_pass':
             raise BadSignature("Could not verify password reset token")
