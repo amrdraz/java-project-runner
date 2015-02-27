@@ -36,11 +36,5 @@ TA_PAGE_SIZE  = 5
 COURSE_PAGE_SIZE = 5
 
 
-MAIL_SERVER='localhost'
-MAIL_PORT=25
-MAIL_USE_TLS=False
-MAIL_USE_SSL=False
-MAIL_USERNAME='money'
-MAIL_PASSWORD='power'
 DEFAULT_MAIL_SENDER='no-reply@evaluator.in'
 
