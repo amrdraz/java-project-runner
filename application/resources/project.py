@@ -135,7 +135,7 @@ class ProjectResource(Resource):
             elif args['published'] == 'False':
                 proj.published = False
             proj.save()
-            return proj
+            return proj.to_dict()
         except StopIteration:
             abort(
                 500, message="Found project with no parent course, Quick call an adult!")
