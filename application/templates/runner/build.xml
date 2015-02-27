@@ -11,6 +11,9 @@
         {% endif %}
     </target>
     {% if has_tests %}
+    <target name="delete_test_source">
+      <delete dir="{{tests_dir}}" />
+    </target>
     <target name="test">
       <mkdir dir="{{build_dir}}/tests" />
       <junit includeantruntime="true" printsummary="withOutAndErr" haltonerror="no" haltonfailure="no" fork="yes" dir="{{src_dir}}">
@@ -25,8 +28,10 @@
                 <formatter type="xml"/>
               {% endif %}
               <batchtest todir="{{build_dir}}/tests" fork="yes">
-                <fileset dir="{{tests_dir}}">
-                  <include name="*.java"/>
+                <fileset dir="{{build_dir}}/classes">
+                  {% for test_file in test_classes %}
+                  <filename name="{{test_file}}" />
+                  {% endfor %}
                 </fileset>
               </batchtest>
 

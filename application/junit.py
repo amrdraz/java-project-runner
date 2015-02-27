@@ -163,7 +163,8 @@ def create_ant_build_file(project, in_use_names, renamed_files, working_director
         "xml_format": True,
         "build_dir": renamed_files.get(app.config['ANT_BUILD_DIR_NAME'], app.config['ANT_BUILD_DIR_NAME']),
         "has_tests": project.has_tests,
-        "working_directory": working_directory
+        "working_directory": working_directory,
+        "test_classes" : [test.filename.replace('.java', '.class') for test in project.tests]
     }
     ant_build_template = render_template('runner/build.xml', **context)
     build_abs_fname = os.path.join(
