@@ -99,7 +99,7 @@ class User(db.DynamicDocument):
         """
         serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'])
         data = serializer.loads(token, max_age=app.config['PASS_RESET_EXPIRATION'])
-        matches = User.objects(id=data[id])
+        matches = User.objects(id=data['id'])
         if matches.count() != 1 or matches[0].email != data['email'] or data['type'] != 'reset_pass':
             raise BadSignature("Could not verify password reset token")
         return matches[0]
