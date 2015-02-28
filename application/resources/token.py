@@ -9,7 +9,6 @@ from flask.ext.restful import Resource, abort, marshal
 from fields import token_fields
 from parsers import token_parser
 
-
 class TokenResource(Resource):
     """Token endpoints."""
     def post(self):
