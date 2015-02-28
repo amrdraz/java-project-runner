@@ -7,7 +7,6 @@ from application.models import User
 from flask import request
 from flask.ext.restful import Resource, abort, marshal
 from fields import token_fields
-from application.models import Student
 from parsers import token_parser
 
 
