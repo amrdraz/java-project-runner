@@ -1,7 +1,7 @@
 """
 Defines User resource's endpoints.
 """
-from application import api, db
+from application import api, db, app
 from application.models import User, Student, Course, BadSignature
 from flask.ext.restful import Resource, abort, marshal, marshal_with
 from fields import user_fields, course_fields
@@ -37,7 +37,7 @@ class UsersResource(Resource):
         user.password = password
         user.active = False
         user.save()
-        if api.app.config['ENABLE_EMAIL_ACTIVATION']:
+        if app.config['ENABLE_EMAIL_ACTIVATION']:
             user.send_activation_mail()
         return marshal(user.to_dict(), user_fields), 201
 
