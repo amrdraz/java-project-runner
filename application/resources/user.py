@@ -64,7 +64,7 @@ class UserResource(Resource):
                 abort(400)
             args = {
                 "set__{0}".format(key): val for key, val in arguments.items()
-                if val is not None and val != '' and key not in ['email', 'password', 'created_at', 'active', 'activation_sent_at', 'password_hash']
+                if val is not None and val != '' and key in ['name', 'guc_id']
             }
             if len(args) > 0:
                 g.user.update(**args)

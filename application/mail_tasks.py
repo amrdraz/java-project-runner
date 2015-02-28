@@ -13,6 +13,8 @@ def random_password(user_id):
         mywords = xp.generate_wordlist(
             wordfile=wordfile, min_length=5, max_length=10)
         password = xp.generate_xkcdpassword(mywords)
+        user.password = password
+        user.save()
         msg = create_message('Your new password', user.email)
         context = {'user': user.to_dict(), 'password': password}
         msg.body = render_template('emails/pass.txt', **context)
