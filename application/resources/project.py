@@ -47,8 +47,14 @@ class ProjectSubmissions(Resource):
     @login_required
     @marshal_with(submission_page_fields)
     def get(self, course_name, name, page=1):
-        course = Course.objects.get_or_404(name=course_name)
-        project = Project.objects.get_or_404(name=name)
+        try:
+            course = Course.objects.get(name=course_name)
+        except:
+            abort(404, message="Course not found")
+        try:
+           project = Project.objects.get(name=name, course=course)
+        except: 
+            abort(404, message="Project not found")
         per_page = api.app.config['SUMBISSIONS_PAGE_SIZE']
         if isinstance(g.user, Student) and project.published:
             # Filter all submissions            

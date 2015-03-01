@@ -233,6 +233,18 @@ class Project(db.Document):
     test_timeout_seconds = db.LongField(
         default=600, max_value=1800, required=True)
     submissions = db.ListField(db.ReferenceField('Submission'))
+    course = db.ReferenceField('Course')
+
+    meta = {
+        "indexes": [
+            {
+                "fields": ['name']
+            },
+            {
+                "fields": ['course']
+            }
+        ]
+    }
 
     @property
     def has_tests(self):
@@ -243,14 +255,12 @@ class Project(db.Document):
         return self.due_date >= datetime.datetime.utcnow()
 
     def to_dict(self, **kwargs):
-        parent_course = kwargs.get('parent_course', None)
         dic = {
             "id": self.id,
             "name": self.name,
             "language": self.language,
             "created_at": self.created_at,
-            "course": (parent_course.to_dict(**kwargs) if parent_course is not None
-                       else Course.objects.get(projects=self).to_dict(**kwargs)),
+            "course": self.course.to_dict(),
             "can_submit": self.can_submit,
             "due_date": self.due_date,
             'published': self.published,
@@ -317,16 +327,25 @@ class Submission(db.Document):
     compile_status = db.BooleanField(default=False, required=True)
     compiler_out = db.StringField()
 
+    meta = {
+        "indexes": [
+            {
+                "fields": ['submitter']
+            },
+            {
+               "fields": ['project']
+            }
+        ]
+    }
+
     def to_dict(self, **kwargs):
-        parent_project = kwargs.get('parent_project', None)
         dic = {
             "id": self.id,
             "created_at": self.created_at,
             "processed": self.processed,
             "submitter": self.submitter.to_dict(),
             "tests": [test.to_dict() for test in self.test_results],
-            "project": (parent_project.to_dict(**kwargs) if parent_project is not None
-                        else Project.objects.get(submissions=self).to_dict(**kwargs)),
+            "project": self.project.to_dict(),
             'compile_status': self.compile_status,
             'compiler_out': self.compiler_out
         }
