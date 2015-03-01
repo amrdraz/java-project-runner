@@ -20,6 +20,8 @@ class ProjectSubmissions(Resource):
         """Creates a new submission."""
         course = Course.objects.get_or_404(name=course_name)
         project = Project.objects.get_or_404(name=name)
+        if len(Submission.objects(project=project, submitter=g.user, processed=False)) > 4:
+            abort(429, message="Too many pending submissions") 
         if not g.user in course.students:
             abort(403, message="Must be a course student to submit")
         if not project in course.projects:

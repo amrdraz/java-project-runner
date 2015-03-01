@@ -314,9 +314,11 @@ def junit_submission(submission, project):
             submission.save()
         except DirectoryError as de:
             submission.compile_status = False
+            submission.processed = True
             submission.compiler_out = de.value
             submission.save()
         except SRCError as se:
             submission.compile_status = False
             submission.compiler_out = se.value
+            submission.processed = True
             submission.save()

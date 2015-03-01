@@ -6,7 +6,7 @@ from celery import Celery
 import application.mail_tasks as mtasks
 from application.models import Submission, Project
 from application.junit import junit_submission
-
+import datetime
 
 
 
@@ -67,7 +67,8 @@ def junit_task(submission_id):
             app.logger.warning(
                 'Junit task launched with processed submission, id: {0}.'.format(submission_id))
         junit_submission(submission, project)
-        
+        for sub in [s for s in Submission.objects(submitter=submission.submitter, project=submission.project).order_by('-created_at')[10:] if s.processed]:
+            sub.delete()
     except db.DoesNotExist:
         app.logger.warning(
             'Junit task launched with invalid submission_id {0}.'.format(submission_id))
