@@ -79,4 +79,6 @@ def junit_task(submission_id):
         submission.save()
     finally:
         for sub in [s for s in Submission.objects(submitter=submission.submitter, project=submission.project).order_by('-created_at')[10:] if s.processed]:
+            app.logger.info('Deleting submission id {0}, submitter {1}, project {2}'.format(sub.id, sub.submitter.name, sub.project.name))
             sub.delete()
+            app.logger.info('Submission deleted')
