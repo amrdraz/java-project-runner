@@ -218,65 +218,6 @@ class Course(db.Document):
         }
 
 
-class Project(db.Document):
-
-    """A course's Project."""
-    LANGUAGES = [('J', 'Java Project')]
-    created_at = db.DateTimeField(
-        default=datetime.datetime.utcnow, required=True)
-    due_date = db.DateTimeField(required=True)
-    name = db.StringField(max_length=256, min_length=5, required=True)
-    tests = db.ListField(db.FileField())
-    published = db.BooleanField(default=True, required=True)
-    language = db.StringField(
-        max_length=3, min_length=1, choices=LANGUAGES, required=True)
-    test_timeout_seconds = db.LongField(
-        default=600, max_value=1800, required=True)
-    submissions = db.ListField(db.ReferenceField('Submission', reverse_delete_rule=db.PULL))
-    course = db.ReferenceField('Course')
-
-    meta = {
-        "indexes": [
-            {
-                "fields": ['name']
-            },
-            {
-                "fields": ['course']
-            }
-        ]
-    }
-
-    @property
-    def has_tests(self):
-        return len(self.tests) >= 1
-
-    @property
-    def can_submit(self):
-        return self.due_date >= datetime.datetime.utcnow()
-
-    def to_dict(self, **kwargs):
-        dic = {
-            "id": self.id,
-            "name": self.name,
-            "language": self.language,
-            "created_at": self.created_at,
-            "course": self.course.to_dict(),
-            "can_submit": self.can_submit,
-            "due_date": self.due_date,
-            'published': self.published,
-            'page': 1
-        }
-        dic['course_name'] = dic['course']['name']
-
-        def file_to_dic(project_id, file):
-            dic = {
-                "name": file.filename,
-                "mimetype": file.content_type,
-                "project_id": project_id
-            }
-            return dic
-        dic['tests'] = [file_to_dic(self.id, f) for f in self.tests]
-        return dic
 
 
 class TestCase(db.EmbeddedDocument):
@@ -351,4 +292,64 @@ class Submission(db.Document):
         }
         dic['project_name'] = dic['project']['name']
         dic['course_name'] = dic['project']['course_name']
+        return dic
+
+class Project(db.Document):
+
+    """A course's Project."""
+    LANGUAGES = [('J', 'Java Project')]
+    created_at = db.DateTimeField(
+        default=datetime.datetime.utcnow, required=True)
+    due_date = db.DateTimeField(required=True)
+    name = db.StringField(max_length=256, min_length=5, required=True)
+    tests = db.ListField(db.FileField())
+    published = db.BooleanField(default=True, required=True)
+    language = db.StringField(
+        max_length=3, min_length=1, choices=LANGUAGES, required=True)
+    test_timeout_seconds = db.LongField(
+        default=600, max_value=1800, required=True)
+    submissions = db.ListField(db.ReferenceField('Submission', reverse_delete_rule=db.PULL))
+    course = db.ReferenceField('Course')
+
+    meta = {
+        "indexes": [
+            {
+                "fields": ['name']
+            },
+            {
+                "fields": ['course']
+            }
+        ]
+    }
+
+    @property
+    def has_tests(self):
+        return len(self.tests) >= 1
+
+    @property
+    def can_submit(self):
+        return self.due_date >= datetime.datetime.utcnow()
+
+    def to_dict(self, **kwargs):
+        dic = {
+            "id": self.id,
+            "name": self.name,
+            "language": self.language,
+            "created_at": self.created_at,
+            "course": self.course.to_dict(),
+            "can_submit": self.can_submit,
+            "due_date": self.due_date,
+            'published': self.published,
+            'page': 1
+        }
+        dic['course_name'] = dic['course']['name']
+
+        def file_to_dic(project_id, file):
+            dic = {
+                "name": file.filename,
+                "mimetype": file.content_type,
+                "project_id": project_id
+            }
+            return dic
+        dic['tests'] = [file_to_dic(self.id, f) for f in self.tests]
         return dic
