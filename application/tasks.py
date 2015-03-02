@@ -67,8 +67,6 @@ def junit_task(submission_id):
             app.logger.warning(
                 'Junit task launched with processed submission, id: {0}.'.format(submission_id))
         junit_submission(submission, project)
-        for sub in [s for s in Submission.objects(submitter=submission.submitter, project=submission.project).order_by('-created_at')[10:] if s.processed]:
-            sub.delete()
     except db.DoesNotExist:
         app.logger.warning(
             'Junit task launched with invalid submission_id {0}.'.format(submission_id))
@@ -79,3 +77,6 @@ def junit_task(submission_id):
         submission.compile_status = False
         submission.compiler_out = 'Unforseen error occured while processing, please tell someone {0}'.format(e)
         submission.save()
+    finally:
+        for sub in [s for s in Submission.objects(submitter=submission.submitter, project=submission.project).order_by('-created_at')[10:] if s.processed]:
+            sub.delete()
