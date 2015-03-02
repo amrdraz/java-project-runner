@@ -232,7 +232,7 @@ class Project(db.Document):
         max_length=3, min_length=1, choices=LANGUAGES, required=True)
     test_timeout_seconds = db.LongField(
         default=600, max_value=1800, required=True)
-    submissions = db.ListField(db.ReferenceField('Submission'), reverse_delete_rule=db.PULL)
+    submissions = db.ListField(db.ReferenceField('Submission', reverse_delete_rule=db.PULL))
     course = db.ReferenceField('Course')
 
     meta = {
