@@ -267,6 +267,8 @@ class Submission(db.Document):
     code = db.FileField(required=True)
     compile_status = db.BooleanField(default=False, required=True)
     compiler_out = db.StringField()
+    started_processing_at = db.DateTimeField()
+    finished_processing_at = db.DateTimeField()
 
     meta = {
         "indexes": [
