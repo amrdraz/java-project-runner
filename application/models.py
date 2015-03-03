@@ -280,6 +280,10 @@ class Submission(db.Document):
             }
         ]
     }
+    @property
+    def processing_duration(self):
+        return self.finished_processing_at - self.started_processing_at
+    
 
     def to_dict(self, **kwargs):
         dic = {
