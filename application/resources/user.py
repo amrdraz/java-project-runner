@@ -28,7 +28,7 @@ class UsersResource(Resource):
         parsed_email = address.parse(email)
         if parsed_email is None or not parsed_email.hostname.endswith('guc.edu.eg'):
             abort(400)
-        if User.objects(email=email).count() != 0:
+        if User.objects(email__iexact=email).count() != 0:
             abort(422) # Duplicate found
         if parsed_email.hostname.startswith('student'):
             user = Student(guc_id=guc_id, email=email, name=name)
@@ -109,7 +109,7 @@ class UserPassReset(Resource):
         """
         json = request.get_json()
         if json and json['email']:
-            user = User.objects.get_or_404(email=json['email'])
+            user = User.objects.get_or_404(email__iexact=json['email'])
             if (user.reset_sent_at is None 
                 or user.reset_sent_at < datetime.datetime.utcnow() - datetime.timedelta(hours=12)):
                 user.send_password_reset_mail()
@@ -143,7 +143,7 @@ class UserActivation(Resource):
         """
         json = request.get_json(silent=True)
         if json and 'email' in json:
-            user = User.objects.get_or_404(email=json['email'])
+            user = User.objects.get_or_404(email__iexact=json['email'])
             if user.active:
                 abort(422, message="Account is already active.")
             elif user.activation_sent_at is None:
