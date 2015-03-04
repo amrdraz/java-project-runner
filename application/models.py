@@ -220,7 +220,7 @@ class Course(db.Document):
 
 
 
-class TestCase(db.EmbeddedDocument):
+class TestCase(db.Document):
 
     """Single case of a TestResult."""
     name = db.StringField(min_length=1, required=True)
@@ -237,7 +237,7 @@ class TestCase(db.EmbeddedDocument):
         }
 
 
-class TestResult(db.EmbeddedDocument):
+class TestResult(db.Document):
 
     """Results for a single test ran on a submission."""
     created_at = db.DateTimeField(
