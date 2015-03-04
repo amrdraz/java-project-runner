@@ -62,7 +62,7 @@ def junit_task(submission_id):
     try:
         app.logger.info('Starting Junit for {0}'.format(submission_id))
         submission = Submission.objects.get(id=submission_id)
-        project = Project.objects.get(submissions=submission)
+        project = submission.project
         if submission.processed:
             app.logger.warning(
                 'Junit task launched with processed submission, id: {0}.'.format(submission_id))
