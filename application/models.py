@@ -243,7 +243,7 @@ class TestResult(db.EmbeddedDocument):
     created_at = db.DateTimeField(
         default=datetime.datetime.utcnow, required=True)
     name = db.StringField(min_length=1, required=True)
-    cases = db.ListField(db.EmbeddedDocumentField('TestCase'))
+    cases = db.ListField(db.ReferenceField('TestCase', reverse_delete_rule=db.PULL))
     success = db.BooleanField(default=False, required=True)
 
     def to_dict(self, **kwargs):
@@ -260,7 +260,7 @@ class Submission(db.Document):
     """A student's submission."""
     created_at = db.DateTimeField(
         default=datetime.datetime.utcnow, required=True)
-    test_results = db.ListField(db.EmbeddedDocumentField('TestResult'))
+    test_results = db.ListField(db.ReferenceField('TestResult', reverse_delete_rule=db.PULL))
     processed = db.BooleanField(default=False, required=True)
     submitter = db.ReferenceField('Student', required=True)
     project = db.ReferenceField('Project', required=True)
