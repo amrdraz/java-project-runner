@@ -50,8 +50,8 @@ class SubmissionDownload(Resource):
     @login_required
     def get(self, id):
         subm = Submission.objects.get_or_404(id=id)
-        proj = Project.objects.get_or_404(submissions=subm)
-        course = Course.objects.get_or_404(projects=proj)
+        proj = subm.projects
+        course = proj.course
         if g.user == subm.submitter or g.user in course.teachers:
             response = make_response(subm.code.read())
             response.headers['Content-Type'] = subm.code.content_type
