@@ -62,8 +62,8 @@ def junit_actual(submission_id):
     Processes a junit submission.
     """
     try:
-        app.logger.info('Starting Junit for {0}'.format(submission.id))
         submission = Submission.objects.get(id=submission_id)
+        app.logger.info('Starting Junit for {0}'.format(submission.id))
         project = submission.project
         if submission.processed:
             app.logger.warning(
@@ -81,6 +81,7 @@ def junit_actual(submission_id):
     except db.DoesNotExist:
         app.logger.warning(
             'Junit task launched with invalid submission_id {0}.'.format(submission_id))
+        return None
     except Exception as e:
         app.logger.error('Unforseen error while processing {0}'.format(submission_id))
         app.logger.error('Exception {0}'.format(e))
@@ -89,7 +90,6 @@ def junit_actual(submission_id):
         submission.compiler_out = 'Unforseen error occured while processing, please tell someone {0}'.format(e)
         submission.finished_processing_at = datetime.datetime.utcnow()
         submission.save()
-    finally:
         return None
     
 
