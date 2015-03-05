@@ -7,7 +7,7 @@ from application.resources.fields import submission_fields, project_fields, subm
 from application.resources.pagination import custom_paginate_to_dict, paginate_iterable, mongo_paginate_to_dict
 from flask import g, request, make_response
 from werkzeug import secure_filename
-from application.tasks import junit_task
+from application.tasks import junit_task, junit_no_deletion
 from application.resources import allowed_code_file
 from application.resources.parsers import project_parser
 import dateutil
@@ -41,7 +41,10 @@ class ProjectSubmissions(Resource):
             subm.save()
             project.submissions.append(subm)
             project.save()
-            junit_task.delay(str(subm.id))
+            if api.app.config['DELETE_SUBMISSIONS']:
+                junit_task.delay(str(subm.id))
+            else:
+                junit_no_deletion.delay(str(subm.id))
             return marshal(subm.to_dict(parent_course=course, parent_project=project), submission_fields), 201
         else:
             abort(400, message="Can only submit one file.")  # Bad request

@@ -38,3 +38,4 @@ COURSE_PAGE_SIZE = 5
 
 DEFAULT_MAIL_SENDER='no-reply@evaluator.in'
 
+DELETE_SUBMISSIONS = False
