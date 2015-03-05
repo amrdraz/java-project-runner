@@ -283,10 +283,6 @@ def run_sandbox(working_directory, selinux_directory, renamed_files, submission)
 
 
 def junit_submission(submission, project):
-    if submission.processed:
-        app.logger.error(
-            'Junit task launched with processed submission, id: {0}.'.format(submission.id))
-        return
     # First we need to create the temporary directories
 
     class TempDirectories(object):
