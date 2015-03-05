@@ -50,7 +50,7 @@ class SubmissionDownload(Resource):
     @login_required
     def get(self, id):
         subm = Submission.objects.get_or_404(id=id)
-        proj = subm.projects
+        proj = subm.project
         course = proj.course
         if g.user == subm.submitter or g.user in course.teachers:
             response = make_response(subm.code.read())
