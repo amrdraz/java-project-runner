@@ -66,6 +66,10 @@ def junit_task(submission_id):
         if submission.processed:
             app.logger.warning(
                 'Junit task launched with processed submission, id: {0}.'.format(submission_id))
+            for result in submission.test_results:
+                for case in result.cases:
+                    case.delete()
+                result.delete()
         submission.started_processing_at = datetime.datetime.utcnow()
         submission.save()
         junit_submission(submission, project)
