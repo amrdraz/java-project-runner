@@ -255,10 +255,8 @@ def parse_junit_results(test_res_dir, subm):
             case.save()
             test_results[class_name].cases.append(case)
             test_results[class_name].success &= case.passed
-    values = test_results.values()
-    for v in values:
-        v.save()
-        subm.test_results.append(v)
+    subm.test_results = test_results.values()
+    subm.save()
 
 
 def run_sandbox(working_directory, selinux_directory, renamed_files, submission):

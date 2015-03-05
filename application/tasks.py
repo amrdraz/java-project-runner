@@ -54,13 +54,15 @@ def activation_mail_task(user_id):
     """
     mtasks.activate_account(user_id)
 
-@celery.task
-def junit_task(submission_id):
+
+
+
+def junit_actual(submission_id):
     """
     Processes a junit submission.
     """
     try:
-        app.logger.info('Starting Junit for {0}'.format(submission_id))
+        app.logger.info('Starting Junit for {0}'.format(submission.id))
         submission = Submission.objects.get(id=submission_id)
         project = submission.project
         if submission.processed:
@@ -75,6 +77,7 @@ def junit_task(submission_id):
         junit_submission(submission, project)
         submission.finished_processing_at = datetime.datetime.utcnow()
         submission.save()
+        return submission
     except db.DoesNotExist:
         app.logger.warning(
             'Junit task launched with invalid submission_id {0}.'.format(submission_id))
@@ -87,7 +90,21 @@ def junit_task(submission_id):
         submission.finished_processing_at = datetime.datetime.utcnow()
         submission.save()
     finally:
+        return None
+    
+
+@celery.task
+def junit_task(submission_id):
+    submission = junit_actual(submission_id)
+    if submission is not None:
         for sub in [s for s in Submission.objects(submitter=submission.submitter, project=submission.project).order_by('-created_at')[10:] if s.processed]:
             app.logger.info('Deleting submission id {0}, submitter {1}, project {2}'.format(sub.id, sub.submitter.name, sub.project.name))
             sub.delete()
             app.logger.info('Submission deleted')
+
+@celery.task
+def junit_no_deletion(submission_id):
+    """
+    Processes a junit submission.
+    """
+    junit_actual(submission_id)
