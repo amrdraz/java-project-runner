@@ -27,6 +27,9 @@ class User(db.DynamicDocument):
                 },
                 {
                     "fields": ['name']
+                },
+                {
+                    "fields": ['password_hash']
                 }
             ]
             }
@@ -145,7 +148,9 @@ class User(db.DynamicDocument):
         """
         s = TimedJSONWebSignatureSerializer(app.config['SECRET_KEY'])
         data = s.loads(token)
-        matches = User.objects(id=data['id'])
+        if ['id', 'salty_hash'] not in data:
+            raise BadSignature('Invalid Token')
+        matches = User.objects(id=data['id'], password_hash=data['salty_hash'])
         if matches.count() != 1:
             raise BadSignature("Could not identify owner.")
         return matches[0]
