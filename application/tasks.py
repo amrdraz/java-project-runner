@@ -97,7 +97,7 @@ def junit_actual(submission_id):
 def junit_task(submission_id):
     submission = junit_actual(submission_id)
     if submission is not None:
-        for sub in [s for s in Submission.objects(submitter=submission.submitter, project=submission.project).order_by('-created_at')[10:] if s.processed]:
+        for sub in [s for s in Submission.objects(submitter=submission.submitter, project=submission.project, processed=True).order_by('-created_at')[10:]]:
             app.logger.info('Deleting submission id {0}, submitter {1}, project {2}'.format(sub.id, sub.submitter.name, sub.project.name))
             sub.delete()
             app.logger.info('Submission deleted')
