@@ -316,6 +316,7 @@ class Project(db.Document):
         default=600, max_value=1800, required=True)
     submissions = db.ListField(db.ReferenceField('Submission', reverse_delete_rule=db.PULL))
     course = db.ReferenceField('Course')
+    is_quiz = db.BooleanField(required=True)
 
     meta = {
         "indexes": [
@@ -346,6 +347,7 @@ class Project(db.Document):
             "can_submit": self.can_submit,
             "due_date": self.due_date,
             'published': self.published,
+            "is_quiz": self.is_quiz,
             'page': 1
         }
         dic['course_name'] = dic['course']['name']
