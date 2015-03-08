@@ -113,7 +113,7 @@ class User(db.DynamicDocument):
         """Creates an expiring token to uniquely identify this user."""
         seriliezer = TimedJSONWebSignatureSerializer(
             app.config['SECRET_KEY'], expires_in=expires_in)
-        return seriliezer.dumps({'id': str(self.id)})
+        return seriliezer.dumps({'id': str(self.id), 'salty_hash': self.password_hash})
 
     def generate_activation_token(self):
         """
