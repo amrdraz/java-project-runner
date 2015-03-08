@@ -125,10 +125,7 @@ class ProjectResource(Resource):
                         abort(400, message="Test file names must be unique.")
                     for test in proj.tests:
                         test.delete()
-                    old_tests = proj.tests
                     proj.tests = []
-                    for test in old_tests:
-                        test.delete()
                     proj.save()
                     for test_case in request.files.values():
                         if allowed_test_file(test_case.filename):
@@ -139,6 +136,7 @@ class ProjectResource(Resource):
                         else:
                             abort(
                                 400, message="{0} extension not allowed".format(test_case.filename))
+                    proj.save()
             else:
                 abort(403, message="Must be a course teacher to modify a project.")
             if args['published'] == 'True':
