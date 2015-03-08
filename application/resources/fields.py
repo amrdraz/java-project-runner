@@ -58,7 +58,7 @@ project_fields = {
     'submissions_url': fields.Url(endpoint='project_submissions_ep'),
     'language': fields.String,
     'can_submit': fields.Boolean,
-    'is_project': fields.Boolean,
+    'is_quiz': fields.Boolean,
     'published': fields.String,
     'due_date': fields.DateTime('iso8601'),
     'created_at': fields.DateTime('iso8601')
