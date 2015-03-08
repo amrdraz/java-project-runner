@@ -268,6 +268,12 @@ class CourseProjects(Resource):
             project.published = False
         else:
             abort(400, message="published value must be True or False as string.")
+        if args['is_quiz'] == 'True':
+            project.is_quiz = True
+        elif args['is_quiz'] == 'False':
+            project.is_quiz = False
+        else:
+            abort(400, message="is_quiz value must be True or False as string.")
         project.save()
         course.projects.append(project)
         course.save()
