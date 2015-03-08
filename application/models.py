@@ -262,7 +262,7 @@ class Submission(db.Document):
         default=datetime.datetime.utcnow, required=True)
     test_results = db.ListField(db.ReferenceField('TestResult', reverse_delete_rule=db.PULL))
     processed = db.BooleanField(default=False, required=True)
-    submitter = db.ReferenceField('Student', required=True)
+    submitter = db.ReferenceField('Student', required=True, reverse_delete_rule=db.CASCADE)
     project = db.ReferenceField('Project', required=True)
     code = db.FileField(required=True)
     compile_status = db.BooleanField(default=False, required=True)
@@ -361,3 +361,31 @@ class Project(db.Document):
             return dic
         dic['tests'] = [file_to_dic(self.id, f) for f in self.tests]
         return dic
+
+
+class StudentProjectCode(db.Document):
+    """
+    Quiz codes for students.
+    """
+    student = db.ReferenceField('Student', reverse_delete_rule=db.CASCADE, required=True)
+    project = db.ReferenceField('Project', reverse_delete_rule=db.CASCADE, required=True)
+    verification_code = db.StringField(required=True)
+    meta = {
+        "indexes": [
+            {
+                "fields": ['student', 'project'],
+                "unique": True
+            },
+            {
+                "fields": ['verification_code']
+            }
+        ]
+    }
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "student": self.student.to_dict(),
+            "project": self.project.to_dict(),
+            "verification_code": self.verification_code
+        }
