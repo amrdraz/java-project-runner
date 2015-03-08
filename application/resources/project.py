@@ -1,15 +1,15 @@
 from flask.ext.restful import Resource, abort, marshal_with, marshal
 from application import api, db
 from application.resources import allowed_test_file
-from application.models import Course, Project, Submission, Student, StudentProjectCode
+from application.models import Course, Project, Submission, Student
 from application.resources.decorators import student_required, login_required, teacher_required
 from application.resources.fields import submission_fields, project_fields, submission_page_fields
-from application.resources.pagination import custom_paginate_to_dict, paginate_iterable, mongo_paginate_to_dict
+from application.resources.pagination import mongo_paginate_to_dict
 from flask import g, request, make_response
 from werkzeug import secure_filename
 from application.tasks import junit_task, junit_no_deletion
 from application.resources import allowed_code_file
-from application.resources.parsers import project_parser
+from application.resources.parsers import project_parser, submission_parser
 import dateutil
 from operator import attrgetter
 
@@ -28,6 +28,13 @@ class ProjectSubmissions(Resource):
             abort(404, message="Project not found.")
         if not project.can_submit:
             abort(498, message="Due date has passed, tough luck!")
+        if project.is_quiz:
+            # Verify verification code
+            args = submission_parser.parse_args()
+            if len(code) != 1 or g.user.verification_code != args['verification_code']:
+                abort(400, message="Invalid verification code.")
+                
+
         if len(request.files.values()) == 1:
             subm = Submission(submitter=g.user, project=project)
             for file in request.files.values():
