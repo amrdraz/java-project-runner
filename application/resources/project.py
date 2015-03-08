@@ -115,6 +115,7 @@ class ProjectResource(Resource):
         try:
             course = next(
                 course for course in Course.objects if proj in course.projects)
+            old_tests = []
             if g.user in course.teachers:
                 args = project_parser.parse_args()
                 if args['test_timeout'] != -1:
@@ -130,10 +131,8 @@ class ProjectResource(Resource):
                     filenames = [f.filename for f in request.files.values()]
                     if len(filenames) != len(set(filenames)):
                         abort(400, message="Test file names must be unique.")
-                    for test in proj.tests:
-                        test.delete()
+                    old_tests = proj.tests
                     proj.tests = []
-                    proj.save()
                     for test_case in request.files.values():
                         if allowed_test_file(test_case.filename):
                             grid_file = db.GridFSProxy()
@@ -143,7 +142,6 @@ class ProjectResource(Resource):
                         else:
                             abort(
                                 400, message="{0} extension not allowed".format(test_case.filename))
-                    proj.save()
             else:
                 abort(403, message="Must be a course teacher to modify a project.")
             if args['published'] == 'True':
@@ -154,6 +152,9 @@ class ProjectResource(Resource):
                 proj.is_quiz = True
             elif args['is_quiz'] == 'False':
                 proj.is_quiz = False
+            if len(old_tests) != 0:
+                for test in old_tests:
+                    test.delete()
             proj.save()
             return proj.to_dict()
         except StopIteration:
