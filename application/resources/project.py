@@ -1,7 +1,7 @@
 from flask.ext.restful import Resource, abort, marshal_with, marshal
 from application import api, db
 from application.resources import allowed_test_file
-from application.models import Course, Project, Submission, Student
+from application.models import Course, Project, Submission, Student, StudentProjectCode
 from application.resources.decorators import student_required, login_required, teacher_required
 from application.resources.fields import submission_fields, project_fields, submission_page_fields
 from application.resources.pagination import custom_paginate_to_dict, paginate_iterable, mongo_paginate_to_dict
@@ -145,6 +145,10 @@ class ProjectResource(Resource):
                 proj.published = True
             elif args['published'] == 'False':
                 proj.published = False
+            if args['is_quiz'] == 'True':
+                proj.is_quiz = True
+            elif args['is_quiz'] == 'False':
+                proj.is_quiz = False
             proj.save()
             return proj.to_dict()
         except StopIteration:
