@@ -167,6 +167,8 @@ class Student(User):
     guc_id = db.StringField(max_length=32, min_length=2, required=True)
     major = db.StringField(max_length=32, min_length=2, required=False)
     tutorial = db.StringField(max_length=32, min_length=2, required=False)
+    verification_code = db.StringField()
+    
     @property
     def is_student(self):
         return True
