@@ -30,7 +30,8 @@ project_parser.add_argument('published', str)
 project_parser.add_argument('is_quiz', str)
 project_parser.add_argument('test_timeout', default=-1, type=int)
 # submission parser
-
+submission_parser = reqparse.RequestParser()
+submission_parser.add_argument('verification_code', str)
 # token parser
 token_parser = reqparse.RequestParser()
 token_parser.add_argument('remember', str)
