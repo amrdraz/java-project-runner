@@ -27,6 +27,7 @@ project_parser.add_argument('name', str)
 project_parser.add_argument('language', str)
 project_parser.add_argument('due_date', str)
 project_parser.add_argument('published', str)
+project_parser.add_argument('is_quiz', str)
 project_parser.add_argument('test_timeout', default=-1, type=int)
 # submission parser
 
