@@ -31,7 +31,7 @@ class ProjectSubmissions(Resource):
         if project.is_quiz:
             # Verify verification code
             args = submission_parser.parse_args()
-            if len(code) != 1 or g.user.verification_code != args['verification_code']:
+            if g.user.verification_code != args['verification_code']:
                 abort(400, message="Invalid verification code.")
                 
 
