@@ -148,7 +148,7 @@ class User(db.DynamicDocument):
         """
         s = TimedJSONWebSignatureSerializer(app.config['SECRET_KEY'])
         data = s.loads(token)
-        if ['id', 'salty_hash'] not in data:
+        if ['id', 'salty_hash'] not in data.keys():
             raise BadSignature('Invalid Token')
         matches = User.objects(id=data['id'], password_hash=data['salty_hash'])
         if matches.count() != 1:
