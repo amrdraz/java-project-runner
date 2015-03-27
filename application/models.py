@@ -270,6 +270,7 @@ class Submission(db.Document):
     test_results = db.ListField(db.ReferenceField('TestResult', reverse_delete_rule=db.PULL))
     processed = db.BooleanField(default=False, required=True)
     submitter = db.ReferenceField('Student', required=True, reverse_delete_rule=db.CASCADE)
+    team_id = db.StringField(max_length=32, min_length=1, required=False)
     project = db.ReferenceField('Project', required=True)
     code = db.FileField(required=True)
     compile_status = db.BooleanField(default=False, required=True)
