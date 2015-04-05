@@ -295,9 +295,9 @@ def junit_submission(submission, project):
 
         def __exit__(self, type, value, traceback):
             if app.config['CLEAN_TEMP_DIRS']:
-                # rmtree(self.dirs[0])
-                # rmtree(self.dirs[1])
-                pass
+                rmtree(self.dirs[0])
+                rmtree(self.dirs[1])
+
     with TempDirectories() as directories:
         try:
             working_directory, selinux_directory = directories

@@ -28,13 +28,13 @@
               {% if xml_format %}
                 <formatter type="xml"/>
               {% endif %}
+              {% for test_file in test_classes %}
               <batchtest todir="{{build_dir}}/tests" fork="yes">
                 <fileset dir="{{build_dir}}/classes">
-                  {% for test_file in test_classes %}
                   <filename name="{{test_file}}" />
-                  {% endfor %}
                 </fileset>
               </batchtest>
+              {% endfor %}
 
         </junit>
       </target>
