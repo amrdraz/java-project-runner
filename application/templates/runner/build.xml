@@ -10,7 +10,7 @@
 
     {% if has_tests %}
     <target name="compile_tests">
-      <javac includeantruntime="true" srcdir="{{tests_dir}}" destdir="{{build_dir}}/classes"/>
+      <javac includeantruntime="true" failonerror="false" srcdir="{{tests_dir}}" destdir="{{build_dir}}/classes"/>
     </target>
     <target name="delete_test_source">
       <delete dir="{{tests_dir}}" />
