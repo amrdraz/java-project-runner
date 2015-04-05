@@ -34,7 +34,9 @@ def compute_team_grades(project_id, rerun_submissions):
     """
     Computes project ids.
     """
-    Project.get(project_id).grade_teams(rerun_submissions)
+    app.logger.info('Starting grade computation for {0}'.format(project_id))
+    Project.objects.get(project_id).grade_teams(rerun_submissions)
+    app.logger.info('Computed grades for {0}'.format(project_id))
 
 @celery.task
 def send_random_password(user_id):
