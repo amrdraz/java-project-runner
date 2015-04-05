@@ -271,7 +271,7 @@ def run_sandbox(working_directory, selinux_directory, renamed_files, submission)
     process = subprocess.Popen(
         command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     stdout, stderr = process.communicate()
-    submission.compile_status = 'Compile failed' not in stderr
+    submission.compile_status = 'THE SOURCE WAS COMPILED SUCCESFULLY' in stderr
     app.logger.info(stderr)
     app.logger.info(stdout)
     submission.compiler_out = stderr + '\n' + stdout
