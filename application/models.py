@@ -345,7 +345,6 @@ class Project(db.Document):
     due_date = db.DateTimeField(required=True)
     name = db.StringField(max_length=256, min_length=5, required=True)
     tests = db.ListField(db.FileField())
-    classes = db.ListField(db.FileField())
     published = db.BooleanField(default=True, required=True)
     language = db.StringField(
         max_length=3, min_length=1, choices=LANGUAGES, required=True)
@@ -372,8 +371,8 @@ class Project(db.Document):
         return len(self.tests) >= 1
 
     @property
-    def has_classes(self):
-        return len(self.classes) >= 1
+    def has_class_files(self):
+        return any([t.filename.endswith('.class') for t in self.tests])
 
     @property
     def can_submit(self):
@@ -439,7 +438,7 @@ class Project(db.Document):
             }
             return dic
         dic['tests'] = [file_to_dic(self.id, f) for f in self.tests]
-        dic['classes'] = [file_to_dic(self.id, f) for f in self.classes]
+        dic['has_class_files'] = self.has_class_files
         return dic
 
 
