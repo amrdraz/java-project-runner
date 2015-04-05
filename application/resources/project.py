@@ -247,7 +247,7 @@ api.add_resource(ProjectSubmissions,
                  endpoint='project_submissions_ep')
 
 api.add_resource(ProjectGrades,
-                 '/project/<string:project_id>/grades/<string:rerurn_submissions>/<int:page>',
+                 '/project/<string:id>/grades/<string:rerurn_submissions>/<int:page>',
                  endpoint='project_grades_ep')
 
 api.add_resource(
