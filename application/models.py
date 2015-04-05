@@ -378,7 +378,6 @@ class Project(db.Document):
         """
         Computes team grades, optionally reruns submissions.
         Please note that this function will block to submissions.
-        Returns TeamProjectGrade.
         """
         from application.tasks import junit_actual
         from itertools import groupby
@@ -392,12 +391,14 @@ class Project(db.Document):
                 submissions = (Submission.objects(submitter=student,
                                                   project=self)
                                .groupby('-created_at').limit(1))
-                if len(submissions) > 0:
+                if rerurn_submissions:
+                    canadite_submissions.extend(submissions)
+                elif len(submissions) > 0:
                     canadite_submissions.append(submissions[0])
             if rerurn_submissions:
                 for submission in canadite_submissions:
                     submission.reset()
-                    junit_actual(submission.id)
+                    junit_actual(submission.id) # synchrounus
             passed_submissions = [s for s in canadite_submissions
                                   if s.compile_status]
             best_submissions = sorted(passed_submissions,
@@ -410,7 +411,6 @@ class Project(db.Document):
                                      best_submission=best_submission,
                                      project=self)
             grade.save()
-            return grade
 
     def to_dict(self, **kwargs):
         dic = {
