@@ -4,7 +4,7 @@ Defines Celery instance and tasks.
 from application import app, db
 from celery import Celery
 import application.mail_tasks as mtasks
-from application.models import Submission
+from application.models import Submission, Project
 from application.junit import junit_submission
 import datetime
 
@@ -28,6 +28,13 @@ def make_celery(app):
 
 celery = make_celery(app)
 
+
+@celery.task
+def compute_team_grades(project_id, rerun_submissions):
+    """
+    Computes project ids.
+    """
+    Project.get(project_id).grade_teams(rerun_submissions)
 
 @celery.task
 def send_random_password(user_id):

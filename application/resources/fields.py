@@ -56,6 +56,7 @@ project_fields = {
     "url": fields.Url(endpoint='project_ep'),
     "tests": fields.List(fields.Nested(test_file_fields)),
     'submissions_url': fields.Url(endpoint='project_submissions_ep'),
+    'grades_url': fields.Url(endpoint='project_grades_ep'),
     'language': fields.String,
     'can_submit': fields.Boolean,
     'is_quiz': fields.String,
