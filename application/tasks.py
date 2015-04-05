@@ -35,7 +35,7 @@ def compute_team_grades(project_id, rerun_submissions):
     Computes project ids.
     """
     app.logger.info('Starting grade computation for {0}'.format(project_id))
-    Project.objects.get(project_id).grade_teams(rerun_submissions)
+    Project.objects.get(id=project_id).grade_teams(rerun_submissions)
     app.logger.info('Computed grades for {0}'.format(project_id))
 
 @celery.task
