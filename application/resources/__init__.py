@@ -17,6 +17,10 @@ def allowed_test_file(filename):
     """Returns true if file with name filename is allowed."""
     return '.' in filename and filename.rsplit('.', 1)[1] in app.config['ALLOWED_TEST_EXTENSIONS']
 
+def allowed_class_file(filename):
+    """Returns true if file with name filename is allowed."""
+    return '.' in filename and filename.rsplit('.', 1)[1] in app.config['ALLOWED_TEST_EXTENSIONS']
+
 class ClearDB(restful.Resource):
     def get(self):
         from application.models import Project, User, Student, Course, Submission
