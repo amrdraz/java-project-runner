@@ -42,8 +42,6 @@ course_fields = {
 course_fields = dict(course_fields.items() + public_course_fields.items())
 
 
-
-
 test_file_fields = {
     "name": fields.String,
     "download_url": fields.Url(endpoint='project_test_file_ep')
@@ -92,15 +90,33 @@ submission_fields = {
     'download_url': fields.Url(endpoint='submission_download_ep')
 }
 
+team_project_grade_fields = {
+    "id": fields.String,
+    "team_id": fields.String,
+    "project": fields.Nested(project_fields),
+    "best_submission": fields.Nested(submission_fields)
+}
 
 # Pagination fields
 page = {
     "page": fields.Integer,
     "pages": fields.Integer
 }
-submission_page_fields = dict(page, **{'submissions': fields.List(fields.Nested(submission_fields))})
-user_page_fields = dict(page, **{'users': fields.List(fields.Nested(user_fields))})
+submission_page_fields = dict(page, **{
+    'submissions': fields.List(fields.Nested(submission_fields))
+    })
+user_page_fields = dict(page, **{
+    'users': fields.List(fields.Nested(user_fields))
+    })
 
-public_course_page_fields = dict(page, **{'courses': fields.List(fields.Nested(public_course_fields))})
+public_course_page_fields = dict(page, **{
+    'courses': fields.List(fields.Nested(public_course_fields))
+    })
 
-course_page_fields = dict(page, **{'courses': fields.List(fields.Nested(course_fields))})
+course_page_fields = dict(page, **{
+    'courses': fields.List(fields.Nested(course_fields))
+    })
+
+team_project_grade_page_fields = dict(page, **{
+    "grades": fields.List(fields.Nested(team_project_grade_fields))
+    })

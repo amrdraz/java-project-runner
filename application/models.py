@@ -391,18 +391,16 @@ class Project(db.Document):
                 submissions = (Submission.objects(submitter=student,
                                                   project=self)
                                .groupby('-created_at').limit(1))
-                if rerurn_submissions:
-                    canadite_submissions.extend(submissions)
-                elif len(submissions) > 0:
+                if len(submissions) > 0:
                     canadite_submissions.append(submissions[0])
             if rerurn_submissions:
                 for submission in canadite_submissions:
                     submission.reset()
-                    junit_actual(submission.id) # synchrounus
+                    junit_actual(submission.id)  # synchrounus
             passed_submissions = [s for s in canadite_submissions
                                   if s.compile_status]
             best_submissions = sorted(passed_submissions,
-                                     key_func=lambda subm: len(
+                                      key_func=lambda subm: len(
                                         subm.test_results))
             best_submission = canadite_submissions[0]
             if len(best_submissions) > 0:
@@ -423,6 +421,7 @@ class Project(db.Document):
             "due_date": self.due_date,
             'published': self.published,
             "is_quiz": self.is_quiz,
+            "rerurn_submissions": "no",
             'page': 1
         }
         dic['course_name'] = dic['course']['name']
@@ -443,7 +442,7 @@ class TeamProjectGrade(db.Document):
     Team based grades.
     """
 
-    team_id = db.StringField(max_length=32, min_length=1, required=False)
+    team_id = db.StringField(max_length=32, min_length=1, required=False, unique=True)
     best_submission = db.ReferenceField('Submission',
                                         reverse_delete_rule=db.CASCADE)
     project = db.ReferenceField('Project',
@@ -452,13 +451,15 @@ class TeamProjectGrade(db.Document):
     meta = {
         "indexes": [
             {
-                "fields": ['team_id']
+                "fields": ['team_id'],
+                "unique": True
             },
             {
                "fields": ['project']
             },
             {
-                "fields": ['project', 'team_id']
+                "fields": ['project', 'team_id'],
+                "unique": True
             }
         ]
     }

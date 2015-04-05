@@ -1,17 +1,24 @@
-from flask.ext.restful import Resource, abort, marshal_with, marshal
 from application import api, db
-from application.resources import allowed_test_file
-from application.models import Course, Project, Submission, Student
-from application.resources.decorators import student_required, login_required, teacher_required
-from application.resources.fields import submission_fields, project_fields, submission_page_fields
-from application.resources.pagination import mongo_paginate_to_dict
 from flask import g, request, make_response
 from werkzeug import secure_filename
-from application.tasks import junit_task, junit_no_deletion, compute_team_grades
-from application.resources import allowed_code_file
+
+from flask.ext.restful import Resource, abort, marshal_with, marshal
+from application.models import (Course, Project, Submission, Student,
+                                TeamProjectGrade)
+from application.resources import allowed_test_file, allowed_code_file
+from application.resources.decorators import (student_required, login_required,
+                                              teacher_required)
+from application.resources.fields import (submission_fields,
+                                          project_fields,
+                                          submission_page_fields,
+                                          team_project_grade_fields,
+                                          team_project_grade_page_fields)
+from application.resources.pagination import mongo_paginate_to_dict
 from application.resources.parsers import project_parser, submission_parser
+from application.tasks import (junit_task, junit_no_deletion,
+                               compute_team_grades)
 import dateutil
-from operator import attrgetter
+
 
 class ProjectSubmissions(Resource):
 
@@ -195,14 +202,27 @@ class ProjectTestFileDownload(Resource):
 
 class ProjectGrades(Resource):
     @login_required
-    def get(self, project_id, page=1):
+    def get(self, project_id, page=1, rerurn_submissions=False):
         """
         Retrieves all grades or single student grade.
         """
-        if(isinstance)
+        project = Project.get_or_404(project_id)
+        if isinstance(g.user, Student):
+            return marshal(
+                TeamProjectGrade.objects(project=project,
+                                         team_id=g.user.team_id),
+                team_project_grade_fields)
+        else:
+            if g.user not in project.course.teachers:
+                abort(403, message="Must be course teacher to view grades")
+            pages = (TeamProjectGrade.objects(project=project)
+                     .paginate(page,
+                               api.app.config['PROJECT_TEAM_GRADES_PER_PAGE']))
+            return marshal(mongo_paginate_to_dict(pages, "grades"),
+                           team_project_grade_page_fields)
 
     @teacher_required
-    def post(self, project_id, page=1, rerurn_submissions="false"):
+    def post(self, project_id, page=1, rerurn_submissions="no"):
         """
         Computes grade.
         """
@@ -212,20 +232,23 @@ class ProjectGrades(Resource):
             abort(403, message="Must be course teacher to compute grades.")
         if not project.can_submit:
             abort(422, message="Can only compute grades when we are past the deadline.")
-        rerurn_submissions_bool = rerurn_submissions == "true"
+        rerurn_submissions_bool = rerurn_submissions == "yes"
         compute_team_grades.delay(str(project.id), rerurn_submissions_bool)
 
 
 
 api.add_resource(
-    ProjectTestFileDownload, '/project/<string:project_id>/tests/<string:name>', endpoint="project_test_file_ep")
+    ProjectTestFileDownload,
+    '/project/<string:project_id>/tests/<string:name>',
+    endpoint="project_test_file_ep")
 
-api.add_resource(ProjectSubmissions, '/course/<string:course_name>/projects/<string:name>/submissions/<int:page>',
+api.add_resource(ProjectSubmissions,
+                 '/course/<string:course_name>/projects/<string:name>/submissions/<int:page>',
                  endpoint='project_submissions_ep')
 
 api.add_resource(ProjectGrades,
-    '/project/<string:project_id>/grades/<string:name>/<string:rerurn_submissions>/<int:page>', 
-    endpoint='project_grades_ep')
+                 '/project/<string:project_id>/grades/<string:rerurn_submissions>/<int:page>',
+                 endpoint='project_grades_ep')
 
 api.add_resource(
     ProjectResource, '/project/<string:id>', endpoint='project_ep')

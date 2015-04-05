@@ -16,7 +16,7 @@
     </target>
     <target name="test">
       <mkdir dir="{{build_dir}}/tests" />
-      <junit includeantruntime="true" printsummary="withOutAndErr" haltonerror="no" haltonfailure="no" fork="yes" dir="{{src_dir}}">
+      <junit includeantruntime="true" haltonerror="no" haltonfailure="no" fork="yes" dir="{{src_dir}}">
                 <classpath>
                         <pathelement location="{{build_dir}}/classes"/>
                         <pathelement location="{{build_dir}}/tests"/>
