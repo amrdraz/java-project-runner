@@ -199,7 +199,7 @@ class ProjectGrades(Resource):
         """
         Retrieves all grades or single student grade.
         """
-        pass
+        if(isinstance)
 
     @teacher_required
     def post(self, project_id, page=1, rerurn_submissions="false"):
@@ -210,6 +210,8 @@ class ProjectGrades(Resource):
         course = project.course
         if g.user not in course.teachers:
             abort(403, message="Must be course teacher to compute grades.")
+        if not project.can_submit:
+            abort(422, message="Can only compute grades when we are past the deadline.")
         rerurn_submissions_bool = rerurn_submissions == "true"
         compute_team_grades.delay(str(project.id), rerurn_submissions_bool)
 
