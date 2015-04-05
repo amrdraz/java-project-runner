@@ -383,6 +383,7 @@ class Project(db.Document):
         from itertools import groupby
         from operator import attrgetter
         key_func = attrgetter('team_id')
+        TeamProjectGrade.objects.delete()
         submitters = sorted([subm.submitter for subm in self.submissions],
                             key=key_func)
         for _, team in groupby(submitters, key_func):
