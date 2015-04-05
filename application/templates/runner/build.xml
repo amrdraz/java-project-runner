@@ -10,7 +10,11 @@
 
     {% if has_tests %}
     <target name="compile_tests">
-      <javac includeantruntime="true" failonerror="false" srcdir="{{tests_dir}}" destdir="{{build_dir}}/classes"/>
+      {% for test_file in test_files %}
+      <javac includeantruntime="true" failonerror="false" srcdir="{{tests_dir}}" destdir="{{build_dir}}/classes">
+        <include name="{{test_file}}" />
+      </javac>
+      {% endfor %}
     </target>
     <target name="delete_test_source">
       <delete dir="{{tests_dir}}" />
