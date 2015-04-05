@@ -39,7 +39,7 @@ def run():
     from application import app, db, models, api
     from application.resources import user, token, course, project, submission
     from application.tasks import celery
-    app.run(use_reloader=True, threaded=True, host='0.0.0.0', port=8081)
+    app.run(use_reloader=True, threaded=True, port=3030)
 
 @manager.command
 def report_coverage():
