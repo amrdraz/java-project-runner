@@ -388,7 +388,6 @@ class Project(db.Document):
         from itertools import groupby
         from operator import attrgetter
         key_func = attrgetter('team_id')
-        TeamProjectGrade.objects.delete()
         submitters = sorted([subm.submitter for subm in self.submissions],
                             key=key_func)
         for _, team in groupby(submitters, key_func):
@@ -396,7 +395,7 @@ class Project(db.Document):
             for student in team:
                 submissions = (Submission.objects(submitter=student,
                                                   project=self)
-                               .order_by('-created_at').limit(1))
+                               .groupby('-created_at').limit(1))
                 if len(submissions) > 0:
                     canadite_submissions.append(submissions[0])
             if rerurn_submissions:

@@ -74,7 +74,10 @@ def junit_actual(submission_id):
             app.logger.warning(
                 'Junit task launched with processed submission, id: {0}.'
                 .format(submission_id))
-            submission.reset()
+            for result in submission.test_results:
+                for case in result.cases:
+                    case.delete()
+                result.delete()
         submission.started_processing_at = datetime.datetime.utcnow()
         submission.save()
         junit_submission(submission, project)
@@ -103,7 +106,7 @@ def junit_actual(submission_id):
 @celery.task
 def junit_task(submission_id):
     submission = junit_actual(submission_id)
-    if submission is not None and app.config['DELETE_SUBMISSIONS']:
+    if submission is not None:
         for sub in [s for s
                     in Submission.objects(
                         submitter=submission.submitter,

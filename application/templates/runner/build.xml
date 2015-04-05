@@ -10,11 +10,7 @@
 
     {% if has_tests %}
     <target name="compile_tests">
-      {% for test_file in test_files %}
-      <javac includeantruntime="true" failonerror="false" srcdir="{{tests_dir}}" destdir="{{build_dir}}/classes">
-        <include name="{{test_file}}" />
-      </javac>
-      {% endfor %}
+      <javac includeantruntime="true" srcdir="{{tests_dir}}" destdir="{{build_dir}}/classes"/>
     </target>
     <target name="delete_test_source">
       <delete dir="{{tests_dir}}" />
@@ -32,13 +28,13 @@
               {% if xml_format %}
                 <formatter type="xml"/>
               {% endif %}
-              {% for test_file in test_classes %}
               <batchtest todir="{{build_dir}}/tests" fork="yes">
                 <fileset dir="{{build_dir}}/classes">
+                  {% for test_file in test_classes %}
                   <filename name="{{test_file}}" />
+                  {% endfor %}
                 </fileset>
               </batchtest>
-              {% endfor %}
 
         </junit>
       </target>

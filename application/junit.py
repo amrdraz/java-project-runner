@@ -164,8 +164,7 @@ def create_ant_build_file(project, in_use_names, renamed_files, working_director
         "build_dir": renamed_files.get(app.config['ANT_BUILD_DIR_NAME'], app.config['ANT_BUILD_DIR_NAME']),
         "has_tests": project.has_tests,
         "working_directory": working_directory,
-        "test_classes" : [test.filename.replace('.java', '.class') for test in project.tests],
-        "test_files": [test.filename for test in project.tests]
+        "test_classes" : [test.filename.replace('.java', '.class') for test in project.tests]
     }
     ant_build_template = render_template('runner/build.xml', **context)
     build_abs_fname = os.path.join(
@@ -272,8 +271,7 @@ def run_sandbox(working_directory, selinux_directory, renamed_files, submission)
     process = subprocess.Popen(
         command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     stdout, stderr = process.communicate()
-    submission.compile_status = ('THE SOURCE WAS COMPILED SUCCESFULLY' 
-        in stderr or 'THE SOURCE WAS COMPILED SUCCESFULLY' in stdout)
+    submission.compile_status = 'THE SOURCE WAS COMPILED SUCCESFULLY' in stderr
     app.logger.info(stderr)
     app.logger.info(stdout)
     submission.compiler_out = stderr + '\n' + stdout
@@ -298,7 +296,6 @@ def junit_submission(submission, project):
             if app.config['CLEAN_TEMP_DIRS']:
                 rmtree(self.dirs[0])
                 rmtree(self.dirs[1])
-
     with TempDirectories() as directories:
         try:
             working_directory, selinux_directory = directories
