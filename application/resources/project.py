@@ -210,7 +210,8 @@ class ProjectGrades(Resource):
         course = project.course
         if g.user not in course.teachers:
             abort(403, message="Must be course teacher to compute grades.")
-        compute_team_grades.delay(str(project.id), rerurn_submissions == "true")
+        rerurn_submissions_bool = rerurn_submissions == "true"
+        compute_team_grades.delay(str(project.id), rerurn_submissions_bool)
 
 
 
