@@ -299,6 +299,23 @@ class Submission(db.Document):
         ]
     }
 
+    def reset(self):
+        """
+        Resets status as if never processed.
+        Note: Saves document.
+        """
+        self.processed = False
+        self.compile_status = False
+        self.compiler_out = None
+        self.started_processing_at = None
+        self.finished_processing_at = None
+        for result in list(self.test_results):
+            for case in list(result.cases):
+                case.delete()
+            result.delete()
+        self.test_results = []
+        self.save()
+
     @property
     def processing_duration(self):
         return self.finished_processing_at - self.started_processing_at
@@ -357,6 +374,44 @@ class Project(db.Document):
     def can_submit(self):
         return self.due_date >= datetime.datetime.utcnow()
 
+    def grade_teams(self, rerurn_submissions):
+        """
+        Computes team grades, optionally reruns submissions.
+        Please note that this function will block to submissions.
+        Returns TeamProjectGrade.
+        """
+        from application.tasks import junit_actual
+        from itertools import groupby
+        from operator import attrgetter
+        key_func = attrgetter('team_id')
+        submitters = sorted([subm.submitter for subm in self.submissions],
+                            key=key_func)
+        for _, team in groupby(submitters, key_func):
+            canadite_submissions = []
+            for student in team:
+                submissions = (Submission.objects(submitter=student,
+                                                  project=self)
+                               .groupby('-created_at').limit(1))
+                if len(submissions) > 0:
+                    canadite_submissions.append(submissions[0])
+            if rerurn_submissions:
+                for submission in canadite_submissions:
+                    submission.reset()
+                    junit_actual(submission.id)
+            passed_submissions = [s for s in canadite_submissions
+                                  if s.compile_status]
+            best_submissions = sorted(passed_submissions,
+                                     key_func=lambda subm: len(
+                                        subm.test_results))
+            best_submission = canadite_submissions[0]
+            if len(best_submissions) > 0:
+                best_submission = best_submissions[0]
+            grade = TeamProjectGrade(team_id=team[0].team_id,
+                                     best_submission=best_submission,
+                                     project=self)
+            grade.save()
+            return grade
+
     def to_dict(self, **kwargs):
         dic = {
             "id": self.id,
@@ -381,6 +436,42 @@ class Project(db.Document):
             return dic
         dic['tests'] = [file_to_dic(self.id, f) for f in self.tests]
         return dic
+
+
+class TeamProjectGrade(db.Document):
+    """
+    Team based grades.
+    """
+
+    team_id = db.StringField(max_length=32, min_length=1, required=False)
+    best_submission = db.ReferenceField('Submission',
+                                        reverse_delete_rule=db.CASCADE)
+    project = db.ReferenceField('Project',
+                                reverse_delete_rule=db.CASCADE)
+
+    meta = {
+        "indexes": [
+            {
+                "fields": ['team_id']
+            },
+            {
+               "fields": ['project']
+            },
+            {
+                "fields": ['project', 'team_id']
+            }
+        ]
+    }
+
+    def to_dict(self, **kwargs):
+
+        return {
+            "id": self.id,
+            "team_id": self.team_id,
+            "best_submission": self.best_submission.to_dict(),
+            "project": self.project.to_dict(),
+            "page": 1
+        }
 
 
 class StudentProjectCode(db.Document):

@@ -9,9 +9,6 @@ from application.junit import junit_submission
 import datetime
 
 
-
-
-
 def make_celery(app):
     """
     Creates and configures celery instance.
@@ -116,6 +113,6 @@ def junit_task(submission_id):
 @celery.task
 def junit_no_deletion(submission_id):
     """
-    Processes a junit submission.
+    Processes a junit submission, without deleting the older submissions.
     """
     junit_actual(submission_id)
