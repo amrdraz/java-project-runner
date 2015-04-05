@@ -391,7 +391,7 @@ class Project(db.Document):
             for student in team:
                 submissions = (Submission.objects(submitter=student,
                                                   project=self)
-                               .groupby('-created_at').limit(1))
+                               .order_by('-created_at').limit(1))
                 if len(submissions) > 0:
                     canadite_submissions.append(submissions[0])
             if rerurn_submissions:
