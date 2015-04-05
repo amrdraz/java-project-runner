@@ -31,3 +31,5 @@ node_modules
 profile.info
 env/
 dumps/
+*.sublime-project
+*.sublime-workspace

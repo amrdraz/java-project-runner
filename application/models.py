@@ -4,7 +4,9 @@ Document definitions.
 from application import db, app
 from flask.ext.bcrypt import generate_password_hash, check_password_hash
 import datetime
-from itsdangerous import TimedJSONWebSignatureSerializer, URLSafeSerializer, SignatureExpired, BadSignature, URLSafeTimedSerializer
+from itsdangerous import (TimedJSONWebSignatureSerializer, URLSafeSerializer,
+                          SignatureExpired, BadSignature,
+                          URLSafeTimedSerializer)
 
 
 class User(db.DynamicDocument):
@@ -37,12 +39,14 @@ class User(db.DynamicDocument):
     @property
     def is_student(self):
         return False
+
     @property
     def is_teacher(self):
         return not self.is_student
 
     def all_accessible_projects(self):
-        return [p for p in self.all_accessible_courses if self.can_view_project(p)]
+        return [p for p in
+                self.all_accessible_courses if self.can_view_project(p)]
 
     def all_accessible_courses(self):
         return [c for c in Course.objects if self.can_view_course(c)]
@@ -52,15 +56,14 @@ class User(db.DynamicDocument):
         return (self.is_teacher or (self.is_student and course.published))
 
     def can_view_submission(self, submission, project, course):
-        return (self.can_view_project(project, course) and 
-            (self.is_teacher or (submission.submitter == self)))
+        return (self.can_view_project(project, course) and
+                (self.is_teacher or (submission.submitter == self)))
 
     def can_view_project(self, project, course):
         """Checks if the user has authorization to view a project."""
-        return (course.is_user_associated(self) and 
-            (self.is_teacher) or
-            (self in course.students and project.published))
-
+        return (course.is_user_associated(self) and
+                (self.is_teacher) or
+                (self in course.students and project.published))
 
     @property
     def password(self):
@@ -94,7 +97,8 @@ class User(db.DynamicDocument):
     def generate_pass_reset_token(self):
         """Sends a password reset email."""
         serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'])
-        return serializer.dumps({'id': str(self.id), 'email': self.email, 'type': 'reset_pass'})
+        return serializer.dumps(
+            {'id': str(self.id), 'email': self.email, 'type': 'reset_pass'})
 
     @staticmethod
     def verify_pass_reset_token(token):
@@ -103,9 +107,11 @@ class User(db.DynamicDocument):
         Raises SignatureExpired, BadSignature if expired or malformed.
         """
         serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'])
-        data = serializer.loads(token, max_age=app.config['PASS_RESET_EXPIRATION'])
+        data = serializer.loads(token,
+                                max_age=app.config['PASS_RESET_EXPIRATION'])
         matches = User.objects(id=data['id'])
-        if matches.count() != 1 or matches[0].email != data['email'] or data['type'] != 'reset_pass':
+        if (matches.count() != 1 or matches[0].email != data['email']
+                or data['type'] != 'reset_pass'):
             raise BadSignature("Could not verify password reset token")
         return matches[0]
 
@@ -116,7 +122,8 @@ class User(db.DynamicDocument):
         """Creates an expiring token to uniquely identify this user."""
         seriliezer = TimedJSONWebSignatureSerializer(
             app.config['SECRET_KEY'], expires_in=expires_in)
-        return seriliezer.dumps({'id': str(self.id), 'salty_hash': self.password_hash})
+        return seriliezer.dumps(
+            {'id': str(self.id), 'salty_hash': self.password_hash})
 
     def generate_activation_token(self):
         """
@@ -173,10 +180,11 @@ class Student(User):
     major = db.StringField(max_length=32, min_length=2, required=False)
     tutorial = db.StringField(max_length=32, min_length=2, required=False)
     verification_code = db.StringField()
-    
+
     @property
     def is_student(self):
         return True
+
     def to_dict(self, **kwargs):
         dic = User.to_dict(self)
         dic['guc_id'] = self.guc_id
@@ -250,7 +258,8 @@ class TestResult(db.Document):
     created_at = db.DateTimeField(
         default=datetime.datetime.utcnow, required=True)
     name = db.StringField(min_length=1, required=True)
-    cases = db.ListField(db.ReferenceField('TestCase', reverse_delete_rule=db.PULL))
+    cases = db.ListField(
+        db.ReferenceField('TestCase', reverse_delete_rule=db.PULL))
     success = db.BooleanField(default=False, required=True)
 
     def to_dict(self, **kwargs):
@@ -267,9 +276,11 @@ class Submission(db.Document):
     """A student's submission."""
     created_at = db.DateTimeField(
         default=datetime.datetime.utcnow, required=True)
-    test_results = db.ListField(db.ReferenceField('TestResult', reverse_delete_rule=db.PULL))
+    test_results = db.ListField(
+        db.ReferenceField('TestResult', reverse_delete_rule=db.PULL))
     processed = db.BooleanField(default=False, required=True)
-    submitter = db.ReferenceField('Student', required=True, reverse_delete_rule=db.CASCADE)
+    submitter = db.ReferenceField('Student', required=True,
+                                  reverse_delete_rule=db.CASCADE)
     project = db.ReferenceField('Project', required=True)
     code = db.FileField(required=True)
     compile_status = db.BooleanField(default=False, required=True)
@@ -287,10 +298,10 @@ class Submission(db.Document):
             }
         ]
     }
+
     @property
     def processing_duration(self):
         return self.finished_processing_at - self.started_processing_at
-    
 
     def to_dict(self, **kwargs):
         dic = {
@@ -307,6 +318,7 @@ class Submission(db.Document):
         dic['course_name'] = dic['project']['course_name']
         return dic
 
+
 class Project(db.Document):
 
     """A course's Project."""
@@ -321,7 +333,8 @@ class Project(db.Document):
         max_length=3, min_length=1, choices=LANGUAGES, required=True)
     test_timeout_seconds = db.LongField(
         default=600, max_value=1800, required=True)
-    submissions = db.ListField(db.ReferenceField('Submission', reverse_delete_rule=db.PULL))
+    submissions = db.ListField(
+        db.ReferenceField('Submission', reverse_delete_rule=db.PULL))
     course = db.ReferenceField('Course')
     is_quiz = db.BooleanField(required=True)
 
@@ -374,8 +387,10 @@ class StudentProjectCode(db.Document):
     """
     Quiz codes for students.
     """
-    student = db.ReferenceField('Student', reverse_delete_rule=db.CASCADE, required=True)
-    project = db.ReferenceField('Project', reverse_delete_rule=db.CASCADE, required=True)
+    student = db.ReferenceField('Student',
+                                reverse_delete_rule=db.CASCADE, required=True)
+    project = db.ReferenceField('Project',
+                                reverse_delete_rule=db.CASCADE, required=True)
     verification_code = db.StringField(required=True)
     meta = {
         "indexes": [

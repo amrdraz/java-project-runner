@@ -35,3 +35,10 @@ submission_parser.add_argument('verification_code', str)
 # token parser
 token_parser = reqparse.RequestParser()
 token_parser.add_argument('remember', str)
+
+
+search_parser = reqparse.RequestParser()
+search_parser.add_argument('student_id', type=str, default=None)
+search_parser.add_argument('team_id', type=str, default=None)
+search_parser.add_argument('project_id', type=str, default=None)
+search_parser.add_argument('page', type=int, default=1)
