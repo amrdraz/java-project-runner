@@ -399,8 +399,8 @@ class Project(db.Document):
                     "name": student.name,
                     "email": student.email,
                     "project": self.name,
-                    "passed cases": grade.best_submission.cases_count,
-                    "total cases": grade.best_submission.passed_cases_count,
+                    "passed cases": grade.best_submission.passed_cases_count,
+                    "total cases": grade.best_submission.cases_count,
                     "grade in percentage": grade.grade,
                     "submitter": grade.best_submission.submitter.name
                 })
