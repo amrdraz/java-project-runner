@@ -412,7 +412,7 @@ class Project(db.Document):
         from itertools import groupby
         from operator import attrgetter
         key_func = attrgetter('team_id')
-        submitters = sorted([subm.submitter for subm in self.submissions if subm.submitter],
+        submitters = sorted([subm.submitter for subm in Submission.objects(project=self, submitter__exists=True)],
                             key=key_func)
         submissions = []
         for _, team in groupby(submitters, key_func):
