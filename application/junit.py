@@ -169,7 +169,7 @@ def create_ant_build_file(project, in_use_names, renamed_files, working_director
     }
     if project.has_class_files:
         context["test_classes"] =\
-         [test for
+         [test.filename for
             test in project.tests if test.filename.endswith(".class")]
     else:
         context["test_classes"] =\
