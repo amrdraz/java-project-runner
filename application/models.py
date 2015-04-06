@@ -565,7 +565,7 @@ class TeamProjectGrade(db.Document):
 
     @property
     def grade(self):
-        return (self.best_submission.passed_cases_count/self.best_submission.cases_count)*100
+        return (self.best_submission.passed_cases_count/self.best_submission.cases_count)*100 if self.best_submission.cases_count==0 else 0
 
     @property
     def submitter(self):
