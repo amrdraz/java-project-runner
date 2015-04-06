@@ -32,14 +32,17 @@ celery = make_celery(app)
 @celery.task
 def compute_team_grades(
         project_id,
-        rerun_submissions,
+        rerun_submissions=False,
         only_rerun_compile_error=False,
         get_latest=True):
     """
     Computes project ids.
     """
     app.logger.info('Starting grade computation for {0}'.format(project_id))
-    Project.objects.get(id=project_id).grade_teams(rerun_submissions)
+    Project.objects.get(id=project_id).grade_teams(
+        rerun_submissions,
+        only_rerun_compile_error,
+        get_latest)
     app.logger.info('Computed grades for {0}'.format(project_id))
 
 @celery.task
