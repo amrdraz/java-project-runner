@@ -1,6 +1,7 @@
 """
 Document definitions.
 """
+from __future__ import division
 from application import db, app
 from flask.ext.bcrypt import generate_password_hash, check_password_hash
 import datetime
@@ -567,7 +568,6 @@ class TeamProjectGrade(db.Document):
 
     @property
     def grade(self):
-        from __future__ import division
         return (self.best_submission.passed_cases_count/self.best_submission.cases_count)*100 if self.best_submission.cases_count>0 else 0
 
     @property
