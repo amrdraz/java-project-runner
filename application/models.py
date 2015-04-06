@@ -320,6 +320,14 @@ class Submission(db.Document):
     def processing_duration(self):
         return self.finished_processing_at - self.started_processing_at
 
+    @property
+    def cases_count(self):
+        return reduce(lambda c,x:c+len(x.cases),self.test_results, 0)
+
+    @property
+    def passed_cases_count(self):
+        return reduce(lambda c,x:c+reduce(lambda c,y: c+1 if y.passed else c, x.cases, 0),self.test_results, 0)
+
     def to_dict(self, **kwargs):
         dic = {
             "id": self.id,
@@ -333,6 +341,7 @@ class Submission(db.Document):
         }
         dic['project_name'] = dic['project']['name']
         dic['course_name'] = dic['project']['course_name']
+        dic['grade'] = dic['project']['course_name']
         return dic
 
 
@@ -377,6 +386,22 @@ class Project(db.Document):
     @property
     def can_submit(self):
         return self.due_date >= datetime.datetime.utcnow()
+
+    def student_results_for_csv(self):
+        grades = TeamProjectGrade.objects(project=self)
+        results = []
+        for grade in grades:
+            for student in grade.get_students():
+                results.append({
+                    "team_id": student.team_id,
+                    "guc_id": student.guc_id,
+                    "name": student.name,
+                    "email": student.email,
+                    "project": self.name,
+                    "grade": grade.grade,
+                    "submitter": grade.best_submission.submitter.name
+                })
+        return results
 
     def get_teams_canadite_submissions(self):
         """
@@ -538,6 +563,17 @@ class TeamProjectGrade(db.Document):
         ]
     }
 
+    @property
+    def grade(self):
+        return (self.best_submission.passed_cases_count/self.best_submission.cases_count)*100
+
+    @property
+    def submitter(self):
+        return self.best_submission.submitter
+
+    def get_students(self):
+        return len(Student.objects(team_id=self.team_id))
+
     def to_dict(self, **kwargs):
 
         return {
@@ -545,6 +581,8 @@ class TeamProjectGrade(db.Document):
             "team_id": self.team_id,
             "best_submission": self.best_submission.to_dict(),
             "project": self.project.to_dict(),
+            "grade": self.grade,
+            "submitter": self.submitter.to_dict(),
             "page": 1
         }
 
