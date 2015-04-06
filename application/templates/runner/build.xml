@@ -12,6 +12,13 @@
     <target name="compile_tests">
       <javac includeantruntime="true" srcdir="{{tests_dir}}" destdir="{{build_dir}}/classes"/>
     </target>
+    <target name="move_tests">
+      <move todir="{{build_dir}}/classes">
+        <fileset dir="{{tests_dir}}">
+          <include name="**/*.class"/>
+        </fileset>
+      </move>
+    </target>
     <target name="delete_test_source">
       <delete dir="{{tests_dir}}" />
     </target>
