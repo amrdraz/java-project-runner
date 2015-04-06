@@ -544,7 +544,7 @@ class TeamProjectGrade(db.Document):
     Team based grades.
     """
 
-    team_id = db.StringField(max_length=32, min_length=1, required=False, unique=True)
+    team_id = db.StringField(max_length=32, min_length=1, required=False)
     best_submission = db.ReferenceField('Submission',
                                         reverse_delete_rule=db.CASCADE)
     project = db.ReferenceField('Project',
@@ -554,7 +554,6 @@ class TeamProjectGrade(db.Document):
         "indexes": [
             {
                 "fields": ['team_id'],
-                "unique": True
             },
             {
                "fields": ['project']
