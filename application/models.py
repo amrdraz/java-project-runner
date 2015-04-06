@@ -378,55 +378,110 @@ class Project(db.Document):
     def can_submit(self):
         return self.due_date >= datetime.datetime.utcnow()
 
-    def grade_teams(self, rerurn_submissions=False, get_latest=True):
+    def get_teams_canadite_submissions(self):
         """
-        Computes team grades, optionally reruns submissions.
-        Please note that this function will block to submissions.
+        Gets teams candidate submissions for grading.
+        Gets latest submission of each member of a team.
+        returns a list of (team_id, submissions)
         """
-        from application.tasks import junit_actual
         from itertools import groupby
         from operator import attrgetter
         key_func = attrgetter('team_id')
         submitters = sorted([subm.submitter for subm in self.submissions],
                             key=key_func)
+        submissions = []
         for _, team in groupby(submitters, key_func):
             if _ is None:
                 continue
             team = list(set(list(team)))
             canadite_submissions = []
             for student in team:
-                submissions = (Submission.objects(submitter=student,
-                                                  project=self)
-                               .order_by('-created_at').limit(1))
-                if len(submissions) > 0:
-                    canadite_submissions.append(submissions[0])
+                subms = (Submission.objects(
+                            submitter=student,
+                            project=self)
+                         .order_by('-created_at').limit(1))
+                if len(subms) > 0:
+                    canadite_submissions.append(subms[0])
 
-            if get_latest:
-                best_submissions = sorted(canadite_submissions,
-                                          key=lambda subm:
-                                          subm.created_at, reverse=True)
+            submissions.append((_, canadite_submissions))
+        return submissions
+
+    def get_team_best_submissions(
+            self,
+            rerurn_submissions=False,
+            only_rerun_compile_error=False,
+            get_latest=True):
+        """
+        Cget team best submissions for grades, optionally reruns submissions.
+        Please note that this function will block to submissions.
+        returns a list of (team_id, submission)
+        """
+        from application.tasks import junit_actual
+        canadite_submissions = self.get_teams_canadite_submissions()
+        best_team_submissions = []
+        if get_latest:
+            for _, submissions in canadite_submissions:
+                submissions = sorted(submissions,
+                                     key=lambda subm:
+                                     subm.created_at, reverse=True)
+                submission = submissions[0]
                 if rerurn_submissions:
-                    submission = best_submissions[0]
-                    submission.reset()
-                    junit_actual(submission.id)  # synchrounus
-            else:
-                if rerurn_submissions:
-                    for submission in canadite_submissions:
+                    if only_rerun_compile_error and submission.compile_status:
+                        pass
+                    else:
                         submission.reset()
-                        junit_actual(submission.id)  # synchrounus
+                        junit_actual(submission.id)
+                best_team_submissions.append((_, submission))
+        else:
+            for _, submissions in canadite_submissions:
+                if rerurn_submissions:
+                    for submission in submissions:
+                        if only_rerun_compile_error\
+                           and submission.compile_status:
+                            continue
+                        else:
+                            submission.reset()
+                            junit_actual(submission.id)
                 passed_submissions = [s for s in canadite_submissions
                                       if s.compile_status]
                 best_submissions = sorted(passed_submissions,
                                           key=lambda subm: len(
                                             subm.test_results))
+                best_team_submissions.append((_, best_submissions[0]))
+        return best_team_submissions
 
-            if len(best_submissions) > 0:
-                best_submission = best_submissions[0]
+    def grade_teams(
+            self,
+            rerurn_submissions=False,
+            only_rerun_compile_error=False,
+            get_latest=True):
+        """
+        Computes team grades, optionally reruns submissions.
+        Please note that this function will block to submissions.
+        will attempt to find TeamGrade and update it if it already exists
+        """
+
+        best_team_submissions = self.get_team_best_submissions(
+            rerurn_submissions, only_rerun_compile_error, get_latest)
+
+        for team_id, best_submission in best_team_submissions:
+            try:
+                grade = TeamProjectGrade.objects.get(
+                    team_id=team_id, project=self)
+                if not rerurn_submissions:
+                    app.logger.info("found grade nothing to change")
+                    continue
+                else:
+                    app.logger.info("found grade updateing submission")
+                    grade.best_submission = best_submission
+            except TeamProjectGrade.DoesNotExist:
                 grade = TeamProjectGrade(
-                    team_id=team[0].team_id,
+                    team_id=team_id,
                     best_submission=best_submission,
                     project=self)
-                grade.save()
+            grade.save()
+            app.logger.info("graded team {0} in project {1}"
+                            .format(team_id, self.name))
 
     def to_dict(self, **kwargs):
         dic = {

@@ -30,7 +30,11 @@ celery = make_celery(app)
 
 
 @celery.task
-def compute_team_grades(project_id, rerun_submissions):
+def compute_team_grades(
+        project_id,
+        rerun_submissions,
+        only_rerun_compile_error=False,
+        get_latest=True):
     """
     Computes project ids.
     """
