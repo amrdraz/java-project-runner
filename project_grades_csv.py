@@ -5,7 +5,10 @@ def project_grades_csv(project_id):
 
     project = Project.objects.get(id=project_id)
     with open(project.name+' Grades.csv', 'w') as csvfile:
-        fieldnames = ['team_id','guc_id','name','email','project','grade','submitter']
+        fieldnames = [
+                'team_id', 'guc_id', 'name', 'email',
+                'project', 'passed cases', 'total cases',
+                'grade in percentage', 'submitter']
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         writer.writeheader()
         for row in project.student_results_for_csv():

@@ -398,7 +398,9 @@ class Project(db.Document):
                     "name": student.name,
                     "email": student.email,
                     "project": self.name,
-                    "grade": grade.grade,
+                    "passed cases": grade.best_submission.cases_count,
+                    "total cases": grade.best_submission.passed_cases_count,
+                    "grade in percentage": grade.grade,
                     "submitter": grade.best_submission.submitter.name
                 })
         return results
@@ -565,6 +567,7 @@ class TeamProjectGrade(db.Document):
 
     @property
     def grade(self):
+        from __future__ import division
         return (self.best_submission.passed_cases_count/self.best_submission.cases_count)*100 if self.best_submission.cases_count>0 else 0
 
     @property
