@@ -390,6 +390,8 @@ class Project(db.Document):
         submitters = sorted([subm.submitter for subm in self.submissions],
                             key=key_func)
         for _, team in groupby(submitters, key_func):
+            if _ is None:
+                continue
             team = list(set(list(team)))
             canadite_submissions = []
             for student in team:
