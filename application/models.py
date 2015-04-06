@@ -378,7 +378,7 @@ class Project(db.Document):
     def can_submit(self):
         return self.due_date >= datetime.datetime.utcnow()
 
-    def grade_teams(self, rerurn_submissions):
+    def grade_teams(self, rerurn_submissions=False, get_latest=True):
         """
         Computes team grades, optionally reruns submissions.
         Please note that this function will block to submissions.
@@ -390,6 +390,7 @@ class Project(db.Document):
         submitters = sorted([subm.submitter for subm in self.submissions],
                             key=key_func)
         for _, team in groupby(submitters, key_func):
+            team = list(set(list(team)))
             canadite_submissions = []
             for student in team:
                 submissions = (Submission.objects(submitter=student,
@@ -397,22 +398,33 @@ class Project(db.Document):
                                .order_by('-created_at').limit(1))
                 if len(submissions) > 0:
                     canadite_submissions.append(submissions[0])
-            if rerurn_submissions:
-                for submission in canadite_submissions:
+
+            if get_latest:
+                best_submissions = sorted(canadite_submissions,
+                                          key=lambda subm:
+                                          subm.created_at, reverse=True)
+                if rerurn_submissions:
+                    submission = best_submissions[0]
                     submission.reset()
                     junit_actual(submission.id)  # synchrounus
-            passed_submissions = [s for s in canadite_submissions
-                                  if s.compile_status]
-            best_submissions = sorted(passed_submissions,
-                                      key_func=lambda subm: len(
-                                        subm.test_results))
-            best_submission = canadite_submissions[0]
+            else:
+                if rerurn_submissions:
+                    for submission in canadite_submissions:
+                        submission.reset()
+                        junit_actual(submission.id)  # synchrounus
+                passed_submissions = [s for s in canadite_submissions
+                                      if s.compile_status]
+                best_submissions = sorted(passed_submissions,
+                                          key=lambda subm: len(
+                                            subm.test_results))
+
             if len(best_submissions) > 0:
                 best_submission = best_submissions[0]
-            grade = TeamProjectGrade(team_id=team[0].team_id,
-                                     best_submission=best_submission,
-                                     project=self)
-            grade.save()
+                grade = TeamProjectGrade(
+                    team_id=team[0].team_id,
+                    best_submission=best_submission,
+                    project=self)
+                grade.save()
 
     def to_dict(self, **kwargs):
         dic = {
