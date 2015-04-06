@@ -572,7 +572,7 @@ class TeamProjectGrade(db.Document):
         return self.best_submission.submitter
 
     def get_students(self):
-        return len(Student.objects(team_id=self.team_id))
+        return list(Student.objects(team_id=self.team_id))
 
     def to_dict(self, **kwargs):
 
