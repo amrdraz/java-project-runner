@@ -188,6 +188,7 @@ def create_ant_script_file(project, in_use_names, renamed_files, working_directo
         app.config['ANT_RUN_FILE_NAME'], app.config['ANT_RUN_FILE_NAME']))
     context = {
         'buildfile_name': renamed_files.get(app.config['ANT_BUILD_FILE_NAME'], app.config['ANT_BUILD_FILE_NAME']),
+        "has_class_files": project.has_class_files,
         'has_tests': project.has_tests,
         'test_timeout': project.test_timeout_seconds
     }
