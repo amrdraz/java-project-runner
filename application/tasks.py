@@ -45,6 +45,28 @@ def compute_team_grades(
         get_latest)
     app.logger.info('Computed grades for {0}'.format(project_id))
 
+
+@celery.task
+def rerun_submissions(
+        project_id,
+        email,
+        rerun_submissions=True,
+        only_rerun_compile_error=False,
+        ):
+        get_latest=True
+    """
+    Computes project ids.
+    """
+    app.logger.info('Starting grade computation for {0}'.format(project_id))
+    submissions = Project.objects.get(id=project_id).get_student_submissions(
+                    rerun_submissions,
+                    only_rerun_compile_error,
+                    get_latest)
+    if email:
+        mtasks.email_when_done(email, "ran "+len(submissions)+" submissions")
+    app.logger.info('Computed grades for {0}'.format(project_id))
+
+
 @celery.task
 def send_random_password(user_id):
     """

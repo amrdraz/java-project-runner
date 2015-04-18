@@ -511,6 +511,39 @@ class Project(db.Document):
             app.logger.info("graded team {0} in project {1}"
                             .format(team_id, self.name))
 
+    def get_student_submissions(
+            self,
+            rerurn_submissions=False,
+            only_rerun_compile_error=False,
+            get_latest=True):
+        """
+        Computes latest grade for each student who submitted in this project, optionally reruns submissions.
+        Please note that this function will block to submissions.
+        will attempt to find TeamGrade and update it if it already exists
+        """
+        from application.tasks import junit_actual
+
+        students = self.course.students
+        submissions = []
+        for student in students:
+            subms = (Submission.objects(
+                        submitter=student,
+                        project=self)
+                     .order_by('-created_at').limit(1))
+            if len(subms) > 0:
+                submissions.append(subms[0])
+
+        for submission in submissions:
+            if rerurn_submissions:
+                if only_rerun_compile_error and submission.compile_status:
+                    pass
+                else:
+                    submission.reset()
+                    junit_actual(submission.id)
+
+        return submissions
+
+
     def to_dict(self, **kwargs):
         dic = {
             "id": self.id,

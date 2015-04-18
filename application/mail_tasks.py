@@ -1,8 +1,19 @@
 import xkcdpass.xkcd_password as xp
-from application.mail_utils import mail, Message, create_message
+from application.mail_utils import mail, create_message
 from application.models import User
 from application import app, db
 from flask import render_template
+
+
+def email_when_done(email, body):
+    """Sends a new password after generating it."""
+    try:
+        msg = create_message('Task is done', email)
+        msg.body = body or "The task you where running is complete"
+        mail.send(msg)
+    except (db.DoesNotExist):
+        app.logger.warning(
+            'Attempted to notify user of task completion')
 
 
 def random_password(user_id):
@@ -22,6 +33,7 @@ def random_password(user_id):
     except (db.DoesNotExist):
         app.logger.warning(
             'Attempted to send new password to non existing user.')
+
 
 def reset_password(user_id):
     """Sends an email to confirm user password reset."""
