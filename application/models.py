@@ -560,7 +560,6 @@ class Project(db.Document):
                 "passed cases": submission.passed_cases_count,
                 "total cases": submission.cases_count,
                 "grade in percentage": submission.passed_percentage,
-                "submitter": submission.submitter.name
             })
         return results
 
