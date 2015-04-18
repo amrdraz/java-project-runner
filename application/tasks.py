@@ -50,21 +50,20 @@ def compute_team_grades(
 def rerun_submissions(
         project_id,
         email,
-        rerun_submissions=True,
         only_rerun_compile_error=False,
         get_latest=True
         ):
     """
     Computes project ids.
     """
-    app.logger.info('Starting grade computation for {0}'.format(project_id))
+    app.logger.info('Starting submission rerun for {0}'.format(project_id))
     submissions = Project.objects.get(id=project_id).get_student_submissions(
-                    rerun_submissions,
+                    True,
                     only_rerun_compile_error,
                     get_latest)
     if email:
         mtasks.email_when_done(email, "ran "+len(submissions)+" submissions")
-    app.logger.info('Computed grades for {0}'.format(project_id))
+    app.logger.info('reran submissions for {0}'.format(project_id))
 
 
 @celery.task

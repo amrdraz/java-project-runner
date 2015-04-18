@@ -1,10 +1,10 @@
 
-def project_grades_csv(project_id):
+def project_grades_csv(project_id, suffix=""):
     import csv
     from application.models import Project
 
     project = Project.objects.get(id=project_id)
-    with open(project.name+' Grades.csv', 'w') as csvfile:
+    with open(project.name+" "+suffix+' Grades.csv', 'w') as csvfile:
         fieldnames = [
                 'team_id', 'guc_id', 'name', 'email',
                 'project', 'passed cases', 'total cases',
