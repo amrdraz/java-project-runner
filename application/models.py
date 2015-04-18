@@ -547,10 +547,10 @@ class Project(db.Document):
 
         return submissions
 
-    def student_rsubmissions_for_csv(self):
+    def student_submissions_for_csv(self):
 
         results = []
-        for submission in self.get_student_submissions:
+        for submission in self.get_student_submissions():
             student = submission.submitter
             results.append({
                 "guc_id": student.guc_id,

@@ -11,7 +11,7 @@ def project_grades_csv(project_id, suffix=""):
                 'grade in percentage']
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         writer.writeheader()
-        for row in project.student_results_for_csv():
+        for row in project.student_submissions_for_csv():
             writer.writerow(row)
 
 # example
