@@ -342,7 +342,10 @@ class Submission(db.Document):
             "tests": [test.to_dict() for test in self.test_results],
             "project": self.project.to_dict(),
             'compile_status': self.compile_status,
-            'compiler_out': self.compiler_out
+            'compiler_out': self.compiler_out,
+            "cases_count": self.cases_count,
+            "passed_cases_count": self.passed_cases_count,
+            "passed_percentage": self.passed_percentage,
         }
         dic['project_name'] = dic['project']['name']
         dic['course_name'] = dic['project']['course_name']
@@ -636,8 +639,6 @@ class TeamProjectGrade(db.Document):
             "team_id": self.team_id,
             "best_submission": self.best_submission.to_dict(),
             "project": self.project.to_dict(),
-            "grade": self.grade,
-            "submitter": self.submitter.to_dict(),
             "page": 1
         }
 
