@@ -329,6 +329,10 @@ class Submission(db.Document):
     def passed_cases_count(self):
         return reduce(lambda c,x:c+reduce(lambda c,y: c+1 if y.passed else c, x.cases, 0),self.test_results, 0)
 
+    @property
+    def passed_percentage(self):
+        return (self.passed_cases_count/self.cases_count)*100 if self.cases_count>0 else 0
+
     def to_dict(self, **kwargs):
         dic = {
             "id": self.id,
@@ -543,6 +547,23 @@ class Project(db.Document):
 
         return submissions
 
+    def student_rsubmissions_for_csv(self):
+
+        results = []
+        for submission in self.get_student_submissions:
+            student = submission.submitter
+            results.append({
+                "guc_id": student.guc_id,
+                "name": student.name,
+                "email": student.email,
+                "project": self.name,
+                "passed cases": submission.passed_cases_count,
+                "total cases": submission.cases_count,
+                "grade in percentage": submission.passed_percentage,
+                "submitter": submission.submitter.name
+            })
+        return results
+
 
     def to_dict(self, **kwargs):
         dic = {
@@ -600,7 +621,7 @@ class TeamProjectGrade(db.Document):
 
     @property
     def grade(self):
-        return (self.best_submission.passed_cases_count/self.best_submission.cases_count)*100 if self.best_submission.cases_count>0 else 0
+        return self.best_submission.passed_percentage
 
     @property
     def submitter(self):

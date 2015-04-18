@@ -62,7 +62,7 @@ def rerun_submissions(
                     only_rerun_compile_error,
                     get_latest)
     if email:
-        mtasks.email_when_done(email, "ran "+len(submissions)+" submissions")
+        mtasks.email_when_done(email, "ran "+str(len(submissions))+" submissions")
     app.logger.info('reran submissions for {0}'.format(project_id))
 
 
