@@ -186,12 +186,17 @@ class Student(User):
     def is_student(self):
         return True
 
+    @property
+    def team_grades(self):
+        return TeamProjectGrade.objects(team_id=self.team_id) if self.team_id else []
+
     def to_dict(self, **kwargs):
         dic = User.to_dict(self)
         dic['guc_id'] = self.guc_id
         dic['team_id'] = self.team_id
         dic['major'] = self.major
         dic['tutorial'] = self.tutorial
+        dic['team_grades'] = [grade.to_dict() for grade in self.team_grades]
         return dic
 
 
