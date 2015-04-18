@@ -52,8 +52,8 @@ def rerun_submissions(
         email,
         rerun_submissions=True,
         only_rerun_compile_error=False,
-        ):
         get_latest=True
+        ):
     """
     Computes project ids.
     """
