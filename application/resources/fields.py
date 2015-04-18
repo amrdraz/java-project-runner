@@ -9,7 +9,6 @@ user_fields = {
     'name': fields.String,
     'guc_id': fields.String,
     'team_id': fields.String,
-    'team_grades_url': fields.Url(endpoint='team_project_grades_ep'),
     'id': fields.String,
     'created_at': fields.DateTime('iso8601'),
     'active': fields.Boolean,
