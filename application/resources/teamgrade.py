@@ -23,4 +23,4 @@ class TeamProjectGrades(Resource):
             abort(403, message="Must be a student to view grades")
 
 api.add_resource(
-    TeamProjectGrades, '/teamgrades/', endpoint='submission_ep')
+    TeamProjectGrades, '/teamgrades/', endpoint='team_project_grade_ep')
