@@ -22,5 +22,19 @@ class TeamProjectGrades(Resource):
         else:
             abort(403, message="Must be a student to view grades")
 
+
+class TestGrade(Resource):
+
+    @login_required
+    @marshal_with(team_project_grade_fields)
+    def get(self, id):
+        """
+        Lists all submissions related to the course.
+        """
+        return "Ok"
+
 api.add_resource(
     TeamProjectGrades, '/teamgrades/', endpoint='team_project_grade_ep')
+
+api.add_resource(
+    TeamProjectGrades, '/testgrade/', endpoint='test_grade_ep')

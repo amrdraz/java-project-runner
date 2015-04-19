@@ -17,7 +17,7 @@ manager = make_manager()
 def _make_context():
     """Returns app context of shell"""
     from application import app, db, models, api
-    from application.resources import user, token, course, project, submission
+    from application.resources import user, token, course, project, submission, teamgrade
     from application.tasks import celery
     return dict(app=app, db=db, models=models)
 
@@ -28,7 +28,7 @@ manager.add_command("shell", Shell(make_context=_make_context))
 def drop():
     """Drops the database"""
     from application import app, db, models, api
-    from application.resources import user, token, course, project, submission
+    from application.resources import user, token, course, project, submission, teamgrade
     from application.tasks import celery
     db.connection.drop_database(app.config['MONGODB_SETTINGS']['DB'])
 
@@ -37,7 +37,7 @@ def drop():
 def run():
     """Runs the development server."""
     from application import app, db, models, api
-    from application.resources import user, token, course, project, submission
+    from application.resources import user, token, course, project, submission, teamgrade
     from application.tasks import celery
     app.run(use_reloader=True, threaded=True, host='0.0.0.0', port=8081)
 
@@ -50,7 +50,7 @@ def report_coverage():
     cov = coverage(branch=True, omit=['env/*', 'manage.py', 'application/junit.py', 'application/tasks.py'])
     cov.start()
     from application import app, db, models, api
-    from application.resources import user, token, course, project, submission
+    from application.resources import user, token, course, project, submission, teamgrade
     from application.tasks import celery
     def signal_handler(signal, frame):
         cov.stop()
@@ -66,7 +66,7 @@ def report_coverage():
 def profile():
     """Runs in profiling mode."""
     from application import app, db, models, api
-    from application.resources import user, token, course, project, submission
+    from application.resources import user, token, course, project, submission, teamgrade
     from application.tasks import celery
     from werkzeug.contrib.profiler import ProfilerMiddleware
     app.config['PROFILE'] = True
@@ -77,7 +77,7 @@ def profile():
 def routes():
     """Displays routes."""
     from application import app, db, models, api
-    from application.resources import user, token, course, project, submission
+    from application.resources import user, token, course, project, submission, teamgrade
     from application.tasks import celery
     import urllib
     output = []
@@ -94,7 +94,7 @@ def routes():
         output.append(line)
 
     for line in sorted(output):
-        print line
+        print (line)
 
 if __name__ == "__main__":
     manager.run()
