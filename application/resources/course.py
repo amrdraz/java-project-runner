@@ -280,13 +280,6 @@ class CourseProjects(Resource):
         return marshal(project.to_dict(parent_course=course), project_fields), 201
 
 
-class Bar(Resource):
-    def get(self):
-        return {'hello': 'world'}
-
-    def post(self):
-        return {'hello': 'world'}
-
 api.add_resource(CourseProjects, '/course/<string:name>/projects',
                  endpoint='course_projects_ep')
 api.add_resource(CoursesResource, '/courses/<int:page>', endpoint='courses_ep')
@@ -295,7 +288,5 @@ api.add_resource(CourseStudents, '/course/<string:name>/students/<int:page>',
                  endpoint='course_students_ep')
 api.add_resource(CourseTeachers, '/course/<string:name>/tas/<int:page>',
                  endpoint='course_tas_ep')
-api.add_resource(Bar, '/testbar',
-                 endpoint='testbar_ep')
 api.add_resource(CourseSubmissions, '/course/<string:name>/submissions/<int:page>',
                  endpoint='course_submissions_ep')

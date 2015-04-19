@@ -2,9 +2,9 @@
 Defines User resource's endpoints.
 """
 from application import api, db, app
-from application.models import User, Student, Course, BadSignature
+from application.models import User, Student, Course, BadSignature, TeamProjectGrade
 from flask.ext.restful import Resource, abort, marshal, marshal_with
-from fields import user_fields, course_fields
+from fields import user_fields, course_fields, team_project_grade_fields
 from parsers import user_parser
 from decorators import login_required
 from flask import g, request
@@ -170,8 +170,23 @@ class UserDashboard(Resource):
         return [course.to_dict() for course in courses]
 
 
+class TeamProjectGrades(Resource):
+    method_decorators = [login_required]
+
+    @marshal_with(team_project_grade_fields)
+    def get(self, id):
+        """
+        Lists all submissions related to the course.
+        """
+        if isinstance(g.user, Student):
+            return TeamProjectGrade.objects(team_id=g.user.team_id)
+        else:
+            abort(403, message="Must be a student to view grades")
+
+
 api.add_resource(UsersResource, '/users', endpoint='users_ep')
-api.add_resource(UserResource, '/user/<string:id>', endpoint='user_ep')
+api.add_resource(TeamProjectGrades, '/user/<string:id>', endpoint='user_ep')
+api.add_resource(UserResource, '/user/grades', endpoint='user_grades_ep')
 api.add_resource(UserActivation, '/activate', endpoint='activation_ep')
 api.add_resource(UserDashboard, '/user/dashboard', endpoint='dashboard')
 api.add_resource(UserPassReset, '/user/reset', endpoint='pass_reset_ep')
