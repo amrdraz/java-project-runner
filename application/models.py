@@ -196,7 +196,6 @@ class Student(User):
         dic['team_id'] = self.team_id
         dic['major'] = self.major
         dic['tutorial'] = self.tutorial
-        dic['team_grades'] = [grade.to_dict() for grade in self.team_grades]
         return dic
 
 
@@ -642,7 +641,7 @@ class TeamProjectGrade(db.Document):
         return {
             "id": self.id,
             "team_id": self.team_id,
-            "best_submission": self.best_submission.to_dict(),
+            "best_submission": self.submission.to_dict(),
             "project": self.project.to_dict(),
             "page": 1
         }
