@@ -25,9 +25,9 @@ class TeamProjectGrades(Resource):
 
 class Foo(Resource):
     def get(self):
-        pass
+        return {'hello': 'world'}
     def post(self):
-        pass
+        return {'hello': 'world'}
 
 api.add_resource(
     TeamProjectGrades, '/teamgrades/', endpoint='team_project_grade_ep')
