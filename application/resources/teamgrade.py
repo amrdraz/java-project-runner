@@ -30,7 +30,7 @@ class Foo(Resource):
         return {'hello': 'world'}
 
 api.add_resource(
-    TeamProjectGrades, '/teamgrades/', endpoint='team_project_grade_ep')
+    TeamProjectGrades, '/teamgrades', endpoint='team_project_grade_ep')
 
 api.add_resource(
-    Foo, '/testfoo/', endpoint='test_grade_ep')
+    Foo, '/testfoo', endpoint='test_grade_ep')
