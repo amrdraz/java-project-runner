@@ -173,13 +173,12 @@ class UserDashboard(Resource):
 class TeamProjectGrades(Resource):
     method_decorators = [login_required]
 
-    @marshal_with(team_project_grade_fields)
     def get(self):
         """
         Lists all grades related to the user.
         """
         if isinstance(g.user, Student):
-            return [grade.to_dict() for grade in TeamProjectGrade.objects(team_id=g.user.team_id)]
+            return {"test": "test"}
         else:
             abort(403, message="Must be a student to view grades")
 
