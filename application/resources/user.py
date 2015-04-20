@@ -178,9 +178,13 @@ class UserSubmissions(Resource):
         """
         Lists all grades related to the user.
         """
-        user = User.objects.get_or_404(id=id)
-        return [sub.to_dict() for sub
-                in Submission.objects(submitter=user).order_by('-created_at')]
+        if (g.user.id == id or g.user.is_teacher):
+            user = User.objects.get_or_404(id=id)
+            return [sub.to_dict() for sub
+                    in Submission.objects(submitter=user)
+                    .order_by('-created_at')]
+        else:
+            abort(403, message="You Can't view another student's grades")
 
 
 class UserTeamProjectGrades(Resource):
@@ -200,8 +204,12 @@ class UserTeamProjectGrades(Resource):
 
 api.add_resource(UsersResource, '/users', endpoint='users_ep')
 api.add_resource(UserResource, '/user/<string:id>', endpoint='user_ep')
-api.add_resource(UserTeamProjectGrades, '/user/grades', endpoint='user_grades_ep')
-api.add_resource(UserSubmissions, '/user/<string:id>/submissions', endpoint='user_submissions_ep')
+api.add_resource(
+    UserSubmissions,
+    '/user/<string:id>/submissions', endpoint='user_submissions_ep')
+api.add_resource(
+    UserTeamProjectGrades,
+    '/user/grades', endpoint='user_grades_ep')
 api.add_resource(UserActivation, '/activate', endpoint='activation_ep')
 api.add_resource(UserDashboard, '/user/dashboard', endpoint='dashboard')
 api.add_resource(UserPassReset, '/user/reset', endpoint='pass_reset_ep')
