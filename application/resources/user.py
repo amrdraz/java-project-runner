@@ -178,7 +178,7 @@ class UserSubmissions(Resource):
         """
         Lists all grades related to the user.
         """
-        if (g.user.id == id or isinstance(g.user, Teacher)):
+        if str(g.user.id) == id or isinstance(g.user, Teacher):
             user = User.objects.get_or_404(id=id)
             return [sub.to_dict() for sub
                     in Submission.objects(submitter=user)

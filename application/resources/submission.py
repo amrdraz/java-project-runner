@@ -1,7 +1,7 @@
 """
 Submission resource's endpoints.
 """
-from application.models import Student, Submission, Project, Course, Teacher
+from application.models import Student, Submission, Project, Teacher
 from application.tasks import junit_actual
 from application import api
 from decorators import login_required, student_required
@@ -51,8 +51,8 @@ class SingleSubmissionRun(Resource):
     @login_required
     @marshal_with(submission_fields)
     def get(self, id):
-        """Returns a single submission by id.
-        Logged in user must be submitter or a teacher.
+        """Rerun a single submission by id.
+        Logged in user must be a teacher.
         """
         if isinstance(g.user, Teacher):
             subm = Submission.objects.get_or_404(id=id)
