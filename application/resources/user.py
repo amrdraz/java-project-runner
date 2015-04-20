@@ -2,14 +2,15 @@
 Defines User resource's endpoints.
 """
 from application import api, db, app
-from application.models import User, Student, Course, BadSignature, TeamProjectGrade, Submission, Teacher
+from application.models import User, Student, Course, BadSignature, TeamProjectGrade, Submission
 from flask.ext.restful import Resource, abort, marshal, marshal_with
-from fields import user_fields, course_fields, team_project_grade_fields, submission_fields
+from fields import user_fields, course_fields, team_project_grade_fields
 from parsers import user_parser
 from decorators import login_required
 from flask import g, request
 from flanker.addresslib import address
 import datetime
+
 
 class UsersResource(Resource):
 
