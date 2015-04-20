@@ -2,7 +2,7 @@
 Defines User resource's endpoints.
 """
 from application import api, db, app
-from application.models import User, Student, Course, BadSignature, TeamProjectGrade, Submission
+from application.models import User, Student, Course, BadSignature, TeamProjectGrade, Submission, Teacher
 from flask.ext.restful import Resource, abort, marshal, marshal_with
 from fields import user_fields, course_fields, team_project_grade_fields, submission_fields
 from parsers import user_parser
@@ -178,7 +178,7 @@ class UserSubmissions(Resource):
         """
         Lists all grades related to the user.
         """
-        if (g.user.id == id or g.user.is_teacher):
+        if (g.user.id == id or isinstance(g.user, Teacher)):
             user = User.objects.get_or_404(id=id)
             return [sub.to_dict() for sub
                     in Submission.objects(submitter=user)

@@ -1,7 +1,7 @@
 """
 Submission resource's endpoints.
 """
-from application.models import Student, Submission, Project, Course
+from application.models import Student, Submission, Project, Course, Teacher
 from application.tasks import junit_actual
 from application import api
 from decorators import login_required, student_required
@@ -54,9 +54,9 @@ class SingleSubmissionRun(Resource):
         """Returns a single submission by id.
         Logged in user must be submitter or a teacher.
         """
-        if g.user.is_teacher:
+        if isinstance(g.user, Teacher):
             subm = Submission.objects.get_or_404(id=id)
-            return junit_actual(str(subm.id))
+            return junit_actual(subm.id)
         else:
             abort(403)
 
