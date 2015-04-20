@@ -2,9 +2,9 @@
 Defines User resource's endpoints.
 """
 from application import api, db, app
-from application.models import User, Student, Course, BadSignature, TeamProjectGrade
+from application.models import User, Student, Course, BadSignature, TeamProjectGrade, Submission
 from flask.ext.restful import Resource, abort, marshal, marshal_with
-from fields import user_fields, course_fields, team_project_grade_fields
+from fields import user_fields, course_fields, team_project_grade_fields, submission_fields
 from parsers import user_parser
 from decorators import login_required
 from flask import g, request
@@ -170,7 +170,20 @@ class UserDashboard(Resource):
         return [course.to_dict() for course in courses]
 
 
-class TeamProjectGrades(Resource):
+class UserSubmissions(Resource):
+    method_decorators = [login_required]
+
+    @marshal_with(submission_fields)
+    def get(self, id):
+        """
+        Lists all grades related to the user.
+        """
+        user = User.objects.get_or_404(id=id)
+        return [sub.to_dict() for sub
+                in Submission.objects(submitter=user).order_by('-created_at')]
+
+
+class UserTeamProjectGrades(Resource):
     method_decorators = [login_required]
 
     @marshal_with(team_project_grade_fields)
@@ -187,7 +200,8 @@ class TeamProjectGrades(Resource):
 
 api.add_resource(UsersResource, '/users', endpoint='users_ep')
 api.add_resource(UserResource, '/user/<string:id>', endpoint='user_ep')
-api.add_resource(TeamProjectGrades, '/user/grades', endpoint='user_grades_ep')
+api.add_resource(UserTeamProjectGrades, '/user/grades', endpoint='user_grades_ep')
+api.add_resource(UserSubmissions, '/user/<string:id>/submissions', endpoint='user_submissions_ep')
 api.add_resource(UserActivation, '/activate', endpoint='activation_ep')
 api.add_resource(UserDashboard, '/user/dashboard', endpoint='dashboard')
 api.add_resource(UserPassReset, '/user/reset', endpoint='pass_reset_ep')
