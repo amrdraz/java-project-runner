@@ -178,13 +178,13 @@ class UserSubmissions(Resource):
         """
         Lists all grades related to the user.
         """
-        if str(g.user.id) == id or isinstance(g.user, Teacher):
-            user = User.objects.get_or_404(id=id)
-            return [sub.to_dict() for sub
-                    in Submission.objects(submitter=user)
-                    .order_by('-created_at')]
-        else:
-            abort(403, message="You Can't view another student's grades")
+        # if str(g.user.id) == id or isinstance(g.user, Teacher):
+        user = User.objects.get_or_404(id=id)
+        return [sub.to_dict() for sub
+                in Submission.objects(submitter=user)
+                .order_by('-created_at')]
+        # else:
+        # abort(403, message="You Can't view another student's grades")
 
 
 class UserTeamProjectGrades(Resource):

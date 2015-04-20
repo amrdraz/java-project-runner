@@ -46,19 +46,19 @@ class SingleSubmission(Resource):
             abort(403)
 
 
-class SingleSubmissionRun(Resource):
+# class SingleSubmissionRun(Resource):
 
-    @login_required
-    @marshal_with(submission_fields)
-    def get(self, id):
-        """Rerun a single submission by id.
-        Logged in user must be a teacher.
-        """
-        if isinstance(g.user, Teacher):
-            subm = Submission.objects.get_or_404(id=id)
-            return junit_actual(subm.id)
-        else:
-            abort(403)
+#     @login_required
+#     @marshal_with(submission_fields)
+#     def get(self, id):
+#         """Rerun a single submission by id.
+#         Logged in user must be a teacher.
+#         """
+#         if isinstance(g.user, Teacher):
+#             subm = Submission.objects.get_or_404(id=id)
+#             return junit_actual(subm.id)
+#         else:
+#             abort(403)
 
 
 class SubmissionDownload(Resource):
@@ -82,6 +82,6 @@ api.add_resource(SubmissionDownload, '/submission/<string:id>/download',
                  endpoint='submission_download_ep')
 api.add_resource(
     SingleSubmission, '/submission/<string:id>', endpoint='submission_ep')
-api.add_resource(
-    SingleSubmissionRun,
-    '/submission/<string:id>/run', endpoint='submission_run_ep')
+# api.add_resource(
+#     SingleSubmissionRun,
+#     '/submission/<string:id>/run', endpoint='submission_run_ep')
