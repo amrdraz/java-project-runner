@@ -187,6 +187,7 @@ class UserSubmissions(Resource):
 
 
 class UserTeamProjectGrades(Resource):
+    method_decorators = [login_required]
 
     @marshal_with(team_project_grade_fields)
     def get(self):
