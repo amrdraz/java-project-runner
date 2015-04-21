@@ -121,6 +121,7 @@ class UserPassReset(Resource):
             abort(400, message="Missing email field.")
 
 
+
 class UserActivation(Resource):
     def get(self):
         """
