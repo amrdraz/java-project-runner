@@ -55,7 +55,7 @@ class SingleSubmissionRun(Resource):
         Logged in user must be a teacher.
         """
         subm = Submission.objects.get_or_404(id=id)
-        return junit_actual(subm.id)
+        return junit_actual(subm.id).to_dict()
 
 
 class SubmissionDownload(Resource):
