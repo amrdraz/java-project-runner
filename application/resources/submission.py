@@ -2,6 +2,7 @@
 Submission resource's endpoints.
 """
 from application.models import Student, Submission, Project
+from application.tasks import junit_actual
 from application import api
 from decorators import login_required, student_required
 from fields import submission_fields
@@ -45,6 +46,18 @@ class SingleSubmission(Resource):
             abort(403)
 
 
+class SingleSubmissionRun(Resource):
+
+    @login_required
+    @marshal_with(submission_fields)
+    def get(self, id):
+        """Rerun a single submission by id.
+        Logged in user must be a teacher.
+        """
+        subm = Submission.objects.get_or_404(id=id)
+        return junit_actual(subm.id)
+
+
 class SubmissionDownload(Resource):
 
     @login_required
@@ -66,3 +79,5 @@ api.add_resource(SubmissionDownload, '/submission/<string:id>/download',
                  endpoint='submission_download_ep')
 api.add_resource(
     SingleSubmission, '/submission/<string:id>', endpoint='submission_ep')
+api.add_resource(
+    SingleSubmissionRun, '/submission/<string:id>/run', endpoint='submission_run_ep')
