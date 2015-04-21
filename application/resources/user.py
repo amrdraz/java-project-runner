@@ -11,6 +11,7 @@ from flask import g, request
 from flanker.addresslib import address
 import datetime
 
+
 class UsersResource(Resource):
 
     """User collection."""
@@ -118,7 +119,7 @@ class UserPassReset(Resource):
                 abort(412, message='Stay calm and check your spam folder.')
         else:
             abort(400, message="Missing email field.")
-        
+
 
 class UserActivation(Resource):
     def get(self):
@@ -185,8 +186,6 @@ class UserSubmissions(Resource):
 
 
 class UserTeamProjectGrades(Resource):
-
-    method_decorators = [login_required]
 
     @marshal_with(team_project_grade_fields)
     def get(self):
