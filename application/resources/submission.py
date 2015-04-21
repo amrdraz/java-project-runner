@@ -1,8 +1,7 @@
 """
 Submission resource's endpoints.
 """
-from application.models import Student, Submission, Project
-from application.tasks import junit_actual
+from application.models import Student, Submission, Project, Teacher
 from application import api
 from decorators import login_required, student_required
 from fields import submission_fields
@@ -54,8 +53,12 @@ class SingleSubmissionRun(Resource):
         """Rerun a single submission by id.
         Logged in user must be a teacher.
         """
+        # from application.tasks import junit_actual
         subm = Submission.objects.get_or_404(id=id)
-        return subm.to_dict()
+        if isinstance(g.user, Teacher):
+            return subm.to_dict()
+        else:
+            abort(403)
 
 
 class SubmissionDownload(Resource):
