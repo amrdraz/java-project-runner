@@ -1,7 +1,7 @@
 """
 Submission resource's endpoints.
 """
-from application.models import Student, Submission, Project, Teacher
+from application.models import Student, Submission, Project
 from application import api
 from decorators import login_required, student_required
 from fields import submission_fields
@@ -55,7 +55,7 @@ class SingleSubmissionRun(Resource):
         """
         # from application.tasks import junit_actual
         subm = Submission.objects.get_or_404(id=id)
-        if isinstance(g.user, Teacher):
+        if not isinstance(g.user, Student):
             return subm.to_dict()
         else:
             abort(403)
