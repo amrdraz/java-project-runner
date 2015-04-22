@@ -51,6 +51,7 @@ def rerun_submissions(
         project_id,
         email,
         only_rerun_compile_error=False,
+        only_rerun_test_cases_zero=False,
         get_latest=True
         ):
     """
@@ -60,6 +61,7 @@ def rerun_submissions(
     submissions = Project.objects.get(id=project_id).get_student_submissions(
                     True,
                     only_rerun_compile_error,
+                    only_rerun_test_cases_zero,
                     get_latest)
     if email:
         mtasks.email_when_done(email, "ran "+str(len(submissions))+" submissions")

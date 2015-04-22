@@ -526,6 +526,7 @@ class Project(db.Document):
             self,
             rerurn_submissions=False,
             only_rerun_compile_error=False,
+            only_rerun_test_cases_zero=False,
             get_latest=True):
         """
         Computes latest grade for each student who submitted in this project, optionally reruns submissions.
@@ -547,6 +548,8 @@ class Project(db.Document):
         for submission in submissions:
             if rerurn_submissions:
                 if only_rerun_compile_error and submission.compile_status:
+                    pass
+                elif only_rerun_test_cases_zero and submission.cases_count > 0:
                     pass
                 else:
                     submission.reset()

@@ -53,11 +53,11 @@ class SingleSubmissionRun(Resource):
         """Rerun a single submission by id.
         Logged in user must be a teacher.
         """
-        from application.tasks import junit_no_deletion
+        from application.tasks import junit_actual
         subm = Submission.objects.get_or_404(id=id)
         if not isinstance(g.user, Student):
-            junit_no_deletion.delay(str(subm.id))
-            return {"message": "Rerunning submission"}, 204
+            subm.reset()
+            return junit_actual(subm.id).to_dict()
         else:
             abort(403)
 
