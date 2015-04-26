@@ -20,6 +20,7 @@ MAX_CONTENT_LENGTH = 512 * (2 ** 20)
 
 # In bytes
 FILE_BUFFER_SIZE = os.stat('.').st_blksize
+TEMP_FILE_DIR = 'temofile'
 
 ANT_BUILD_FILE_NAME = 'build.xml'
 ANT_TESTS_DIR_NAME = 'tests'

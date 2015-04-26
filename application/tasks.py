@@ -49,7 +49,7 @@ def compute_team_grades(
 @celery.task
 def rerun_submissions(
         project_id,
-        email,
+        email=None,
         only_rerun_compile_error=False,
         only_rerun_test_cases_zero=False,
         get_latest=True

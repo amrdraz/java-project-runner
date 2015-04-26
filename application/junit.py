@@ -71,7 +71,11 @@ class SRCError(Exception):
 
 def copy_junit_tests(project, working_directory, buffer_size):
     """
-    Creates JUNIT directory structure.
+    Creates JUNIT directory structure in ANT_TESTS_DIR_NAME
+    and extract the project tests in it.
+    @param project the project to run, we extract the tests in it
+    @param working_directory is a random folder name for this run of the project
+    @buffer_size is provided by FILE_BUFFER_SIZE in config
     """
     tests_dir = os.path.join(
         working_directory, app.config['ANT_TESTS_DIR_NAME'])
@@ -292,6 +296,55 @@ def run_sandbox(working_directory, selinux_directory, renamed_files, submission)
         app.logger.error('Error unknown reason for compilation faliure.')
     submission.compile_status &= ant_build_dir_name in os.listdir(
         working_directory)
+
+
+def extract_team_grade_submissions(grades):
+    """
+    write all submissions to disk then zip them in one archive file
+    return that file for downlaod
+
+    """
+    # First we need to create the temporary directories
+    class TempDirectories(object):
+
+        def __enter__(self):
+            self.dirs = mkdtemp()
+            return self.dirs
+
+        def __exit__(self, type, value, traceback):
+            if app.config['CLEAN_TEMP_DIRS']:
+                # rmtree(self.dirs[0])
+                pass
+
+    buffer_size = app.config['FILE_BUFFER_SIZE']
+
+    with TempDirectories() as directories:
+        try:
+            working_directory = directories
+            arch_dir = os.path.join(working_directory, 'arch')
+
+            app.logger.info('using {0} as directory'.format(working_directory))
+            # Populate directory
+            for grade in grades:
+                submission = grade.best_submission
+                src_arch_name = submission.code.get().filename
+                src_arch_name_split = src_arch_name.split('.')
+                arch_ext = src_arch_name_split[-1]
+                arch_nm = "Team_" + grade.team_id + arch_ext
+                abs_arch_name = os.path.join(arch_dir, arch_nm)
+
+                prev_entry_count = len(os.listdir(arch_dir))
+
+                with open(abs_arch_name, "wb") as archive_out:
+                    buff = submission.code.read(buffer_size)
+                    while len(buff) != 0:
+                        archive_out.write(buff)
+                        buff = submission.code.read(buffer_size)
+
+                after_entry_count = len(os.listdir(arch_dir))
+        except:
+            pass
+        print(working_directory)
 
 
 def junit_submission(submission, project):
