@@ -330,7 +330,7 @@ def extract_team_grade_submissions(grades):
                 src_arch_name = submission.code.get().filename
                 src_arch_name_split = src_arch_name.split('.')
                 arch_ext = src_arch_name_split[-1]
-                arch_nm = "Team_" + grade.team_id + arch_ext
+                arch_nm = "Team_" + grade.team_id + "." + arch_ext
                 abs_arch_name = os.path.join(arch_dir, arch_nm)
 
                 prev_entry_count = len(os.listdir(arch_dir))
@@ -348,6 +348,9 @@ def extract_team_grade_submissions(grades):
                         prev_entry_count, after_entry_count)
                     app.logger.error(message)
                     raise DirectoryError(message)
+
+            out_arch = os.join(os.path.dirname(os.path.realpath(__file__)),'../tmp/grades.zip')
+            patoolib.create_archive(out_arch, os.listdir(arch_dir))
         except DirectoryError as de:
             print(de.value)
             pass

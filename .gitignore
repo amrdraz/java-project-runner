@@ -33,3 +33,5 @@ env/
 dumps/
 *.sublime-project
 *.sublime-workspace
+#dir for temp files
+temp
