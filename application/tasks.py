@@ -204,4 +204,4 @@ def prepair_for_cheating_detection(submissions_dir, project):
         os.makedirs(target_dir)
     target_dir = os.path.abspath(target_dir)
     concat_java_projects(extract_files_to_dirs(submissions_dir), target_dir)
-    patoolib.create_archive(target_dir+'.zip', (target_dir))
+    patoolib.create_archive(target_dir+'.zip', os.listdir(target_dir))
