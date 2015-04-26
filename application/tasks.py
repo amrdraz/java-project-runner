@@ -198,9 +198,10 @@ def concat_java_project(dir, target_dir=None, outfilename=None):
     print(outfilename)
 
 
-def prepair_for_cheating_detection(submissions_dir):
-    target_dir = 'flat'
+def prepair_for_cheating_detection(submissions_dir, project):
+    target_dir = project.name
     if not os.path.exists(target_dir):
         os.makedirs(target_dir)
+    target_dir = os.path.abspath(target_dir)
     concat_java_projects(extract_files_to_dirs(submissions_dir), target_dir)
     patoolib.create_archive(target_dir+'.zip', (target_dir))
