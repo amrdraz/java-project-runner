@@ -322,7 +322,7 @@ def extract_team_grade_submissions(grades):
         try:
             working_directory = directories
             arch_dir = os.path.join(working_directory, 'arch')
-
+            os.mkdir(arch_dir)
             app.logger.info('using {0} as directory'.format(working_directory))
             # Populate directory
             for grade in grades:
@@ -342,7 +342,14 @@ def extract_team_grade_submissions(grades):
                         buff = submission.code.read(buffer_size)
 
                 after_entry_count = len(os.listdir(arch_dir))
-        except:
+
+                if after_entry_count < prev_entry_count + 1:
+                    message = 'Working directory entry count assertion failed. Before write {0} after write {1}'.format(
+                        prev_entry_count, after_entry_count)
+                    app.logger.error(message)
+                    raise DirectoryError(message)
+        except DirectoryError as de:
+            print(de.value)
             pass
         print(working_directory)
 
