@@ -166,10 +166,11 @@ def extract_files_to_dirs(dir):
     for file in os.listdir(dir):
         if (fnmatch.fnmatch(file, '*.zip') or fnmatch.fnmatch(file, '*.rar')):
             ext_dir = os.path.join(dir, file.split('.')[0])
+            file_dir = os.path.join(dir, file)
             dirs.append(ext_dir)
             if not os.path.exists(ext_dir):
                 os.makedirs(ext_dir)
-            patoolib.extract_archive(file, outdir=ext_dir)
+            patoolib.extract_archive(file_dir, outdir=ext_dir)
     return dirs
 
 
