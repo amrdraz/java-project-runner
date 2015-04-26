@@ -317,7 +317,7 @@ def extract_team_grade_submissions(grades):
                 pass
 
     buffer_size = app.config['FILE_BUFFER_SIZE']
-
+    working_directory = ''
     with TempDirectories() as directories:
         try:
             working_directory = directories
@@ -349,12 +349,11 @@ def extract_team_grade_submissions(grades):
                     app.logger.error(message)
                     raise DirectoryError(message)
 
-            out_arch = os.path.join(os.path.dirname(os.path.realpath(__file__)),'../tmp/grades.zip')
-            patoolib.create_archive(out_arch, os.listdir(arch_dir))
         except DirectoryError as de:
             print(de.value)
             pass
         print(working_directory)
+    return working_directory
 
 
 def junit_submission(submission, project):

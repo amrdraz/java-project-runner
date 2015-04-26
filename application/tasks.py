@@ -7,6 +7,10 @@ import application.mail_tasks as mtasks
 from application.models import Submission, Project
 from application.junit import junit_submission
 import datetime
+import shutil
+import os
+import fnmatch
+import patoolib
 
 
 def make_celery(app):
@@ -155,3 +159,48 @@ def junit_no_deletion(submission_id):
     Processes a junit submission, without deleting the older submissions.
     """
     junit_actual(submission_id)
+
+
+def extract_files_to_dirs(dir):
+    dirs = []
+    for file in os.listdir(dir):
+        if (fnmatch.fnmatch(file, '*.zip') or fnmatch.fnmatch(file, '*.rar')):
+            ext_dir = os.path.join(dir, file.split('.')[0])
+            dirs.append(ext_dir)
+            if not os.path.exists(ext_dir):
+                os.makedirs(ext_dir)
+            patoolib.extract_archive(file, outdir=ext_dir)
+    return dirs
+
+
+def concat_java_projects(dirs, target_dir=None):
+    for dir in dirs:
+        concat_java_project(dir, target_dir)
+
+
+def concat_java_project(dir, target_dir=None, outfilename=None):
+    target_name = dir.split('/')[-1]
+    target_dir = target_dir or os.path.abspath(dir, '..')
+    outfilename = outfilename or os.path.join(target_dir, target_name+'.java')
+
+    matches = []
+    for root, dirnames, filenames in os.walk(dir):
+        for filename in fnmatch.filter(filenames, '*.java'):
+            file = os.path.join(root, filename)
+            if 'src/' in file and 'tests' not in file:
+                matches.append(file)
+
+    with open(outfilename, 'wb') as outfile:
+        for filename in matches:
+            with open(filename, 'rb') as readfile:
+                shutil.copyfileobj(readfile, outfile)
+
+    print(outfilename)
+
+
+def prepair_for_cheating_detection(submissions_dir):
+    target_dir = 'flat'
+    if not os.path.exists(target_dir):
+        os.makedirs(target_dir)
+    concat_java_projects(extract_files_to_dirs(submissions_dir), target_dir)
+    patoolib.create_archive(target_dir+'.zip', (target_dir))
