@@ -349,7 +349,7 @@ def extract_team_grade_submissions(grades):
                     app.logger.error(message)
                     raise DirectoryError(message)
 
-            out_arch = os.join(working_directory, 'grades.zip')
+            out_arch = os.path.join(os.path.dirname(os.path.realpath(__file__)),'../tmp/grades.zip')
             patoolib.create_archive(out_arch, os.listdir(arch_dir))
         except DirectoryError as de:
             print(de.value)
