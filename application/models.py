@@ -650,6 +650,84 @@ class TeamProjectGrade(db.Document):
         }
 
 
+class StudentQuizGrade(db.Document):
+    """
+    Team Quiz grades.
+    """
+
+    passed_tests = db.IntField(required=False)
+    total_tests = db.IntField(required=False)
+    grade_in_percentage = db.FloatField(required=False)
+
+    quiz = db.StringField(max_length=32, min_length=1, required=False)
+    student = db.ReferenceField('Student', reverse_delete_rule=db.CASCADE)
+
+    meta = {
+        "indexes": [
+            {
+                "fields": ['quiz'],
+            },
+            {
+               "fields": ['student']
+            },
+            {
+                "fields": ['student', 'quiz'],
+                "unique": True
+            }
+        ]
+    }
+
+    def to_dict(self, **kwargs):
+
+        return {
+            "id": self.id,
+            "passed_tests": self.passed_tests,
+            "total_tests": self.total_tests,
+            "grade_in_percentage": self.grade_in_percentage,
+            "quiz": self.quiz,
+            "student": self.student.to_dict(),
+            "page": 1
+        }
+
+
+class StudentMilestoneGrade(db.Document):
+    """
+    Team Quiz grades.
+    """
+
+    milestone_ratio = db.FloatField(required=False)
+    grade_in_percentage = db.FloatField(required=False)
+
+    milestone = db.StringField(max_length=32, min_length=1, required=False)
+    student = db.ReferenceField('Student', reverse_delete_rule=db.CASCADE)
+
+    meta = {
+        "indexes": [
+            {
+                "fields": ['milestone'],
+            },
+            {
+               "fields": ['student']
+            },
+            {
+                "fields": ['student', 'milestone'],
+                "unique": True
+            }
+        ]
+    }
+
+    def to_dict(self, **kwargs):
+
+        return {
+            "id": self.id,
+            "milestone_ratio": self.milestone_ratio,
+            "grade_in_percentage": self.grade_in_percentage,
+            "milestone": self.milestone,
+            "student": self.student.to_dict(),
+            "page": 1
+        }
+
+
 class StudentProjectCode(db.Document):
     """
     Quiz codes for students.

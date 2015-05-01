@@ -7,4 +7,3 @@ with open('data/q1cs.csv') as csvFile:
         student = Student.objects.get(email__iexact=row['GUC Email'])
         student.verification_code = row['Quiz Password code']
         student.save()
-        

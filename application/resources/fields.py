@@ -101,6 +101,29 @@ team_project_grade_fields = {
     "best_submission": fields.Nested(submission_fields)
 }
 
+student_quiz_grade_fields = {
+    "id": fields.String,
+    "passed_tests": fields.Integer,
+    "total_tests": fields.Integer,
+    "grade_in_percentage": fields.Float,
+    "quiz": fields.String,
+    "student": fields.Nested(user_fields),
+}
+
+student_milestone_grade_fields = {
+    "id": fields.String,
+    "milstone_ratio": fields.Float,
+    "grade_in_percentage": fields.Float,
+    "milestone": fields.String,
+    "student": fields.Nested(user_fields),
+}
+
+grades_fields = {
+    "team_grades": fields.List(fields.Nested(team_project_grade_fields)),
+    "quiz_grades": fields.List(fields.Nested(student_quiz_grade_fields)),
+    "milstone_grades": fields.List(fields.Nested(student_milestone_grade_fields)),
+}
+
 # Pagination fields
 page = {
     "page": fields.Integer,
