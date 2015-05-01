@@ -4,7 +4,7 @@ Defines User resource's endpoints.
 from application import api, db, app
 from application.models import User, Student, Course, BadSignature, TeamProjectGrade, StudentMilestoneGrade, StudentQuizGrade, Submission
 from flask.ext.restful import Resource, abort, marshal, marshal_with
-from fields import user_fields, course_fields, grades_fields, submission_fields
+from fields import user_fields, course_fields, grades_fields, team_project_grade_fields, submission_fields
 from parsers import user_parser
 from decorators import login_required
 from flask import g, request
@@ -189,7 +189,7 @@ class UserSubmissions(Resource):
 class UserTeamProjectGrades(Resource):
     method_decorators = [login_required]
 
-    @marshal_with(grades_fields)
+    @marshal_with(team_project_grade_fields)
     def get(self):
         """
         Lists all grades related to the user.
@@ -198,13 +198,14 @@ class UserTeamProjectGrades(Resource):
             team_grades = [
                 grade.to_dict() for grade
                 in TeamProjectGrade.objects(team_id=g.user.team_id)]
-            quiz_grades = StudentQuizGrade(student=g.user)
-            milestone_grades = StudentMilestoneGrade(student=g.user)
-            return {
-                "team_grades": team_grades,
-                "quiz_grades": quiz_grades,
-                "milestone_grades": milestone_grades,
-            }
+            return team_grades
+            # quiz_grades = StudentQuizGrade(student=g.user)
+            # milestone_grades = StudentMilestoneGrade(student=g.user)
+            # return {
+            #     "team_grades": team_grades,
+            #     "quiz_grades": quiz_grades,
+            #     "milestone_grades": milestone_grades,
+            # }
         else:
             abort(403, message="Must be a student to view grades")
 
