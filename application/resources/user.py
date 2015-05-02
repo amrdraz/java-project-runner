@@ -186,6 +186,33 @@ class UserSubmissions(Resource):
                 in Submission.objects(submitter=user).order_by('-created_at')]
 
 
+class UserGrades(Resource):
+    method_decorators = [login_required]
+
+    @marshal_with(grades_fields)
+    def get(self):
+        """
+        Lists all grades related to the user.
+        """
+        if isinstance(g.user, Student):
+            team_grades = [
+                grade.to_dict() for grade
+                in TeamProjectGrade.objects(team_id=g.user.team_id)]
+            quiz_grades = [
+                grade.to_dict() for grade
+                in StudentQuizGrade.objects(student=g.user)]
+            milestone_grades = [
+                grade.to_dict() for grade
+                in StudentMilestoneGrade.objects(student=g.user)]
+            return {
+                "team_grades": team_grades,
+                "quiz_grades": quiz_grades,
+                "milestone_grades": milestone_grades,
+            }
+        else:
+            abort(403, message="Must be a student to view grades")
+
+
 class UserTeamProjectGrades(Resource):
     method_decorators = [login_required]
 
@@ -199,17 +226,6 @@ class UserTeamProjectGrades(Resource):
                 grade.to_dict() for grade
                 in TeamProjectGrade.objects(team_id=g.user.team_id)]
             return team_grades
-            # quiz_grades = [
-            #     grade.to_dict() for grade
-            #     in StudentQuizGrade(student=g.user)]
-            # milestone_grades = [
-            #     grade.to_dict() for grade
-            #     in StudentMilestoneGrade(student=g.user)]
-            # return {
-            #     "team_grades": team_grades,
-            #     "quiz_grades": quiz_grades,
-            #     "milestone_grades": milestone_grades,
-            # }
         else:
             abort(403, message="Must be a student to view grades")
 
@@ -251,7 +267,8 @@ class UserQuizGrades(Resource):
 api.add_resource(UsersResource, '/users', endpoint='users_ep')
 api.add_resource(UserResource, '/user/<string:id>', endpoint='user_ep')
 api.add_resource(UserSubmissions, '/user/<string:id>/submissions', endpoint='user_submissions_ep')
-api.add_resource(UserTeamProjectGrades, '/user/grades', endpoint='user_grades_ep')
+api.add_resource(UserGrades, '/user/grades', endpoint='user_grades_ep')
+api.add_resource(UserTeamProjectGrades, '/user/team_grades', endpoint='user_team_grades_ep')
 api.add_resource(UserQuizGrades, '/user/quiz_grades', endpoint='user_quiz_grades_ep')
 api.add_resource(UserMilestoneGrades, '/user/milestone_grades', endpoint='user_milestone_grades_ep')
 api.add_resource(UserActivation, '/activate', endpoint='activation_ep')
