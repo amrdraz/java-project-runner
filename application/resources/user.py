@@ -225,7 +225,7 @@ class UserMilestoneGrades(Resource):
         if isinstance(g.user, Student):
             milestone_grades = [
                 grade.to_dict() for grade
-                in StudentMilestoneGrade(student=g.user)]
+                in StudentMilestoneGrade.objects(student=g.user)]
             return milestone_grades
         else:
             abort(403, message="Must be a student to view grades")
@@ -242,7 +242,7 @@ class UserQuizGrades(Resource):
         if isinstance(g.user, Student):
             quiz_grades = [
                 grade.to_dict() for grade
-                in StudentQuizGrade(student=g.user)]
+                in StudentQuizGrade.objects(student=g.user)]
             return quiz_grades
         else:
             abort(403, message="Must be a student to view grades")
