@@ -655,8 +655,8 @@ class StudentQuizGrade(db.Document):
     Team Quiz grades.
     """
 
-    passed_tests = db.IntField(required=False)
-    total_tests = db.IntField(required=False)
+    passed_tests = db.FloatField(required=False)
+    total_tests = db.FloatField(required=False)
     grade_in_percentage = db.FloatField(required=False)
 
     quiz = db.StringField(max_length=32, min_length=1, required=False)

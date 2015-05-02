@@ -103,8 +103,8 @@ team_project_grade_fields = {
 
 student_quiz_grade_fields = {
     "id": fields.String,
-    "passed_tests": fields.Integer,
-    "total_tests": fields.Integer,
+    "passed_tests": fields.Float,
+    "total_tests": fields.Float,
     "grade_in_percentage": fields.Float,
     "quiz": fields.String,
     "student": fields.Nested(user_fields),
