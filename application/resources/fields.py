@@ -121,7 +121,7 @@ student_milestone_grade_fields = {
 grades_fields = {
     "team_grades": fields.List(fields.Nested(team_project_grade_fields)),
     "quiz_grades": fields.List(fields.Nested(student_quiz_grade_fields)),
-    "milstone_grades": fields.List(fields.Nested(student_milestone_grade_fields)),
+    "milestone_grades": fields.List(fields.Nested(student_milestone_grade_fields)),
 }
 
 # Pagination fields
