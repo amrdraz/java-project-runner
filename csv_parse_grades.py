@@ -5,19 +5,21 @@ from application.models import Student, StudentQuizGrade, StudentMilestoneGrade
 def saveOrUpdateQuizGrade(student, quiz, pre, row):
     try:
         grade = StudentQuizGrade.objects.get(student=student, quiz=quiz)
-        print "found quiz grade"
+        print "found "+quiz+" grade for "+student.name
     except StudentQuizGrade.DoesNotExist:
         grade = StudentQuizGrade(student=student, quiz=quiz, passed_tests=float(row[pre+"_passed_tests"]), total_tests=float(row[pre+"_total_tests"]), grade_in_percentage=float(row[pre+"_grade_in_percentage"]))
     grade.save()
+    return grade
 
 
 def saveOrUpdateMilestoneGrade(student, milestone, pre, row):
     try:
         grade = StudentMilestoneGrade.objects.get(student=student, milestone=milestone)
-        print "found milestone grade"
+        print "found "+milestone+" grade for "+student.name
     except StudentMilestoneGrade.DoesNotExist:
         grade = StudentMilestoneGrade(student=student, milestone=milestone, milestone_ratio=float(row[pre+"_ratio"]), grade_in_percentage=float(row[pre+"_final_grade_in_percentage"]))
     grade.save()
+    return grade
 
 with open('../401_grades.csv') as csvFile:
     reader = csv.DictReader(csvFile)
