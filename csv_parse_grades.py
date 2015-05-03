@@ -28,6 +28,6 @@ with open('../401_grades.csv') as csvFile:
         saveOrUpdateQuizGrade(student, "Quiz 2", "Q2", row)
         saveOrUpdateQuizGrade(student, "Quiz 3", "Q3", row)
 
-        saveOrUpdateQuizGrade(student, "Milestone 1", "M1", row)
-        saveOrUpdateQuizGrade(student, "Milestone 2", "M2", row)
-        saveOrUpdateQuizGrade(student, "Milestone 3", "M3", row)
+        saveOrUpdateMilestoneGrade(student, "Milestone 1", "M1", row)
+        saveOrUpdateMilestoneGrade(student, "Milestone 2", "M2", row)
+        saveOrUpdateMilestoneGrade(student, "Milestone 3", "M3", row)
