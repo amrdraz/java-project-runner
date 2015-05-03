@@ -16,7 +16,7 @@ def saveOrUpdateMilestoneGrade(student, milestone, pre, row):
         grade = StudentMilestoneGrade.objects.get(student=student, milestone=milestone)
         print "found milestone grade"
     except StudentMilestoneGrade.DoesNotExist:
-        grade = StudentMilestoneGrade(student=student, milestone=milestone, milestone_ratio=float([pre+"_ratio"]), grade_in_percentage=float(row[pre+"_final_grade_in_percentage"]))
+        grade = StudentMilestoneGrade(student=student, milestone=milestone, milestone_ratio=float(row[pre+"_ratio"]), grade_in_percentage=float(row[pre+"_final_grade_in_percentage"]))
     grade.save()
 
 with open('../401_grades.csv') as csvFile:
