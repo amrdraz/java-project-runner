@@ -2,7 +2,7 @@ import csv
 from application.models import Student, StudentQuizGrade, StudentMilestoneGrade
 
 
-def saveOrUpdateQuizGrade(student, quiz, pre="", row):
+def saveOrUpdateQuizGrade(student, quiz, pre, row):
     passed_tests = float(row[pre+" - passed tests"])
     total_tests = float(row[pre+" - total tests"])
     grade_in_percentage = float(row[pre+" - grade %"])
@@ -20,7 +20,7 @@ def saveOrUpdateQuizGrade(student, quiz, pre="", row):
     return grade
 
 
-def saveOrUpdateMilestoneGrade(student, milestone, pre="", row):
+def saveOrUpdateMilestoneGrade(student, milestone, pre, row):
     milestone_ratio = float(row[pre+" - ratio (%)"])
     grade_in_percentage = float(row[pre+" - final grade"])
     try:
