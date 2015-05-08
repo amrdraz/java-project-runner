@@ -57,5 +57,3 @@ with open('../401_grades.csv') as csvFile:
         saveOrUpdateMilestoneGrade(student, "Milestone 2", "M2", row)
         saveOrUpdateMilestoneGrade(student, "Milestone 3", "M3", row)
         saveOrUpdateMilestoneGrade(student, "Milestone 4", "M4", row)
-
-        saveOrUpdateMilestoneGrade(student, "Final Grade", "", row)
