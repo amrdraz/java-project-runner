@@ -37,7 +37,11 @@ def saveOrUpdateMilestoneGrade(student, milestone, pre, row):
 with open('../401_grades.csv') as csvFile:
     reader = csv.DictReader(csvFile)
     for row in reader:
-        student = Student.objects.get(guc_id=str(row['GUC ID']))
+        try:
+            student = Student.objects.get(guc_id=str(row['GUC ID']))
+        except Student.DoesNotExist:
+            print str(row['GUC ID']) + "Student does not exist"
+            continue
 
         saveOrUpdateQuizGrade(student, "Quiz 1", "Quiz 1", row)
         saveOrUpdateQuizGrade(student, "Quiz 2", "Quiz 2", row)
