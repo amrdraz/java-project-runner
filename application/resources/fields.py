@@ -112,7 +112,7 @@ student_quiz_grade_fields = {
 
 student_milestone_grade_fields = {
     "id": fields.String,
-    "milstone_ratio": fields.Float,
+    "milestone_ratio": fields.Float,
     "grade_in_percentage": fields.Float,
     "milestone": fields.String,
     "student": fields.Nested(user_fields),
